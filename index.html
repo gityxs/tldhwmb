@@ -1215,7 +1215,18 @@
         </div>
     </div>
 
-    <div id="restartModal" class="modal">
+    <div id="lockCityModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">关闭城市</div>
+            <div id="lockCityInfo"></div>
+            <div style="display:flex;gap:12px;margin-top:20px;">
+                <button class="btn btn-danger" id="confirmLockBtn" onclick="confirmLockCity()" style="flex:1;">确认关闭</button>
+                <button class="btn btn-secondary" onclick="closeLockModal()" style="flex:1;">取消</button>
+            </div>
+        </div>
+    </div>
+
+        <div id="restartModal" class="modal">
         <div class="modal-content">
             <div class="modal-title">⚠️ 重新开始游戏</div>
             <div style="text-align:center;margin-bottom:20px;">
@@ -2014,22 +2025,54 @@
             const container = document.getElementById('cityUnlockList');
             // 合并城市列表并去重
             const allCitiesRaw = [...cities.china, ...cities.world];
-            const allCities = allCitiesRaw.filter((city, index, self) => 
+            const allCitiesUnique = allCitiesRaw.filter((city, index, self) => 
                 index === self.findIndex(c => c.name === city.name)
-            ).filter(c => !isCityUnlocked(c.name));
-            if (allCities.length === 0) {
-                container.innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 所有城市已解锁！</div>';
-                return;
-            }
-            allCities.sort((a, b) => a.unlockLevel - b.unlockLevel);
-            container.innerHTML = allCities.map(city => {
-                const canUnlock = gameState.level >= city.unlockLevel && gameState.gold >= city.unlockCost;
-                return `<div class="train-card">
-                    <div class="train-name">${city.name}</div>
-                    <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
-                    <button class="btn btn-primary btn-small" onclick="showUnlockCityModal('${city.name}')" ${canUnlock ? '' : 'disabled'}>${gameState.level < city.unlockLevel ? '等级不足' : gameState.gold < city.unlockCost ? '金币不足' : '解锁'}</button>
+            );
+            
+            // 分离已解锁和未解锁的城市
+            const unlockedCities = allCitiesUnique.filter(c => isCityUnlocked(c.name));
+            const lockedCities = allCitiesUnique.filter(c => !isCityUnlocked(c.name));
+            
+            let html = '';
+            
+            // 显示已解锁的城市
+            if (unlockedCities.length > 0) {
+                html += `<div style="margin-bottom:15px;">
+                    <div style="color:var(--neon-green);font-size:12px;margin-bottom:10px;font-weight:600;">✓ 已解锁城市 (${unlockedCities.length})</div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
+                        ${unlockedCities.map(city => `
+                            <div class="train-card" style="border-color:var(--neon-green);background:rgba(0,255,136,0.05);">
+                                <div class="train-name" style="color:var(--neon-green);">${city.name}</div>
+                                <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
+                                <button class="btn btn-danger btn-small" onclick="showLockCityModal('${city.name}')" style="width:100%;">关闭城市</button>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>`;
-            }).join('');
+            }
+            
+            // 显示未解锁的城市
+            if (lockedCities.length > 0) {
+                html += `<div>
+                    <div style="color:var(--neon-cyan);font-size:12px;margin-bottom:10px;font-weight:600;">🔒 未解锁城市 (${lockedCities.length})</div>
+                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
+                        ${lockedCities.sort((a, b) => a.unlockLevel - b.unlockLevel).map(city => {
+                            const canUnlock = gameState.level >= city.unlockLevel && gameState.gold >= city.unlockCost;
+                            return `<div class="train-card">
+                                <div class="train-name">${city.name}</div>
+                                <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
+                                <button class="btn btn-primary btn-small" onclick="showUnlockCityModal('${city.name}')" ${canUnlock ? '' : 'disabled'}>${gameState.level < city.unlockLevel ? '等级不足' : gameState.gold < city.unlockCost ? '金币不足' : '解锁'}</button>
+                            </div>`;
+                        }).join('')}
+                    </div>
+                </div>`;
+            }
+            
+            if (!html) {
+                html = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无城市数据</div>';
+            }
+            
+            container.innerHTML = html;
         }
 
         function renderUpgradePanel() {
@@ -3196,6 +3239,76 @@
         }
 
         function closeUnlockModal() { document.getElementById('unlockCityModal').classList.remove('show'); pendingUnlockCity = null; }
+        
+        // ==================== 关闭城市功能 ====================
+        let pendingLockCity = null;
+        
+        function showLockCityModal(cityName) {
+            const city = getCityByName(cityName);
+            pendingLockCity = city;
+            
+            // 检查是否有正在运营的线路使用该城市
+            const runningRoutes = gameState.runningTrains.filter(rt => 
+                rt.startCity === cityName || rt.endCity === cityName
+            );
+            
+            let warningHtml = '';
+            if (runningRoutes.length > 0) {
+                warningHtml = `<div style="background:rgba(255,68,68,0.1);border:1px solid var(--neon-red);padding:12px;border-radius:2px;margin-bottom:15px;">
+                    <div style="color:var(--neon-red);font-size:12px;font-weight:600;margin-bottom:8px;">⚠️ 警告</div>
+                    <div style="color:var(--fg-secondary);font-size:11px;">有 ${runningRoutes.length} 条线路正在使用该城市，关闭后这些线路将被取消！</div>
+                </div>`;
+            }
+            
+            document.getElementById('lockCityInfo').innerHTML = `
+                <div style="text-align:center;margin-bottom:20px;">
+                    <div style="font-size:48px;margin-bottom:12px;">🔒</div>
+                    <div style="font-size:22px;font-family:'Orbitron',sans-serif;font-weight:700;">${city.name}</div>
+                </div>
+                ${warningHtml}
+                <div style="background:rgba(255,68,68,0.05);border:1px solid var(--border);padding:15px;border-radius:2px;margin-bottom:15px;">
+                    <div style="color:var(--neon-red);font-size:13px;margin-bottom:10px;">关闭后该城市将变为未解锁状态：</div>
+                    <div style="font-size:11px;color:var(--fg-secondary);line-height:1.8;">
+                        • 城市将从已解锁列表中移除<br>
+                        • 无法作为线路的起点或终点<br>
+                        • 需要重新支付解锁费用才能使用<br>
+                        • 已有线路经过该城市的将被取消
+                    </div>
+                </div>`;
+            document.getElementById('lockCityModal').classList.add('show');
+        }
+        
+        function confirmLockCity() {
+            if (!pendingLockCity) return;
+            const cityName = pendingLockCity.name;
+            
+            // 取消所有使用该城市的运营线路
+            const routesToCancel = gameState.runningTrains.filter(rt => 
+                rt.startCity === cityName || rt.endCity === cityName
+            );
+            routesToCancel.forEach(rt => {
+                const idx = gameState.runningTrains.indexOf(rt);
+                if (idx > -1) gameState.runningTrains.splice(idx, 1);
+            });
+            
+            // 从已解锁城市列表中移除
+            const cityIndex = gameState.unlockedCities.indexOf(cityName);
+            if (cityIndex > -1) {
+                gameState.unlockedCities.splice(cityIndex, 1);
+            }
+            
+            closeLockModal();
+            updateUI();
+            renderRoutePanel();
+            renderCityUnlockList();
+            renderMap();
+            showNotification(`已关闭城市 ${cityName}！`);
+        }
+        
+        function closeLockModal() { 
+            document.getElementById('lockCityModal').classList.remove('show'); 
+            pendingLockCity = null; 
+        }
 
         function buyTrain(type, name, speed, weight, price, level) {
             const requiredLevel = level || 1;
