@@ -473,15 +473,6 @@
             box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
             transform: translateX(4px);
         }
-        
-        .train-card:hover .train-name, .employee-card:hover .employee-name {
-            color: transparent;
-            background-image: var(--gradient-rainbow);
-            -webkit-background-clip: text;
-            background-clip: text;
-            background-size: 200% 100%;
-            animation: rainbowText 3s linear infinite;
-        }
 
         .train-card:hover::before, .employee-card:hover::before {
             background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
@@ -501,7 +492,12 @@
             font-size: 14px;
             font-weight: 700;
             margin-bottom: 8px;
-            color: var(--fg-primary);
+            color: transparent;
+            background-image: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            background-clip: text;
+            background-size: 200% 100%;
+            animation: rainbowText 3s linear infinite;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -713,6 +709,51 @@
         .section-title::before {
             content: '// ';
             background: var(--gradient-rainbow); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 100%; animation: rainbowText 3s linear infinite;
+        }
+
+        .changelog-content {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .changelog-version {
+            margin-bottom: 25px;
+            padding: 15px;
+            background: linear-gradient(135deg, rgba(0, 255, 136, 0.03) 0%, rgba(0, 212, 255, 0.03) 100%);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+        }
+
+        .changelog-date {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--neon-cyan);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .changelog-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .changelog-list li {
+            font-size: 12px;
+            color: var(--fg-secondary);
+            padding: 6px 0;
+            padding-left: 20px;
+            position: relative;
+            line-height: 1.5;
+        }
+
+        .changelog-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--neon-magenta);
         }
 
         /* Route info */
@@ -1007,6 +1048,7 @@
                 <button class="nav-btn" onclick="showPanel('upgrade')">🔧 点卷强化</button>
                 <button class="nav-btn" onclick="showPanel('redeem')">🎁 兑换码</button>
                 <button class="nav-btn" onclick="showPanel('reform')">💎 火车改造</button>
+                <button class="nav-btn" onclick="showPanel('changelog')">📋 更新说明</button>
                 <div class="save-info">
                     <button class="btn btn-secondary btn-small" onclick="manualSave()" style="width:100%;margin-bottom:8px;">💾 手动保存</button>
                     <button class="btn btn-danger btn-small" onclick="confirmRestart()" style="width:100%;">🔄 重新开始</button>
@@ -1024,6 +1066,10 @@
             <div class="center-panel">
                 <div id="trainsPanel" class="panel">
                     <div class="panel-title"><span>我的火车</span><span style="font-size:10px;color:var(--fg-secondary);"><span id="trainCountInfo"></span></span></div>
+                    <div style="display:flex;gap:10px;margin-bottom:15px;flex-wrap:wrap;">
+                        <button class="btn btn-secondary btn-small" onclick="toggleSelectAllTrains()">全选/取消</button>
+                        <button class="btn btn-danger btn-small" onclick="batchRetireTrains()">批量退役 (<span id="selectedTrainCount">0</span>)</button>
+                    </div>
                     <div id="trainList"></div>
                 </div>
 
@@ -1052,12 +1098,8 @@
                 </div>
 
                 <div id="employeesPanel" class="panel" style="display:none;">
-                    <div class="panel-title"><span>员工管理</span><button class="btn btn-secondary" onclick="hireEmployee()">招聘 (1000金币)</button></div>
-                    <div class="section-box">
-                        <div class="section-title">选择员工查看详情</div>
-                        <select id="employeeSelect" onchange="showEmployeeDetail()"><option value="">-- 请选择员工 --</option></select>
-                    </div>
-                    <div id="employeeDetail"></div>
+                    <div class="panel-title"><span>员工管理 <span id="employeeCountInfo" style="font-size:11px;color:var(--fg-secondary);"></span></span><button class="btn btn-secondary" onclick="hireEmployee()">招聘 (1000金币)</button></div>
+                    <div id="employeeList"></div>
                 </div>
 
                 <div id="shopPanel" class="panel" style="display:none;">
@@ -1174,6 +1216,39 @@
                         <select id="reformTrainSelect" onchange="updateReformInfo()"><option value="">-- 请选择火车 --</option></select>
                     </div>
                     <div id="reformTrainInfo" style="margin-top:20px;"></div>
+                </div>
+
+                <div id="changelogPanel" class="panel" style="display:none;">
+                    <div class="panel-title">📋 更新说明</div>
+                    <div class="changelog-content">
+                        <div class="changelog-version">
+                            <div class="changelog-date">2.26 铁路大亨更新内容</div>
+                            <ul class="changelog-list">
+                                <li>新增员工批量显示及批量解雇</li>
+                                <li>新增火车批量退役功能</li>
+                                <li>新增购买多辆火车功能</li>
+                                <li>新显示员工拥有上限数量</li>
+                                <li>地图系统适配手机操作</li>
+                                <li>修复天气变化导致行驶时间异常bug</li>
+                                <li>调整各界面文字显示颜色</li>
+                                <li>增加更新说明</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-version">
+                            <div class="changelog-date">2.25 铁路大亨更新内容</div>
+                            <ul class="changelog-list">
+                                <li>更新员工解雇功能，并返还消耗点卷</li>
+                                <li>修复火车改造BUG，新增退役返还点卷及改造石</li>
+                                <li>细化地球仪各城市距离，并进行地球仪美化</li>
+                                <li>新增2个生肖限定火车</li>
+                                <li>新增2个兑换码guoba、gityx</li>
+                                <li>新增天气系统（具体游戏体验）</li>
+                                <li>修改火车金币改造系统为舒适度改造系统</li>
+                                <li>新增火车属性--舒适度</li>
+                                <li>新增城市关闭功能</li>
+                            </ul>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -1680,17 +1755,13 @@
         }
 
         function updateRunningTrainsForWeather() {
-            const weather = weatherTypes[gameState.currentWeather];
             gameState.runningTrains.forEach(rt => {
                 const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
-                if (train) {
-                    const baseSpeed = train.speed * (1 + (train.reformLevel || 0) * 0.01);
-                    const weatherSpeed = baseSpeed * (1 + weather.speedMod);
-                    const distance = calculateDistance(getCityByName(rt.startCity), getCityByName(rt.endCity));
-                    const newTotalTime = distance / weatherSpeed * 3600;
-                    const progress = (rt.totalTime - rt.remainingTime) / rt.totalTime;
+                if (train && !rt.paused) {
+                    const currentProgress = (rt.totalTime - rt.remainingTime) / rt.totalTime;
+                    const newTotalTime = calculateTime(train, rt.distance);
                     rt.totalTime = newTotalTime;
-                    rt.remainingTime = newTotalTime * (1 - progress);
+                    rt.remainingTime = Math.max(1, Math.round(newTotalTime * (1 - currentProgress)));
                 }
             });
         }
@@ -1793,9 +1864,94 @@
             renderShop();
         }
 
+        let selectedTrainIds = [];
+        
+        function updateSelectedTrainCount() {
+            document.getElementById('selectedTrainCount').textContent = selectedTrainIds.length;
+        }
+        
+        function toggleTrainSelection(trainId) {
+            trainId = parseFloat(trainId);
+            const index = selectedTrainIds.findIndex(id => Math.abs(id - trainId) < 0.0001);
+            if (index > -1) {
+                selectedTrainIds.splice(index, 1);
+            } else {
+                selectedTrainIds.push(trainId);
+            }
+            updateSelectedTrainCount();
+            renderTrainList();
+        }
+        
+        function toggleSelectAllTrains() {
+            const selectableTrains = gameState.ownedTrains.filter(train => 
+                !gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused)
+            );
+            const allSelected = selectableTrains.every(train => 
+                selectedTrainIds.some(id => Math.abs(id - train.id) < 0.0001)
+            );
+            if (allSelected) {
+                selectedTrainIds = [];
+            } else {
+                selectedTrainIds = selectableTrains.map(t => t.id);
+            }
+            updateSelectedTrainCount();
+            renderTrainList();
+        }
+        
+        function batchRetireTrains() {
+            if (selectedTrainIds.length === 0) {
+                showNotification('请先选择要退役的火车！');
+                return;
+            }
+            
+            const trainsToRetire = selectedTrainIds.map(id => 
+                gameState.ownedTrains.find(t => Math.abs(t.id - id) < 0.0001)
+            ).filter(t => t);
+            const runningTrains = trainsToRetire.filter(train => 
+                gameState.runningTrains.some(rt => Math.abs(rt.trainId - train.id) < 0.0001 && !rt.paused)
+            );
+            
+            if (runningTrains.length > 0) {
+                showNotification(`有 ${runningTrains.length} 辆火车正在运营中，无法退役！`);
+                return;
+            }
+            
+            let totalRefund = 0;
+            let totalRefundPoints = 0;
+            let totalRefundStones = 0;
+            
+            trainsToRetire.forEach(train => {
+                totalRefund += Math.floor(train.purchasePrice * 0.5);
+                totalRefundPoints += calculateTotalTrainUpgradeCost(train.upgradeLevel || 0);
+                totalRefundStones += calculateTotalReformStones(train.reformLevel || 0);
+            });
+            
+            if (!confirm(`确定要退役 ${trainsToRetire.length} 辆火车吗？\n返还: ${formatNumber(totalRefund)} 金币${totalRefundPoints > 0 ? ', ' + totalRefundPoints + ' 点卷' : ''}${totalRefundStones > 0 ? ', ' + totalRefundStones + ' 改造石' : ''}`)) {
+                return;
+            }
+            
+            selectedTrainIds.forEach(trainId => {
+                const train = gameState.ownedTrains.find(t => Math.abs(t.id - trainId) < 0.0001);
+                if (train && !gameState.runningTrains.some(rt => Math.abs(rt.trainId - trainId) < 0.0001 && !rt.paused)) {
+                    gameState.ownedTrains = gameState.ownedTrains.filter(t => Math.abs(t.id - trainId) >= 0.0001);
+                    gameState.runningTrains = gameState.runningTrains.filter(rt => Math.abs(rt.trainId - trainId) >= 0.0001);
+                    gameState.employees.forEach(emp => { if (Math.abs(emp.trainId - trainId) < 0.0001) emp.trainId = null; });
+                }
+            });
+            
+            gameState.gold += totalRefund;
+            gameState.points += totalRefundPoints;
+            gameState.reformStones += totalRefundStones;
+            
+            selectedTrainIds = [];
+            updateSelectedTrainCount();
+            updateUI();
+            renderTrainList();
+            showNotification(`成功退役 ${trainsToRetire.length} 辆火车！`);
+        }
+
         function renderTrainList() {
             const container = document.getElementById('trainList');
-            // 更新各类型火车数量显示
             const typeLimits = { normal: 20, intercity: 24, highspeed: 28, anime: 33, zodiac: 999 };
             const typeNames = { normal: '普通', intercity: '城际', highspeed: '高铁', anime: '动漫', zodiac: '生肖' };
             const counts = {};
@@ -1823,9 +1979,13 @@
                 let refundText = `<span style="color:var(--neon-yellow);">${formatNumber(refund)}金</span>`;
                 if (refundPoints > 0) refundText += ` <span style="color:var(--neon-magenta);">${refundPoints}点</span>`;
                 if (refundStones > 0) refundText += ` <span style="color:var(--neon-cyan);">${refundStones}石</span>`;
-                return `<div class="train-card">
+                const isSelected = selectedTrainIds.some(id => Math.abs(id - train.id) < 0.0001);
+                return `<div class="train-card ${isSelected ? 'selected' : ''}">
                     <div class="train-name" style="display:flex;justify-content:space-between;align-items:center;">
-                        <span>${train.name} ${upgradeLevel > 0 ? `<span class="upgrade-level">+${upgradeLevel}</span>` : ''}</span>
+                        <span style="display:flex;align-items:center;gap:8px;">
+                            <input type="checkbox" ${isSelected ? 'checked' : ''} ${isRunning ? 'disabled' : ''} onchange="toggleTrainSelection(${train.id})" style="width:16px;height:16px;cursor:pointer;accent-color:var(--neon-magenta);">
+                            ${train.name} ${upgradeLevel > 0 ? `<span class="upgrade-level">+${upgradeLevel}</span>` : ''}
+                        </span>
                         <button class="btn btn-secondary btn-small" onclick="renameTrain(${train.id})" style="padding:2px 6px;font-size:10px;">✏️</button>
                     </div>
                     <span class="train-type type-${train.type}">${typeInfo.name}</span>
@@ -1938,10 +2098,46 @@
         }
 
         function renderEmployeeList() {
-            const select = document.getElementById('employeeSelect');
-            select.innerHTML = '<option value="">-- 请选择员工 --</option>' +
-                gameState.employees.map(emp => `<option value="${emp.id}">${emp.name} - ${employeeTypes[emp.type].name} Lv.${emp.level}</option>`).join('');
-            document.getElementById('employeeDetail').innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:30px;font-size:12px;">// 请从上方下拉框选择员工</div>';
+            const container = document.getElementById('employeeList');
+            const employeeLimit = 66;
+            const currentCount = gameState.employees.length;
+            document.getElementById('employeeCountInfo').textContent = `(${currentCount}/${employeeLimit})`;
+            
+            if (gameState.employees.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无员工，请点击招聘按钮</div>';
+                return;
+            }
+            
+            container.innerHTML = gameState.employees.map(emp => {
+                const typeInfo = employeeTypes[emp.type];
+                const assignedTrain = gameState.ownedTrains.find(t => t.id === emp.trainId);
+                const upgradeCost = calculateUpgradeCost(emp.level);
+                const canUpgrade = emp.level < 40 && gameState.points >= upgradeCost;
+                const totalUpgradeCost = calculateTotalUpgradeCost(emp.level);
+                
+                return `<div class="employee-card">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                        <div>
+                            <strong style="font-size:16px;background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${emp.name}</strong> 
+                            <span class="employee-type type-${emp.type}">${typeInfo.name}</span>
+                        </div>
+                        <div style="color:var(--neon-cyan);font-size:12px;">Lv.${emp.level}/40</div>
+                    </div>
+                    <div style="margin:12px 0;">
+                        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--fg-secondary);">
+                            <span>${typeInfo.effect}: +${typeInfo.baseBonus * emp.level}%</span>
+                            <span style="color:${assignedTrain ? 'var(--neon-green)' : 'var(--fg-secondary)'};">${assignedTrain ? '🚂 ' + assignedTrain.name : '未分配'}</span>
+                        </div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:${(emp.level/40)*100}%"></div></div>
+                    </div>
+                    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                        ${emp.level < 40 ? `<button class="btn btn-primary btn-small" onclick="upgradeEmployee(${emp.id})" ${canUpgrade ? '' : 'disabled'}>升级 (${upgradeCost}点)</button>` : '<span style="color:var(--neon-orange);font-size:12px;">已满级</span>'}
+                        <button class="btn btn-secondary btn-small" onclick="showAssignModal(${emp.id})">分配</button>
+                        <button class="btn btn-danger btn-small" onclick="fireEmployee(${emp.id})">解雇</button>
+                    </div>
+                    <div style="margin-top:8px;font-size:10px;color:var(--fg-secondary);">解雇返还 ${totalUpgradeCost} 点卷</div>
+                </div>`;
+            }).join('');
         }
 
         function showEmployeeDetail() {
@@ -1959,7 +2155,7 @@
             
             const totalUpgradeCost = calculateTotalUpgradeCost(emp.level);
             container.innerHTML = `<div class="employee-card">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div><strong style="font-size:16px;">${emp.name}</strong> <span class="employee-type type-${emp.type}">${typeInfo.name}</span></div><div style="color:var(--neon-cyan);font-size:12px;">Lv.${emp.level}/40</div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div><strong style="font-size:16px;background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${emp.name}</strong> <span class="employee-type type-${emp.type}">${typeInfo.name}</span></div><div style="color:var(--neon-cyan);font-size:12px;">Lv.${emp.level}/40</div></div>
                 <div style="margin:12px 0;"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--fg-secondary);"><span>${typeInfo.effect}: +${typeInfo.baseBonus * emp.level}%</span><span>${assignedTrain ? '已分配: ' + assignedTrain.name : '未分配'}</span></div>
                 <div class="progress-bar"><div class="progress-fill" style="width:${(emp.level/40)*100}%"></div></div></div>
                 <div style="display:flex;gap:10px;">
@@ -1974,23 +2170,28 @@
         function renderShop() {
             const container = document.getElementById('shopList');
             const trains = trainData[currentShopTab];
-            container.innerHTML = trains.map(train => {
+            container.innerHTML = trains.map((train, index) => {
                 const requiredLevel = train.level || 1;
                 const typeLimits = { normal: 20, intercity: 24, highspeed: 28, anime: 33, zodiac: 999 };
                 const currentTypeCount = gameState.ownedTrains.filter(t => t.type === currentShopTab).length;
-                const canBuy = gameState.gold >= train.price && currentTypeCount < typeLimits[currentShopTab] && gameState.level >= requiredLevel;
+                const remainingSlots = typeLimits[currentShopTab] === 999 ? 999 : typeLimits[currentShopTab] - currentTypeCount;
                 const levelOk = gameState.level >= requiredLevel;
                 const comfort = train.comfort || 100;
                 const comfortBonus = (comfort / 100).toFixed(1);
+                const inputId = `buyCount_${currentShopTab}_${index}`;
                 return `<div class="train-card">
                     <div class="train-name">${train.name}</div>
                     <span class="train-type type-${currentShopTab}">${trainTypes[currentShopTab].name}</span>
                     <div class="train-stats"><span>⚡ ${train.speed} km/h</span><span>⚖️ ${train.weight} t</span></div>
                     <div class="train-stats"><span>🛋️ ${comfort}</span><span style="color:var(--neon-yellow);">收入+${comfortBonus}%</span></div>
-                    <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:${levelOk ? 'var(--neon-green)' : 'var(--neon-red)'};">${requiredLevel}</span></div>
+                    <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:${levelOk ? 'var(--neon-green)' : 'var(--neon-red)'};">${requiredLevel}</span> | 剩余名额: <span style="color:var(--neon-cyan);">${remainingSlots === 999 ? '∞' : remainingSlots}</span></div>
                     <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
                         <span style="font-family:'Orbitron',sans-serif;font-size:14px;color:var(--neon-yellow);">${formatNumber(train.price)}</span>
-                        <button class="btn btn-primary btn-small" onclick="buyTrain('${currentShopTab}', '${train.name}', ${train.speed}, ${train.weight}, ${train.price}, ${requiredLevel})" ${canBuy ? '' : 'disabled'}>购买</button>
+                    </div>
+                    <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+                        <span style="font-size:11px;color:var(--fg-secondary);">数量:</span>
+                        <input type="number" id="${inputId}" min="1" max="${remainingSlots === 999 ? 100 : remainingSlots}" value="1" style="width:60px;padding:4px 8px;background:var(--bg-muted);border:1px solid var(--border);border-radius:2px;color:var(--fg-primary);font-size:12px;text-align:center;" ${!levelOk ? 'disabled' : ''}>
+                        <button class="btn btn-primary btn-small" onclick="buyTrainWithCount('${currentShopTab}', '${train.name}', ${train.speed}, ${train.weight}, ${train.price}, ${requiredLevel}, '${inputId}')" ${levelOk ? '' : 'disabled'}>购买</button>
                     </div>
                 </div>`;
             }).join('');
@@ -2008,12 +2209,13 @@
                 const rtIndex = gameState.runningTrains.indexOf(rt);
                 const comfort = train.comfort || 100;
                 const comfortBonus = (comfort / 100).toFixed(1);
+                const displayTime = Math.max(0, Math.round(rt.remainingTime));
                 return `<div class="running-train">
-                    <div class="train-route"><strong>${train.name}</strong><span style="color:var(--neon-cyan);">${rt.startCity}</span><span style="color:var(--fg-secondary);">→</span><span style="color:var(--neon-magenta);">${rt.endCity}</span></div>
+                    <div class="train-route"><strong style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${train.name}</strong><span style="color:var(--neon-cyan);">${rt.startCity}</span><span style="color:var(--fg-secondary);">→</span><span style="color:var(--neon-magenta);">${rt.endCity}</span></div>
                     <div style="font-size:10px;color:var(--neon-yellow);margin:4px 0;">🛋️${comfort} (+${comfortBonus}%)</div>
                     <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
                     <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--fg-secondary);">
-                        <span>剩余: ${rt.remainingTime}s</span>
+                        <span>剩余: ${displayTime}s</span>
                         <span style="color:var(--neon-green);">+${formatNumber(rt.earnings)}</span>
                         <button class="btn btn-danger btn-small" onclick="cancelRoute(${rtIndex})" style="padding:2px 8px;font-size:10px;">取消</button>
                     </div>
@@ -2286,12 +2488,13 @@
                 const progress = ((rt.totalTime - rt.remainingTime) / rt.totalTime * 100).toFixed(0);
                 const comfort = train.comfort || 100;
                 const comfortBonus = (comfort / 100).toFixed(1);
+                const displayTime = Math.max(0, Math.round(rt.remainingTime));
                 return `<div class="running-train" style="margin-bottom:10px;">
-                    <div style="font-size:12px;font-weight:600;margin-bottom:6px;color:var(--fg-primary);">${train.name}</div>
+                    <div style="font-size:12px;font-weight:600;margin-bottom:6px;background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${train.name}</div>
                     <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:6px;">${rt.startCity} → ${rt.endCity}</div>
                     <div style="font-size:10px;color:var(--neon-yellow);margin-bottom:4px;">🛋️${comfort} (+${comfortBonus}%)</div>
                     <div class="progress-bar" style="height:3px;margin:6px 0;"><div class="progress-fill" style="width:${progress}%"></div></div>
-                    <div style="font-size:10px;color:var(--neon-cyan);">${rt.remainingTime}s | +${formatNumber(rt.earnings)}</div>
+                    <div style="font-size:10px;color:var(--neon-cyan);">${displayTime}s | +${formatNumber(rt.earnings)}</div>
                 </div>`;
             }).join('') + (gameState.runningTrains.length > 5 ? `<div style="text-align:center;color:var(--fg-secondary);font-size:10px;margin-top:8px;">... 还有 ${gameState.runningTrains.length - 5} 辆</div>` : '');
         }
@@ -2396,6 +2599,74 @@
             canvas.addEventListener('dblclick', () => {
                 globeAutoRotate = true;
                 showNotification('已恢复自动旋转');
+            });
+            
+            // 触摸事件支持 - 手机适配
+            let touchStartDistance = 0;
+            let touchStartZoom = 1;
+            let lastTouchX = 0;
+            let lastTouchY = 0;
+            let isTouchDragging = false;
+            
+            canvas.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                if (e.touches.length === 1) {
+                    // 单指拖拽
+                    isTouchDragging = true;
+                    globeAutoRotate = false;
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                } else if (e.touches.length === 2) {
+                    // 双指缩放
+                    isTouchDragging = false;
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    touchStartDistance = Math.sqrt(dx * dx + dy * dy);
+                    touchStartZoom = mapZoom;
+                }
+            }, { passive: false });
+            
+            canvas.addEventListener('touchmove', (e) => {
+                e.preventDefault();
+                if (e.touches.length === 1 && isTouchDragging) {
+                    // 单指拖拽旋转地球仪
+                    const deltaX = e.touches[0].clientX - lastTouchX;
+                    const deltaY = e.touches[0].clientY - lastTouchY;
+                    globeRotationY += deltaX * 0.01;
+                    globeRotationX = Math.max(-1.2, Math.min(1.2, globeRotationX - deltaY * 0.005));
+                    lastTouchX = e.touches[0].clientX;
+                    lastTouchY = e.touches[0].clientY;
+                    renderMap();
+                } else if (e.touches.length === 2) {
+                    // 双指缩放
+                    const dx = e.touches[0].clientX - e.touches[1].clientX;
+                    const dy = e.touches[0].clientY - e.touches[1].clientY;
+                    const currentDistance = Math.sqrt(dx * dx + dy * dy);
+                    const scale = currentDistance / touchStartDistance;
+                    mapZoom = Math.max(0.5, Math.min(3, touchStartZoom * scale));
+                    updateZoomLevel();
+                    renderMap();
+                }
+            }, { passive: false });
+            
+            canvas.addEventListener('touchend', (e) => {
+                if (e.touches.length === 0) {
+                    isTouchDragging = false;
+                    // 3秒后恢复自动旋转
+                    setTimeout(() => { globeAutoRotate = true; }, 3000);
+                }
+            });
+            
+            // 双击恢复自动旋转（触摸）
+            let lastTapTime = 0;
+            canvas.addEventListener('touchend', (e) => {
+                const currentTime = new Date().getTime();
+                const tapLength = currentTime - lastTapTime;
+                if (tapLength < 300 && tapLength > 0 && e.touches.length === 0) {
+                    globeAutoRotate = true;
+                    showNotification('已恢复自动旋转');
+                }
+                lastTapTime = currentTime;
             });
         }
 
@@ -3310,27 +3581,57 @@
             pendingLockCity = null; 
         }
 
-        function buyTrain(type, name, speed, weight, price, level) {
+        function buyTrainWithCount(type, name, speed, weight, price, level, inputId) {
+            const countInput = document.getElementById(inputId);
+            let count = parseInt(countInput?.value) || 1;
+            if (count < 1) count = 1;
+            
             const requiredLevel = level || 1;
-            if (gameState.level < requiredLevel) { showNotification(`需要等级 ${requiredLevel} 才能购买此火车！`); return; }
+            if (gameState.level < requiredLevel) { 
+                showNotification(`需要等级 ${requiredLevel} 才能购买此火车！`); 
+                return; 
+            }
             
             const typeLimits = { normal: 20, intercity: 24, highspeed: 28, anime: 33, zodiac: 999 };
             const currentCount = gameState.ownedTrains.filter(t => t.type === type).length;
             const limit = typeLimits[type] || 80;
-            if (currentCount >= limit) {
+            const remainingSlots = limit - currentCount;
+            
+            if (remainingSlots <= 0) {
                 const typeNames = { normal: '普通火车', intercity: '城际列车', highspeed: '高铁', anime: '动漫联名', zodiac: '生肖限定' };
                 showNotification(`${typeNames[type]}数量已达上限(${limit}辆)！`);
                 return;
             }
             
-            if (gameState.gold < price) { showNotification('金币不足！'); return; }
-            gameState.gold -= price;
+            const actualCount = Math.min(count, remainingSlots);
+            const totalCost = price * actualCount;
+            
+            if (gameState.gold < totalCost) { 
+                showNotification(`金币不足！需要 ${formatNumber(totalCost)} 金币购买 ${actualCount} 辆`); 
+                return; 
+            }
+            
+            gameState.gold -= totalCost;
             const trainInfo = trainData[type].find(t => t.name === name);
             const comfort = trainInfo ? trainInfo.comfort : 100;
-            gameState.ownedTrains.push({ id: Date.now() + Math.random(), type, name, speed, weight, purchasePrice: price, upgradeLevel: 0, comfort });
+            
+            for (let i = 0; i < actualCount; i++) {
+                gameState.ownedTrains.push({ 
+                    id: Date.now() + Math.random() + i, 
+                    type, name, speed, weight, 
+                    purchasePrice: price, 
+                    upgradeLevel: 0, 
+                    comfort 
+                });
+            }
+            
             updateUI();
             renderShop();
-            showNotification(`成功购买 ${name}！`);
+            showNotification(`成功购买 ${actualCount} 辆 ${name}！花费 ${formatNumber(totalCost)} 金币`);
+        }
+
+        function buyTrain(type, name, speed, weight, price, level) {
+            buyTrainWithCount(type, name, speed, weight, price, level, null);
         }
 
         function startRoute() {
@@ -3388,7 +3689,7 @@
             gameState.points -= cost;
             emp.level++;
             updateUI();
-            showEmployeeDetail();
+            renderEmployeeList();
             showNotification(`${emp.name} 升级成功！`);
         }
 
@@ -3504,7 +3805,7 @@
             const emp = gameState.employees.find(e => e.id === empId);
             if (emp) emp.trainId = trainId;
             closeModal();
-            showEmployeeDetail();
+            renderEmployeeList();
         }
 
         function closeModal() { document.getElementById('employeeModal').classList.remove('show'); }
@@ -3833,6 +4134,8 @@
     <!-- 游戏底部说明 -->
     <div style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,rgba(10,10,15,0.95));padding:15px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--fg-secondary);z-index:100;pointer-events:none;">
         <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">游戏制作者：顶级萌新</span>
+        <span style="margin:0 15px;color:var(--fg-secondary);">|</span>
+        <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">游戏QQ群：806903918</span>
     </div>
 <!--客服 开始-->
 <script src="//g8hh.github.io/static/js/jquery.min.js"></script>
