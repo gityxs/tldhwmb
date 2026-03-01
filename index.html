@@ -1048,9 +1048,12 @@
                 <button class="nav-btn" onclick="showPanel('upgrade')">🔧 点卷强化</button>
                 <button class="nav-btn" onclick="showPanel('redeem')">🎁 兑换码</button>
                 <button class="nav-btn" onclick="showPanel('reform')">💎 火车改造</button>
-                <button class="nav-btn" onclick="showPanel('changelog')">📋 更新说明</button>
+                <button class="nav-btn" onclick="showPanel('challenge')">🏆 闯关</button>
+                  <button class="nav-btn" onclick="showPanel('changelog')">📋 更新说明</button>
                 <div class="save-info">
                     <button class="btn btn-secondary btn-small" onclick="manualSave()" style="width:100%;margin-bottom:8px;">💾 手动保存</button>
+                    <button class="btn btn-primary btn-small" onclick="exportSave()" style="width:100%;margin-bottom:8px;">📤 导出存档</button>
+                    <button class="btn btn-primary btn-small" onclick="showImportModal()" style="width:100%;margin-bottom:8px;">📥 导入存档</button>
                     <button class="btn btn-danger btn-small" onclick="confirmRestart()" style="width:100%;">🔄 重新开始</button>
                     <div id="lastSave" style="margin-top:10px;">上次保存: --</div>
                     <div id="dailyPointsInfo" style="margin-top:5px;color:var(--neon-cyan);"></div>
@@ -1218,9 +1221,68 @@
                     <div id="reformTrainInfo" style="margin-top:20px;"></div>
                 </div>
 
-                <div id="changelogPanel" class="panel" style="display:none;">
+                <div id="challengePanel" class="panel" style="display:none;">
+            <div class="panel-title">🏆 闯关挑战</div>
+            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:15px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                    <span style="color:var(--fg-secondary);">当前关卡:</span>
+                    <span id="challengeLevelDisplay" style="color:var(--neon-cyan);font-weight:600;">第 1 关</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                    <span style="color:var(--fg-secondary);">累计收益加成:</span>
+                    <span id="challengeBonusDisplay" style="color:var(--neon-green);font-weight:600;">+0%</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
+                    <span style="color:var(--fg-secondary);">改造石:</span>
+                    <span id="reformStonesDisplay" style="color:var(--neon-yellow);font-weight:600;">0 个</span>
+                </div>
+            </div>
+            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:15px;">
+                <div style="text-align:center;margin-bottom:12px;">
+                    <div style="font-size:12px;color:var(--fg-secondary);margin-bottom:8px;">关卡进度</div>
+                    <div style="font-size:24px;font-weight:700;color:var(--neon-cyan);">
+                        <span id="challengeProgressDisplay">0</span> / 200
+                    </div>
+                    <div class="progress-bar" style="margin-top:10px;height:12px;">
+                        <div id="challengeProgressBar" class="progress-fill" style="width:0%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green));"></div>
+                    </div>
+                </div>
+            </div>
+            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:15px;">
+                <div style="text-align:center;margin-bottom:12px;">
+                    <div style="font-size:12px;color:var(--fg-secondary);margin-bottom:8px;">本次挑战消耗</div>
+                    <div id="challengeCostDisplay" style="font-size:18px;font-weight:600;color:var(--neon-red);">1,000 金币</div>
+                </div>
+                <button class="btn btn-primary" onclick="doChallenge()" style="width:100%;margin-bottom:8px;" id="challengeBtn">
+                    ⚔️ 发起挑战
+                </button>
+                <button class="btn btn-secondary" onclick="toggleAutoChallenge()" style="width:100%;" id="autoChallengeBtn">
+                    🔄 自动挑战
+                </button>
+            </div>
+            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;">
+                <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📖 闯关规则</div>
+                <div style="font-size:11px;color:var(--fg-secondary);line-height:1.8;">
+                    • 每关需要挑战200次才能通关<br>
+                    • 每次挑战消耗金币，消耗随关卡递增<br>
+                    • 通关奖励：收益+0.05%、改造石1-5个、点卷1-5、经验1000-2000<br>
+                    • 关卡无上限，挑战永无止境！
+                </div>
+            </div>
+        </div>
+
+        <div id="changelogPanel" class="panel" style="display:none;">
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
+                        <div class="changelog-version">
+                            <div class="changelog-date">2.27 铁路大亨更新内容</div>
+                            <ul class="changelog-list">
+                                <li>修复司机可重复任命一个火车BUG</li>
+                                <li>新增存档导入、导出功能</li>
+                                <li>新增闯关功能</li>
+                                <li>游戏QQ群：806903918</li>
+                            </ul>
+                        </div>
                         <div class="changelog-version">
                             <div class="changelog-date">2.26 铁路大亨更新内容</div>
                             <ul class="changelog-list">
@@ -1301,6 +1363,19 @@
         </div>
     </div>
 
+        <div id="importModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-title">📥 导入存档</div>
+            <div style="margin-bottom:15px;">
+                <textarea id="importData" placeholder="请粘贴存档数据..." style="width:100%;height:150px;background:var(--bg-secondary);border:1px solid var(--border);color:var(--fg);padding:10px;border-radius:4px;font-family:monospace;font-size:11px;resize:vertical;"></textarea>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <button class="btn btn-primary" onclick="importSave()" style="flex:1;">确认导入</button>
+                <button class="btn btn-secondary" onclick="closeImportModal()" style="flex:1;">取消</button>
+            </div>
+        </div>
+    </div>
+    
         <div id="restartModal" class="modal">
         <div class="modal-content">
             <div class="modal-title">⚠️ 重新开始游戏</div>
@@ -1615,7 +1690,12 @@
             dailyReformStonesEarned: 0, // 今日已获取的改造石数量
             // 天气系统
             currentWeather: 'sunny',    // 当前天气
-            lastWeatherUpdate: null     // 上次天气更新时间
+            lastWeatherUpdate: null,    // 上次天气更新时间
+            // 闯关系统
+            challengeLevel: 0,          // 当前关卡
+            challengeProgress: 0,       // 当前关卡进度（0-200）
+            challengeBonus: 0,          // 闯关收益加成（百分比）
+            trainParts: 0               // 火车零件数量
         };
 
         let selectedStartCity = null, selectedEndCity = null, currentCityTab = 'china', currentShopTab = 'normal', pendingUnlockCity = null;
@@ -1641,6 +1721,8 @@
                 if (emp.type === 'income') earnings *= (1 + employeeTypes.income.baseBonus * emp.level / 100);
             });
             earnings *= (1 + gameState.incomeBonus / 100);
+            // 闯关收益加成
+            if (gameState.challengeBonus) earnings *= (1 + gameState.challengeBonus / 100);
             if (train.upgradeLevel) earnings *= (1 + train.upgradeLevel * 0.5 / 100);
             const comfort = train.comfort || 100;
             const comfortBonus = comfort / 100;
@@ -1845,7 +1927,7 @@
             document.getElementById(panelName + 'Panel').style.display = 'block';
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
             event.target.classList.add('active');
-            const renderFuncs = { trains: renderTrainList, routes: renderRoutePanel, employees: renderEmployeeList, shop: renderShop, running: renderRunningTrains, map: renderMap, cities: renderCityUnlockList, upgrade: renderUpgradePanel, redeem: renderRedeemPanel, reform: renderReformPanel };
+            const renderFuncs = { trains: renderTrainList, routes: renderRoutePanel, employees: renderEmployeeList, shop: renderShop, running: renderRunningTrains, map: renderMap, cities: renderCityUnlockList, upgrade: renderUpgradePanel, redeem: renderRedeemPanel, reform: renderReformPanel, challenge: renderChallengePanel };
             if (renderFuncs[panelName]) renderFuncs[panelName]();
         }
 
@@ -2327,6 +2409,141 @@
             document.getElementById('redeemHistory').innerHTML = history.length > 0 
                 ? `<div class="section-title">已使用兑换码</div>${history.map(c => `<div style="color:var(--neon-green);font-size:11px;margin:5px 0;">✓ ${c}</div>`).join('')}` 
                 : '<div style="color:var(--fg-secondary);text-align:center;padding:20px;font-size:12px;">// 暂无使用记录</div>';
+        }
+
+        // ==================== 闯关系统 ====================
+        let autoChallengeInterval = null;
+        let isAutoChallenging = false;
+
+        function renderChallengePanel() {
+            // 初始化闯关数据
+            if (gameState.challengeLevel === undefined) gameState.challengeLevel = 0;
+            if (gameState.challengeProgress === undefined) gameState.challengeProgress = 0;
+            if (gameState.challengeBonus === undefined) gameState.challengeBonus = 0;
+            if (gameState.trainParts === undefined) gameState.trainParts = 0;
+
+            document.getElementById('challengeLevelDisplay').textContent = `第 ${gameState.challengeLevel + 1} 关`;
+            document.getElementById('challengeBonusDisplay').textContent = `+${(gameState.challengeBonus).toFixed(2)}%`;
+            document.getElementById('reformStonesDisplay').textContent = `${gameState.reformStones || 0} 个`;
+            document.getElementById('challengeProgressDisplay').textContent = gameState.challengeProgress;
+            document.getElementById('challengeProgressBar').style.width = `${(gameState.challengeProgress / 200) * 100}%`;
+
+            // 计算当前挑战消耗
+            const cost = calculateChallengeCost();
+            document.getElementById('challengeCostDisplay').textContent = formatNumber(cost) + ' 金币';
+
+            // 检查是否可以挑战
+            const canChallenge = gameState.gold >= cost;
+            document.getElementById('challengeBtn').disabled = !canChallenge || isAutoChallenging;
+
+            // 更新自动挑战按钮状态
+            const autoBtn = document.getElementById('autoChallengeBtn');
+            if (autoBtn) {
+                autoBtn.textContent = isAutoChallenging ? '⏹️ 停止自动' : '🔄 自动挑战';
+                autoBtn.className = isAutoChallenging ? 'btn btn-danger' : 'btn btn-secondary';
+            }
+        }
+
+        function calculateChallengeCost() {
+            // 基础消耗：第1关每次10000金币
+            // 每关递增：关卡数 * 50%
+            // 每次递增：当前进度 * 0.5%
+            const level = gameState.challengeLevel || 0;
+            const progress = gameState.challengeProgress || 0;
+            const baseCost = 10000;
+            const levelMultiplier = 1 + level * 0.5; // 每关增加50%基础消耗
+            const progressMultiplier = 1 + progress * 0.005; // 每次挑战增加0.5%
+
+            return Math.floor(baseCost * levelMultiplier * progressMultiplier);
+        }
+
+        function doChallenge() {
+            const cost = calculateChallengeCost();
+
+            if (gameState.gold < cost) {
+                showNotification('金币不足！');
+                stopAutoChallenge();
+                return false;
+            }
+
+            // 扣除金币
+            gameState.gold -= cost;
+
+            // 增加进度
+            gameState.challengeProgress++;
+
+            // 检查是否通关
+            if (gameState.challengeProgress >= 200) {
+                completeLevel();
+            }
+
+            // 更新界面
+            renderChallengePanel();
+            updateUI();
+            return true;
+        }
+
+        function completeLevel() {
+            // 增加关卡
+            gameState.challengeLevel++;
+
+            // 重置进度
+            gameState.challengeProgress = 0;
+
+            // 增加收益加成
+            gameState.challengeBonus = (gameState.challengeBonus || 0) + 0.05;
+
+            // 随机奖励
+            const stonesReward = Math.floor(Math.random() * 5) + 1; // 1-5个改造石
+            const pointsReward = Math.floor(Math.random() * 5) + 1; // 1-5点卷
+            const expReward = Math.floor(Math.random() * 1001) + 1000; // 1000-2000经验
+
+            // 确保reformStones已初始化并添加奖励
+            if (gameState.reformStones === undefined) gameState.reformStones = 0;
+            gameState.reformStones += stonesReward;
+            gameState.points += pointsReward;
+            addExp(expReward);
+
+            showNotification(`🎉 恭喜通关！获得：改造石×${stonesReward}、点卷×${pointsReward}、经验×${expReward}、收益+0.05%`);
+        }
+
+        function toggleAutoChallenge() {
+            if (isAutoChallenging) {
+                stopAutoChallenge();
+            } else {
+                startAutoChallenge();
+            }
+        }
+
+        function startAutoChallenge() {
+            if (isAutoChallenging) return;
+
+            isAutoChallenging = true;
+            showNotification('自动挑战已开启！');
+
+            autoChallengeInterval = setInterval(() => {
+                const cost = calculateChallengeCost();
+                if (gameState.gold < cost) {
+                    stopAutoChallenge();
+                    showNotification('金币不足，自动挑战已停止！');
+                    return;
+                }
+                doChallenge();
+            }, 100); // 每100毫秒挑战一次
+
+            renderChallengePanel();
+        }
+
+        function stopAutoChallenge() {
+            if (!isAutoChallenging) return;
+
+            isAutoChallenging = false;
+            if (autoChallengeInterval) {
+                clearInterval(autoChallengeInterval);
+                autoChallengeInterval = null;
+            }
+            showNotification('自动挑战已停止！');
+            renderChallengePanel();
         }
 
         // ==================== 火车改造系统 ====================
@@ -3646,6 +3863,18 @@
                 return;
             }
             
+            // 检查火车上的员工数量（防止BUG）
+            const employeesOnTrain = gameState.employees.filter(e => e.trainId === trainId);
+            if (employeesOnTrain.length > 1) {
+                showNotification('检测到异常：该火车员工数量超过1人，无法发车！已自动停运。');
+                // 立即停运此火车
+                const runningIndex = gameState.runningTrains.findIndex(rt => rt.trainId === trainId);
+                if (runningIndex > -1) {
+                    gameState.runningTrains.splice(runningIndex, 1);
+                }
+                return;
+            }
+            
             const distance = calculateDistance(selectedStartCity, selectedEndCity);
             const earnings = calculateEarnings(train, distance);
             const time = calculateTime(train, distance);
@@ -3754,6 +3983,10 @@
                 gameState.reformStones += redeemCodes[code].reformStones;
                 rewardMsg.push(`${redeemCodes[code].reformStones} 改造石`);
             }
+            if (redeemCodes[code].gold > 0) {
+                gameState.gold += redeemCodes[code].gold;
+                rewardMsg.push(`${formatNumber(redeemCodes[code].gold)} 金币`);
+            }
             if (redeemCodes[code].train) {
                 const trainName = redeemCodes[code].train;
                 const trainDataItem = trainData.zodiac.find(t => t.name === trainName);
@@ -3801,6 +4034,12 @@
                     showNotification('该火车需要达到54级才能分配司机！');
                     return;
                 }
+                // 检查该火车是否已经有其他司机
+                const existingEmp = gameState.employees.find(e => e.trainId === trainId && e.id !== empId);
+                if (existingEmp) {
+                    showNotification('该火车已有司机，请先解除当前司机！');
+                    return;
+                }
             }
             const emp = gameState.employees.find(e => e.id === empId);
             if (emp) emp.trainId = trainId;
@@ -3814,6 +4053,106 @@
         function manualSave() {
             saveGame();
             showNotification('保存成功！');
+        }
+
+        // ==================== 存档导入导出功能 ====================
+        function exportSave() {
+            // 先保存最新数据
+            saveGame();
+            
+            // 获取存档数据
+            const saveData = localStorage.getItem('railroadTycoon');
+            if (!saveData) {
+                showNotification('没有可导出的存档！');
+                return;
+            }
+            
+            // 转换为Base64编码
+            const encodedData = btoa(unescape(encodeURIComponent(saveData)));
+            
+            // 创建下载链接
+            const blob = new Blob([encodedData], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `铁路大亨存档_${new Date().toISOString().slice(0,10)}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            // 同时复制到剪贴板
+            navigator.clipboard.writeText(encodedData).then(() => {
+                showNotification('存档已导出并复制到剪贴板！');
+            }).catch(() => {
+                showNotification('存档已导出为文件！');
+            });
+        }
+        
+        function showImportModal() {
+            document.getElementById('importData').value = '';
+            document.getElementById('importModal').classList.add('show');
+        }
+        
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('show');
+        }
+        
+        function importSave() {
+            const importData = document.getElementById('importData').value.trim();
+            if (!importData) {
+                showNotification('请输入存档数据！');
+                return;
+            }
+            
+            try {
+                // 尝试解码Base64
+                let decodedData;
+                try {
+                    decodedData = decodeURIComponent(escape(atob(importData)));
+                } catch (e) {
+                    // 如果不是Base64，尝试直接解析JSON
+                    decodedData = importData;
+                }
+                
+                // 验证JSON格式
+                const parsedData = JSON.parse(decodedData);
+                
+                // 验证存档数据的基本结构
+                if (typeof parsedData !== 'object' || parsedData === null) {
+                    throw new Error('无效的存档格式');
+                }
+                
+                // 检查必要字段
+                if (parsedData.gold === undefined || parsedData.level === undefined) {
+                    throw new Error('存档数据不完整');
+                }
+                
+                // 确认导入
+                if (!confirm('导入存档将覆盖当前游戏进度，确定要继续吗？')) {
+                    return;
+                }
+                
+                // 保存导入的数据到localStorage
+                localStorage.setItem('railroadTycoon', decodedData);
+                
+                // 立即更新gameState变量，防止自动保存覆盖
+                gameState = { ...gameState, ...parsedData };
+                
+                // 关闭弹窗并刷新界面
+                closeImportModal();
+                updateUI();
+                updateLevelUI();
+                renderTrainList();
+                renderRightPanel();
+                renderCityUnlockList();
+                renderMap();
+                
+                showNotification('存档导入成功！');
+                
+            } catch (e) {
+                showNotification('存档数据格式错误：' + e.message);
+            }
         }
 
         function confirmRestart() {
@@ -3856,6 +4195,26 @@
         // ==================== 游戏循环 ====================
         function gameLoop() {
             updateWeather();
+
+            // 检查所有运行中的火车员工数量（防止BUG）
+            const trainsToStop = [];
+            gameState.runningTrains.forEach(rt => {
+                const employeesOnTrain = gameState.employees.filter(e => e.trainId === rt.trainId);
+                if (employeesOnTrain.length > 1) {
+                    trainsToStop.push(rt);
+                }
+            });
+            // 停运异常火车
+            if (trainsToStop.length > 0) {
+                trainsToStop.forEach(rt => {
+                    const idx = gameState.runningTrains.indexOf(rt);
+                    if (idx > -1) {
+                        gameState.runningTrains.splice(idx, 1);
+                    }
+                });
+                showNotification('检测到异常：部分火车员工数量超过1人，已自动停运！');
+            }
+
             gameState.runningTrains.forEach(rt => {
                 rt.remainingTime--;
                 if (rt.remainingTime <= 0) {
@@ -3933,6 +4292,11 @@
                 // 改造石系统兼容
                 if (gameState.reformStones === undefined) gameState.reformStones = 0;
                 if (gameState.dailyReformStonesEarned === undefined) gameState.dailyReformStonesEarned = 0;
+                // 闯关系统兼容
+                if (gameState.challengeLevel === undefined) gameState.challengeLevel = 0;
+                if (gameState.challengeProgress === undefined) gameState.challengeProgress = 0;
+                if (gameState.challengeBonus === undefined) gameState.challengeBonus = 0;
+                if (gameState.trainParts === undefined) gameState.trainParts = 0;
                 gameState.ownedTrains.forEach(train => { 
                     if (train.reformLevel === undefined) train.reformLevel = 0;
                     if (train.goldReformLevel === undefined) train.goldReformLevel = 0;
@@ -4153,5 +4517,6 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>    </div>
+
 </body>
 </html>
