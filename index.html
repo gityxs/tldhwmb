@@ -1275,6 +1275,19 @@
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
                         <div class="changelog-version">
+                            <div class="changelog-date">3.3 铁路大亨更新内容</div>
+                            <ul class="changelog-list">
+                                <li>批量购买火车时，能够自动命名</li>
+                                <li>修复偶现改造石未到账BUG</li>
+                                <li>火车舒适度改造金币消耗降低</li>
+                                <li>大幅提高火车改造舒适度加成</li>
+                                <li>经验获取速度增快</li>
+                                <li>增强闯关第100关后的经验获取</li>
+                                <li>员工加成调整（加强收益性，减重型员工调整为全能）</li>
+                                <li>提高每日点卷获取上限</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-version">
                             <div class="changelog-date">2.27 铁路大亨更新内容</div>
                             <ul class="changelog-list">
                                 <li>修复司机可重复任命一个火车BUG</li>
@@ -1641,9 +1654,9 @@
         };
 
         const employeeTypes = {
-            income: { name: "收益型", color: "#00ff88", effect: "增加收益", baseBonus: 5 },
+            income: { name: "收益型", color: "#00ff88", effect: "增加收益", baseBonus: 12.5 },  // 满级500%
             speed: { name: "速度型", color: "#00d4ff", effect: "提高速度", baseBonus: 5 },
-            weight: { name: "减重型", color: "#ff3366", effect: "降低重量", baseBonus: 3 }
+            weight: { name: "减重型", color: "#ff3366", effect: "减重/增收益/提速", baseBonus: 2.475, incomeBonus: 2.5, speedBonus: 1.25 }  // 满级：减重99%，收益+100%，速度+50%
         };
 
         const weatherTypes = {
@@ -1719,6 +1732,7 @@
             let earnings = distance * 10 * (1 - train.weight / 10000);
             gameState.employees.filter(e => e.trainId === train.id).forEach(emp => {
                 if (emp.type === 'income') earnings *= (1 + employeeTypes.income.baseBonus * emp.level / 100);
+                if (emp.type === 'weight') earnings *= (1 + employeeTypes.weight.incomeBonus * emp.level / 100);  // 减重型收益加成
             });
             earnings *= (1 + gameState.incomeBonus / 100);
             // 闯关收益加成
@@ -1738,6 +1752,7 @@
             speed *= (1 + reformLevel * 0.01);
             gameState.employees.filter(e => e.trainId === train.id).forEach(emp => {
                 if (emp.type === 'speed') speed *= (1 + employeeTypes.speed.baseBonus * emp.level / 100);
+                if (emp.type === 'weight') speed *= (1 + employeeTypes.weight.speedBonus * emp.level / 100);  // 减重型速度加成
             });
             const weatherSpeedMod = getWeatherSpeedModifier();
             speed *= (1 + weatherSpeedMod);
@@ -1904,7 +1919,7 @@
             document.getElementById('runningCount').textContent = gameState.runningTrains.length;
             document.getElementById('incomeBonus').textContent = `+${gameState.incomeBonus}%`;
             checkDailyPointsReset();
-            document.getElementById('dailyPointsInfo').textContent = `今日点卷: ${gameState.dailyPointsEarned}/1500`;
+            document.getElementById('dailyPointsInfo').textContent = `今日点卷: ${gameState.dailyPointsEarned}/3000`;
             updateWeather();
             updateWeatherUI();
         }
@@ -2496,7 +2511,10 @@
             // 随机奖励
             const stonesReward = Math.floor(Math.random() * 5) + 1; // 1-5个改造石
             const pointsReward = Math.floor(Math.random() * 5) + 1; // 1-5点卷
-            const expReward = Math.floor(Math.random() * 1001) + 1000; // 1000-2000经验
+            // 第101关开始经验翻倍：3000-6000
+            const expReward = gameState.challengeLevel >= 100
+                ? Math.floor(Math.random() * 3001) + 3000  // 3000-6000经验
+                : Math.floor(Math.random() * 1001) + 1000; // 1000-2000经验
 
             // 确保reformStones已初始化并添加奖励
             if (gameState.reformStones === undefined) gameState.reformStones = 0;
@@ -2589,7 +2607,7 @@
             const speedBonus = reformLevel * 1;
             
             const nextComfortLevel = comfortReformLevel + 1;
-            const comfortReformCost = Math.floor(train.purchasePrice * train.purchasePrice * 2.5 * nextComfortLevel);
+            const comfortReformCost = Math.floor(train.purchasePrice * 1000 * nextComfortLevel * nextComfortLevel);
             const canComfortReform = comfortReformLevel < 100 && gameState.gold >= comfortReformCost;
             const comfort = train.comfort || 100;
             const comfortBonus = comfort / 100;
@@ -2623,10 +2641,17 @@
         }
 
         function getComfortIncreasePercent(level) {
-            if (level <= 10) return 0.01;
-            if (level <= 30) return 0.02;
-            if (level <= 65) return 0.03;
-            return 0.05;
+            if (level <= 10) return 0.05;      // 1-10级：+5%
+            if (level <= 20) return 0.10;      // 11-20级：+10%
+            if (level <= 30) return 0.15;      // 21-30级：+15%
+            if (level <= 40) return 0.20;      // 31-40级：+20%
+            if (level <= 60) return 0.25;      // 41-60级：+25%
+            if (level <= 75) return 0.30;      // 61-75级：+30%
+            if (level <= 90) return 0.35;      // 76-90级：+35%
+            if (level <= 95) return 0.45;      // 91-95级：+45%
+            if (level <= 98) return 0.65;      // 96-98级：+65%
+            if (level === 99) return 1.00;     // 99级：+100%
+            return 2.00;                        // 100级：+200%
         }
 
         function reformTrain(trainId) {
@@ -2675,7 +2700,8 @@
             }
             
             const nextLevel = comfortReformLevel + 1;
-            const comfortReformCost = Math.floor(train.purchasePrice * train.purchasePrice * 2.5 * nextLevel);
+            // 调低消耗：原公式 purchasePrice^2 * 2.5 * level，改为 purchasePrice * 0.5 * level
+            const comfortReformCost = Math.floor(train.purchasePrice * 1000 * nextLevel * nextLevel);
             
             if (gameState.gold < comfortReformCost) {
                 showNotification('金币不足！');
@@ -3832,13 +3858,22 @@
             const trainInfo = trainData[type].find(t => t.name === name);
             const comfort = trainInfo ? trainInfo.comfort : 100;
             
+            // 计算该名称火车的现有数量，用于自动命名
+            const existingCount = gameState.ownedTrains.filter(t => t.name.startsWith(name)).length;
+
             for (let i = 0; i < actualCount; i++) {
-                gameState.ownedTrains.push({ 
-                    id: Date.now() + Math.random() + i, 
-                    type, name, speed, weight, 
-                    purchasePrice: price, 
-                    upgradeLevel: 0, 
-                    comfort 
+                // 自动命名：如果批量购买多辆，添加编号
+                let trainName = name;
+                if (actualCount > 1 || existingCount > 0) {
+                    trainName = name + (existingCount + i + 1);
+                }
+
+                gameState.ownedTrains.push({
+                    id: Date.now() + Math.random() + i,
+                    type, name: trainName, speed, weight,
+                    purchasePrice: price,
+                    upgradeLevel: 0,
+                    comfort
                 });
             }
             
@@ -4220,9 +4255,9 @@
                 if (rt.remainingTime <= 0) {
                     gameState.gold += rt.earnings;
                     gameState.totalEarnings += rt.earnings;
-                    addExp(Math.floor(rt.distance / 10));
+                    addExp(Math.floor(rt.distance / 5));
                     checkDailyPointsReset();
-                    if (gameState.dailyPointsEarned < 1500) {
+                    if (gameState.dailyPointsEarned < 3000) {
                         const points = Math.floor(Math.random() * 5) + 1;
                         const canEarn = Math.min(points, 1500 - gameState.dailyPointsEarned);
                         gameState.points += canEarn;
@@ -4231,6 +4266,8 @@
                     if (gameState.dailyReformStonesEarned < 300 && Math.random() < 0.05) {
                         const stones = Math.floor(Math.random() * 5) + 1;
                         const canEarnStones = Math.min(stones, 300 - gameState.dailyReformStonesEarned);
+                        // 确保reformStones已初始化
+                        if (gameState.reformStones === undefined) gameState.reformStones = 0;
                         gameState.reformStones += canEarnStones;
                         gameState.dailyReformStonesEarned += canEarnStones;
                         showNotification('获得 ' + canEarnStones + ' 个改造石！');
