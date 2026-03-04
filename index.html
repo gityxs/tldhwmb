@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>铁路大亨 | RAILROAD TYCOON</title>
+    <title>铁轨帝国 | RAIL EMPIRE</title>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
@@ -993,8 +993,8 @@
         <div class="header">
             <div class="header-glow"></div>
             <div class="game-title">
-                <span class="game-title-main">🚂 铁路大亨</span>
-                <span class="game-title-sub">RAILROAD TYCOON v2.0</span>
+                <span class="game-title-main">🚂 铁轨帝国</span>
+                <span class="game-title-sub">RAIL EMPIRE v2.0</span>
             </div>
             <div class="stats-bar">
                 <div class="stat-item">
@@ -1073,6 +1073,23 @@
                         <button class="btn btn-secondary btn-small" onclick="toggleSelectAllTrains()">全选/取消</button>
                         <button class="btn btn-danger btn-small" onclick="batchRetireTrains()">批量退役 (<span id="selectedTrainCount">0</span>)</button>
                     </div>
+                    <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;margin-bottom:15px;">
+                        <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📈 增加上限（每种最多增加30次）</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-small" onclick="increaseTrainLimit('normal')" style="background:linear-gradient(135deg,#2a4a3a,#1a2a2a);border-color:#00ff88;">
+                                普通火车+1
+                            </button>
+                            <button class="btn btn-small" onclick="increaseTrainLimit('intercity')" style="background:linear-gradient(135deg,#2a3a4a,#1a2a2a);border-color:#00d4ff;">
+                                城际火车+1
+                            </button>
+                            <button class="btn btn-small" onclick="increaseTrainLimit('highspeed')" style="background:linear-gradient(135deg,#4a3a2a,#2a2a1a);border-color:#ffd700;">
+                                高铁+1
+                            </button>
+                            <button class="btn btn-small" onclick="increaseTrainLimit('anime')" style="background:linear-gradient(135deg,#4a2a4a,#2a1a2a);border-color:#ff3366;">
+                                自创火车+1
+                            </button>
+                        </div>
+                    </div>
                     <div id="trainList"></div>
                 </div>
 
@@ -1096,12 +1113,27 @@
                         <div class="route-time" id="routeTime"></div>
                     </div>
                     <div style="text-align:center;">
-                        <button class="btn btn-primary" id="startRouteBtn" onclick="startRoute()" disabled style="padding:15px 40px;">开始运营</button>
+                        <button class="btn btn-primary" id="startRouteBtn" onclick="startRoute()" disabled style="padding:15px 40px;margin-bottom:10px;">开始运营</button>
+                    </div>
+                    <div style="text-align:center;">
+                        <button class="btn btn-success" onclick="startAllTrains()" style="padding:12px 30px;width:100%;">
+                            🚀 一键发车（所有未运营火车）
+                        </button>
                     </div>
                 </div>
 
                 <div id="employeesPanel" class="panel" style="display:none;">
                     <div class="panel-title"><span>员工管理 <span id="employeeCountInfo" style="font-size:11px;color:var(--fg-secondary);"></span></span><button class="btn btn-secondary" onclick="hireEmployee()">招聘 (1000金币)</button></div>
+                    <div style="display:flex;gap:10px;margin-bottom:15px;">
+                        <button class="btn btn-success" onclick="autoAssignEmployees()" style="flex:1;">📤 一键分配</button>
+                        <button class="btn btn-warning" onclick="unassignAllEmployees()" style="flex:1;">📥 一键取消分配</button>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;">
+                        <span style="font-size:12px;color:var(--fg-secondary);">一键升级至</span>
+                        <input type="number" id="targetLevelInput" min="1" max="40" value="10" style="width:60px;padding:5px;text-align:center;background:var(--bg-secondary);border:1px solid var(--border);color:var(--fg);border-radius:4px;">
+                        <span style="font-size:12px;color:var(--fg-secondary);">级</span>
+                        <button class="btn btn-primary" onclick="batchUpgradeEmployees()" style="flex:1;">⬆️ 一键升级</button>
+                    </div>
                     <div id="employeeList"></div>
                 </div>
 
@@ -1111,7 +1143,7 @@
                         <button class="tab active" onclick="showShopTab('normal')">普通火车</button>
                         <button class="tab" onclick="showShopTab('intercity')">城际列车</button>
                         <button class="tab" onclick="showShopTab('highspeed')">高铁</button>
-                        <button class="tab" onclick="showShopTab('anime')">动漫联名</button>
+                        <button class="tab" onclick="showShopTab('anime')">自创火车</button>
                         <button class="tab" onclick="showShopTab('zodiac')">生肖限定</button>
                     </div>
                     <div id="shopList" class="shop-grid"></div>
@@ -1119,6 +1151,11 @@
 
                 <div id="runningPanel" class="panel" style="display:none;">
                     <div class="panel-title">运营状态</div>
+                    <div style="margin-bottom:15px;">
+                        <button class="btn btn-danger" onclick="stopAllTrains()" style="width:100%;">
+                            🛑 一键停车
+                        </button>
+                    </div>
                     <div id="runningTrainList"></div>
                 </div>
 
@@ -1214,6 +1251,12 @@
 
                 <div id="reformPanel" class="panel" style="display:none;">
                     <div class="panel-title"><span>火车改造</span><span style="font-size:11px;color:var(--fg-secondary);">改造石: <span id="reformStonesCount" style="color:var(--neon-magenta);">0</span> | 今日获取: <span id="dailyReformStones" style="color:var(--neon-cyan);">0</span>/300</span></div>
+                    <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;">
+                        <span style="font-size:12px;color:var(--fg-secondary);">一键改造至</span>
+                        <input type="number" id="targetReformLevelInput" min="1" max="25" value="10" style="width:60px;padding:5px;text-align:center;background:var(--bg-secondary);border:1px solid var(--border);color:var(--fg);border-radius:4px;">
+                        <span style="font-size:12px;color:var(--fg-secondary);">级</span>
+                        <button class="btn btn-primary" onclick="batchReformTrains()" style="flex:1;">🔧 一键改造</button>
+                    </div>
                     <div class="section-box">
                         <div class="section-title">选择要改造的火车</div>
                         <select id="reformTrainSelect" onchange="updateReformInfo()"><option value="">-- 请选择火车 --</option></select>
@@ -1275,7 +1318,22 @@
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
                         <div class="changelog-version">
-                            <div class="changelog-date">3.3 铁路大亨更新内容</div>
+                            <div class="changelog-date">3.4 铁轨帝国更新内容</div>
+                            <ul class="changelog-list">
+                                <li>修改游戏名字及火车名字</li>
+                                <li>新增一键发车、一键停车功能</li>
+                                <li>新增员工一键分配、一键取消分配功能</li>
+                                <li>增加每日点卷获取上限，并修复不生效问题</li>
+                                <li>调整经验值升职数据</li>
+                                <li>修复改造下拉数据未及时刷新BUG</li>
+                                <li>新增2026元宵号</li>
+                                <li>新增兑换码：2026元宵快乐</li>
+                                <li>新增消耗金币增加火车上限功能</li>
+                                <li>优化离线收益问题</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-version">
+                            <div class="changelog-date">3.3 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
                                 <li>批量购买火车时，能够自动命名</li>
                                 <li>修复偶现改造石未到账BUG</li>
@@ -1288,7 +1346,7 @@
                             </ul>
                         </div>
                         <div class="changelog-version">
-                            <div class="changelog-date">2.27 铁路大亨更新内容</div>
+                            <div class="changelog-date">2.27 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
                                 <li>修复司机可重复任命一个火车BUG</li>
                                 <li>新增存档导入、导出功能</li>
@@ -1297,7 +1355,7 @@
                             </ul>
                         </div>
                         <div class="changelog-version">
-                            <div class="changelog-date">2.26 铁路大亨更新内容</div>
+                            <div class="changelog-date">2.26 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
                                 <li>新增员工批量显示及批量解雇</li>
                                 <li>新增火车批量退役功能</li>
@@ -1310,7 +1368,7 @@
                             </ul>
                         </div>
                         <div class="changelog-version">
-                            <div class="changelog-date">2.25 铁路大亨更新内容</div>
+                            <div class="changelog-date">2.25 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
                                 <li>更新员工解雇功能，并返还消耗点卷</li>
                                 <li>修复火车改造BUG，新增退役返还点卷及改造石</li>
@@ -1547,19 +1605,19 @@
             normal: { name: "普通火车", color: "#00d4ff" },
             intercity: { name: "城际列车", color: "#00ff88" },
             highspeed: { name: "高铁", color: "#ff3366" },
-            anime: { name: "动漫联名", color: "#ff00ff" },
+            anime: { name: "自创火车", color: "#ff00ff" },
             zodiac: { name: "生肖限定", color: "#ff6b00" }
         };
 
         const trainData = {
             normal: [
-                { name: "和谐号", speed: 80, weight: 600, price: 5000, level: 1, comfort: 100 },
-                { name: "复兴号", speed: 88, weight: 580, price: 12000, level: 2, comfort: 150 },
-                { name: "解放号", speed: 96, weight: 560, price: 22000, level: 3, comfort: 200 },
-                { name: "前进号", speed: 104, weight: 540, price: 35000, level: 4, comfort: 250 },
-                { name: "建设号", speed: 112, weight: 520, price: 50000, level: 5, comfort: 300 },
-                { name: "东风号", speed: 120, weight: 500, price: 70000, level: 6, comfort: 350 },
-                { name: "韶山号", speed: 128, weight: 480, price: 95000, level: 7, comfort: 400 },
+                { name: "启程号", speed: 80, weight: 600, price: 5000, level: 1, comfort: 100 },
+                { name: "腾飞号", speed: 88, weight: 580, price: 12000, level: 2, comfort: 150 },
+                { name: "开拓号", speed: 96, weight: 560, price: 22000, level: 3, comfort: 200 },
+                { name: "奋进号", speed: 104, weight: 540, price: 35000, level: 4, comfort: 250 },
+                { name: "筑梦号", speed: 112, weight: 520, price: 50000, level: 5, comfort: 300 },
+                { name: "疾风号", speed: 120, weight: 500, price: 70000, level: 6, comfort: 350 },
+                { name: "晨曦号", speed: 128, weight: 480, price: 95000, level: 7, comfort: 400 },
                 { name: "北京号", speed: 136, weight: 460, price: 125000, level: 8, comfort: 450 },
                 { name: "上海号", speed: 144, weight: 440, price: 160000, level: 9, comfort: 500 },
                 { name: "广州号", speed: 152, weight: 420, price: 200000, level: 10, comfort: 550 },
@@ -1609,21 +1667,21 @@
                 { name: "西成高铁2号", speed: 770, weight: 180, price: 900000000, level: 60, comfort: 5950 }
             ],
             anime: [
-                { name: "龙猫号", speed: 780, weight: 280, price: 3600000000, level: 20, comfort: 6100 },
-                { name: "千寻号", speed: 800, weight: 270, price: 4200000000, level: 22, comfort: 6250 },
-                { name: "哈尔号", speed: 820, weight: 260, price: 4900000000, level: 24, comfort: 6400 },
-                { name: "天空之城号", speed: 840, weight: 250, price: 5700000000, level: 26, comfort: 6550 },
-                { name: "风之谷号", speed: 860, weight: 240, price: 6600000000, level: 28, comfort: 6700 },
-                { name: "火影忍者号", speed: 880, weight: 230, price: 7600000000, level: 30, comfort: 6850 },
-                { name: "海贼王号", speed: 900, weight: 220, price: 8700000000, level: 32, comfort: 7000 },
-                { name: "柯南号", speed: 920, weight: 210, price: 9900000000, level: 34, comfort: 7150 },
-                { name: "哆啦A梦号", speed: 940, weight: 200, price: 11200000000, level: 36, comfort: 7300 },
-                { name: "精灵宝可梦号", speed: 960, weight: 190, price: 12600000000, level: 38, comfort: 7450 },
-                { name: "数码宝贝号", speed: 980, weight: 180, price: 14100000000, level: 40, comfort: 7600 },
-                { name: "圣斗士号", speed: 1000, weight: 170, price: 15700000000, level: 42, comfort: 7750 },
-                { name: "灌篮高手号", speed: 1020, weight: 160, price: 17400000000, level: 44, comfort: 7900 },
-                { name: "新世纪福音号", speed: 1040, weight: 150, price: 19200000000, level: 46, comfort: 8050 },
-                { name: "进击的巨人号", speed: 1070, weight: 140, price: 22000000000, level: 48, comfort: 8200 }
+                { name: "萌猫号", speed: 780, weight: 280, price: 3600000000, level: 20, comfort: 6100 },
+                { name: "寻梦号", speed: 800, weight: 270, price: 4200000000, level: 22, comfort: 6250 },
+                { name: "魔法号", speed: 820, weight: 260, price: 4900000000, level: 24, comfort: 6400 },
+                { name: "云端号", speed: 840, weight: 250, price: 5700000000, level: 26, comfort: 6550 },
+                { name: "风语号", speed: 860, weight: 240, price: 6600000000, level: 28, comfort: 6700 },
+                { name: "影舞号", speed: 880, weight: 230, price: 7600000000, level: 30, comfort: 6850 },
+                { name: "航海号", speed: 900, weight: 220, price: 8700000000, level: 32, comfort: 7000 },
+                { name: "侦探号", speed: 920, weight: 210, price: 9900000000, level: 34, comfort: 7150 },
+                { name: "蓝猫号", speed: 940, weight: 200, price: 11200000000, level: 36, comfort: 7300 },
+                { name: "精灵号", speed: 960, weight: 190, price: 12600000000, level: 38, comfort: 7450 },
+                { name: "数码号", speed: 980, weight: 180, price: 14100000000, level: 40, comfort: 7600 },
+                { name: "斗士号", speed: 1000, weight: 170, price: 15700000000, level: 42, comfort: 7750 },
+                { name: "热血号", speed: 1020, weight: 160, price: 17400000000, level: 44, comfort: 7900 },
+                { name: "福音号", speed: 1040, weight: 150, price: 19200000000, level: 46, comfort: 8050 },
+                { name: "巨人号", speed: 1070, weight: 140, price: 22000000000, level: 48, comfort: 8200 }
             ],
             zodiac: [
                 { name: "鼠年纪念号", speed: 1080, weight: 200, price: 110000000000, level: 47, comfort: 8350 },
@@ -1638,6 +1696,7 @@
                 { name: "鸡年纪念号", speed: 1260, weight: 155, price: 296000000000, level: 57, comfort: 9700 },
                 { name: "狗年纪念号", speed: 1280, weight: 150, price: 324000000000, level: 58, comfort: 9850 },
                 { name: "猪年纪念号", speed: 1300, weight: 145, price: 353000000000, level: 59, comfort: 10000 },
+                { name: "2026元宵号", speed: 1310, weight: 142, price: 368000000000, level: 59, comfort: 10075 },
                 { name: "金龙号", speed: 1320, weight: 140, price: 384000000000, level: 60, comfort: 10150 },
                 { name: "银龙号", speed: 1340, weight: 135, price: 416000000000, level: 61, comfort: 10300 },
                 { name: "祥龙号", speed: 1360, weight: 130, price: 450000000000, level: 62, comfort: 10450 },
@@ -1687,7 +1746,8 @@
             "914181599": { points: 3000, reformStones: 288, used: false },
             "顶级萌新": { points: 5000, reformStones: 388, used: false },
             "guoba": { points: 2000, reformStones: 288, used: false },
-            "gityx": { train: "马年纪念号", used: false }
+            "gityx": { train: "马年纪念号", used: false },
+            "2026元宵快乐": { train: "2026元宵号", used: false }
         };
 
         // ==================== 游戏状态 ====================
@@ -1790,7 +1850,16 @@
             }
             return total;
         }
-        function calculateExpToNext(level) { return Math.floor(500 * Math.pow(1.8, level - 1)); }
+        function calculateExpToNext(level) {
+            // 1-15级：1.8倍，16级及之后：1.65倍
+            if (level <= 15) {
+                return Math.floor(500 * Math.pow(1.8, level - 1));
+            } else {
+                // 15级升16级所需经验作为基础，之后按1.65倍增长
+                const baseExp = Math.floor(500 * Math.pow(1.8, 14)); // 15级升16级的基础
+                return Math.floor(baseExp * Math.pow(1.65, level - 15));
+            }
+        }
 
         function addExp(amount) {
             gameState.exp += amount;
@@ -1919,7 +1988,7 @@
             document.getElementById('runningCount').textContent = gameState.runningTrains.length;
             document.getElementById('incomeBonus').textContent = `+${gameState.incomeBonus}%`;
             checkDailyPointsReset();
-            document.getElementById('dailyPointsInfo').textContent = `今日点卷: ${gameState.dailyPointsEarned}/3000`;
+            document.getElementById('dailyPointsInfo').textContent = `今日点卷: ${gameState.dailyPointsEarned}/6000`;
             updateWeather();
             updateWeatherUI();
         }
@@ -1995,6 +2064,66 @@
             renderTrainList();
         }
         
+        // 获取火车上限（含增加的上限）
+        function getTrainLimit(type) {
+            const baseLimits = { normal: 20, intercity: 24, highspeed: 28, anime: 33, zodiac: 999 };
+            const increased = (gameState.trainLimitIncreases && gameState.trainLimitIncreases[type]) || 0;
+            return baseLimits[type] + increased;
+        }
+
+        // 计算增加上限消耗
+        function calculateLimitIncreaseCost(type) {
+            const currentIncreases = (gameState.trainLimitIncreases && gameState.trainLimitIncreases[type]) || 0;
+            const baseCosts = {
+                normal: 100000,
+                intercity: 1000000,
+                highspeed: 10000000,
+                anime: 1000000000
+            };
+            const multipliers = {
+                normal: 1.4,
+                intercity: 1.45,
+                highspeed: 1.5,
+                anime: 1.7
+            };
+            return Math.floor(baseCosts[type] * Math.pow(multipliers[type], currentIncreases));
+        }
+
+        // 增加火车上限
+        function increaseTrainLimit(type) {
+            if (type === 'zodiac') {
+                showNotification('生肖限定火车上限无限，无需增加！');
+                return;
+            }
+
+            // 初始化上限增加记录
+            if (!gameState.trainLimitIncreases) {
+                gameState.trainLimitIncreases = { normal: 0, intercity: 0, highspeed: 28, anime: 0, zodiac: 0 };
+            }
+            if (gameState.trainLimitIncreases[type] === undefined) {
+                gameState.trainLimitIncreases[type] = 0;
+            }
+
+            // 检查是否已达最大增加次数
+            if (gameState.trainLimitIncreases[type] >= 30) {
+                showNotification('该类型火车上限已达到最大增加次数（30次）！');
+                return;
+            }
+
+            const cost = calculateLimitIncreaseCost(type);
+            if (gameState.gold < cost) {
+                showNotification(`金币不足！需要 ${formatNumber(cost)} 金币`);
+                return;
+            }
+
+            gameState.gold -= cost;
+            gameState.trainLimitIncreases[type]++;
+            updateUI();
+            renderTrainList();
+            renderShop();
+            showNotification(`成功增加1个上限！消耗 ${formatNumber(cost)} 金币`);
+        }
+
         function batchRetireTrains() {
             if (selectedTrainIds.length === 0) {
                 showNotification('请先选择要退役的火车！');
@@ -2049,13 +2178,12 @@
 
         function renderTrainList() {
             const container = document.getElementById('trainList');
-            const typeLimits = { normal: 20, intercity: 24, highspeed: 28, anime: 33, zodiac: 999 };
-            const typeNames = { normal: '普通', intercity: '城际', highspeed: '高铁', anime: '动漫', zodiac: '生肖' };
+            const typeNames = { normal: '普通火车', intercity: '城际列车', highspeed: '高铁', anime: '自创火车', zodiac: '生肖限定' };
             const counts = {};
-            Object.keys(typeLimits).forEach(type => { counts[type] = gameState.ownedTrains.filter(t => t.type === type).length; });
+            Object.keys({ normal: 1, intercity: 1, highspeed: 1, anime: 1, zodiac: 1 }).forEach(type => { counts[type] = gameState.ownedTrains.filter(t => t.type === type).length; });
             const totalCount = gameState.ownedTrains.length;
-            const countInfo = Object.keys(typeLimits).map(type => {
-                const limit = typeLimits[type] === 999 ? '∞' : typeLimits[type];
+            const countInfo = Object.keys({ normal: 1, intercity: 1, highspeed: 1, anime: 1, zodiac: 1 }).map(type => {
+                const limit = type === 'zodiac' ? '∞' : getTrainLimit(type);
                 return `${typeNames[type]}:${counts[type]}/${limit}`;
             }).join(' ');
             document.getElementById('trainCountInfo').textContent = `共${totalCount}辆 | ${countInfo}`;
@@ -2113,6 +2241,10 @@
         function retireTrain(trainId) {
             const train = gameState.ownedTrains.find(t => t.id === trainId);
             if (!train) return;
+            if (isTrainRestricted(train)) {
+                showNotification('该火车需要达到54级才能退役！');
+                return;
+            }
             if (gameState.runningTrains.some(rt => rt.trainId === trainId && !rt.paused)) {
                 showNotification('运营中的火车无法退役！');
                 return;
@@ -2269,9 +2401,9 @@
             const trains = trainData[currentShopTab];
             container.innerHTML = trains.map((train, index) => {
                 const requiredLevel = train.level || 1;
-                const typeLimits = { normal: 20, intercity: 24, highspeed: 28, anime: 33, zodiac: 999 };
                 const currentTypeCount = gameState.ownedTrains.filter(t => t.type === currentShopTab).length;
-                const remainingSlots = typeLimits[currentShopTab] === 999 ? 999 : typeLimits[currentShopTab] - currentTypeCount;
+                const limit = getTrainLimit(currentShopTab);
+                const remainingSlots = limit === 999 ? 999 : limit - currentTypeCount;
                 const levelOk = gameState.level >= requiredLevel;
                 const comfort = train.comfort || 100;
                 const comfortBonus = (comfort / 100).toFixed(1);
@@ -3835,13 +3967,12 @@
                 return; 
             }
             
-            const typeLimits = { normal: 20, intercity: 24, highspeed: 28, anime: 33, zodiac: 999 };
             const currentCount = gameState.ownedTrains.filter(t => t.type === type).length;
-            const limit = typeLimits[type] || 80;
+            const limit = getTrainLimit(type);
             const remainingSlots = limit - currentCount;
             
             if (remainingSlots <= 0) {
-                const typeNames = { normal: '普通火车', intercity: '城际列车', highspeed: '高铁', anime: '动漫联名', zodiac: '生肖限定' };
+                const typeNames = { normal: '普通火车', intercity: '城际列车', highspeed: '高铁', anime: '自创火车', zodiac: '生肖限定' };
                 showNotification(`${typeNames[type]}数量已达上限(${limit}辆)！`);
                 return;
             }
@@ -3934,6 +4065,74 @@
             showNotification(`${train ? train.name : '火车'} 的运营已取消！`);
         }
 
+        // 一键停车：停止所有运营中的火车
+        function stopAllTrains() {
+            const runningCount = gameState.runningTrains.length;
+            if (runningCount === 0) {
+                showNotification('当前没有运营中的火车！');
+                return;
+            }
+            gameState.runningTrains = [];
+            updateUI();
+            renderRightPanel();
+            renderRunningTrains();
+            showNotification(`已停止所有 ${runningCount} 辆运营中的火车！`);
+        }
+
+        // 一键发车：所有未运营的火车发车
+        function startAllTrains() {
+            if (!selectedStartCity || !selectedEndCity) {
+                showNotification('请先选择出发城市和到达城市！');
+                return;
+            }
+            if (!isCityUnlocked(selectedStartCity.name) || !isCityUnlocked(selectedEndCity.name)) {
+                showNotification('请先解锁所选城市！');
+                return;
+            }
+
+            const distance = calculateDistance(selectedStartCity, selectedEndCity);
+            let startedCount = 0;
+            let skippedCount = 0;
+
+            // 获取所有未运营的火车
+            const stoppedTrains = gameState.ownedTrains.filter(train => {
+                return !gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused);
+            });
+
+            stoppedTrains.forEach(train => {
+                const earnings = calculateEarnings(train, distance);
+                const time = calculateTime(train, distance);
+                const cost = Math.round(calculateWeight(train) * distance * 0.01);
+
+                if (gameState.gold >= cost) {
+                    gameState.gold -= cost;
+                    gameState.runningTrains.push({
+                        trainId: train.id,
+                        startCity: selectedStartCity.name,
+                        endCity: selectedEndCity.name,
+                        distance,
+                        earnings,
+                        totalTime: time,
+                        remainingTime: time,
+                        startTime: Date.now()
+                    });
+                    startedCount++;
+                } else {
+                    skippedCount++;
+                }
+            });
+
+            updateUI();
+            renderRoutePanel();
+            if (startedCount > 0) {
+                showNotification(`成功发车 ${startedCount} 辆火车！${skippedCount > 0 ? '（' + skippedCount + '辆金币不足）' : ''}`);
+            } else if (skippedCount > 0) {
+                showNotification('金币不足以发车！');
+            } else {
+                showNotification('没有可发车的火车！');
+            }
+        }
+
         function hireEmployee() {
             if (gameState.employees.length >= 66) { showNotification('员工数量已达上限(66名)！'); return; }
             if (gameState.gold < 1000) { showNotification('金币不足！'); return; }
@@ -3968,6 +4167,176 @@
             showNotification(`${emp.name} 已辞退，返还 ${refundPoints} 点卷！`);
         }
 
+        // 一键分配：将未分配的员工分配至无员工的火车
+        function autoAssignEmployees() {
+            // 获取未分配的员工
+            const unassignedEmployees = gameState.employees.filter(e => e.trainId === null);
+            if (unassignedEmployees.length === 0) {
+                showNotification('没有未分配的员工！');
+                return;
+            }
+
+            // 获取没有员工的火车
+            const trainsWithoutEmployee = gameState.ownedTrains.filter(train => {
+                return !gameState.employees.some(e => e.trainId === train.id);
+            });
+
+            if (trainsWithoutEmployee.length === 0) {
+                showNotification('所有火车都已有员工！');
+                return;
+            }
+
+            let assignedCount = 0;
+            unassignedEmployees.forEach(emp => {
+                if (trainsWithoutEmployee.length > 0) {
+                    const train = trainsWithoutEmployee.shift();
+                    emp.trainId = train.id;
+                    assignedCount++;
+                }
+            });
+
+            updateUI();
+            renderEmployeeList();
+            showNotification(`成功分配 ${assignedCount} 名员工！`);
+        }
+
+        // 一键取消分配：取消所有员工的分配
+        function unassignAllEmployees() {
+            const assignedEmployees = gameState.employees.filter(e => e.trainId !== null);
+            if (assignedEmployees.length === 0) {
+                showNotification('没有已分配的员工！');
+                return;
+            }
+
+            assignedEmployees.forEach(emp => {
+                emp.trainId = null;
+            });
+
+            updateUI();
+            renderEmployeeList();
+            showNotification(`已取消 ${assignedEmployees.length} 名员工的分配！`);
+        }
+
+        // 一键升级：将所有等级小于目标等级的员工升级至目标等级
+        function batchUpgradeEmployees() {
+            const targetLevel = parseInt(document.getElementById('targetLevelInput').value);
+            if (isNaN(targetLevel) || targetLevel < 1 || targetLevel > 40) {
+                showNotification('请输入有效的目标等级（1-40）！');
+                return;
+            }
+
+            // 获取需要升级的员工（等级小于目标等级的）
+            const employeesToUpgrade = gameState.employees.filter(e => e.level < targetLevel);
+            if (employeesToUpgrade.length === 0) {
+                showNotification('没有需要升级的员工！');
+                return;
+            }
+
+            let totalCost = 0;
+            let upgradedCount = 0;
+            let stopped = false;
+
+            // 计算每个员工升级到目标等级所需的总点卷
+            for (const emp of employeesToUpgrade) {
+                let costForThisEmployee = 0;
+                for (let lvl = emp.level; lvl < targetLevel; lvl++) {
+                    costForThisEmployee += calculateUpgradeCost(lvl);
+                }
+
+                // 检查点卷是否足够
+                if (gameState.points >= totalCost + costForThisEmployee) {
+                    totalCost += costForThisEmployee;
+                    emp.level = targetLevel;
+                    upgradedCount++;
+                } else {
+                    // 点卷不足，停止升级
+                    stopped = true;
+                    break;
+                }
+            }
+
+            if (totalCost > 0) {
+                gameState.points -= totalCost;
+                updateUI();
+                renderEmployeeList();
+            }
+
+            if (stopped) {
+                showNotification(`点卷不足！已成功升级 ${upgradedCount} 名员工至 ${targetLevel} 级，消耗 ${totalCost} 点卷。`);
+            } else if (upgradedCount > 0) {
+                showNotification(`成功将 ${upgradedCount} 名员工升级至 ${targetLevel} 级！消耗 ${totalCost} 点卷。`);
+            } else {
+                showNotification('没有员工需要升级！');
+            }
+        }
+
+        // 一键改造：将所有改造等级小于目标等级的火车改造至目标等级
+        function batchReformTrains() {
+            const targetLevel = parseInt(document.getElementById('targetReformLevelInput').value);
+            if (isNaN(targetLevel) || targetLevel < 1 || targetLevel > 25) {
+                showNotification('请输入有效的目标等级（1-25）！');
+                return;
+            }
+
+            // 确保reformStones已初始化
+            if (gameState.reformStones === undefined) gameState.reformStones = 0;
+
+            // 获取需要改造的火车（改造等级小于目标等级的）
+            const trainsToReform = gameState.ownedTrains.filter(train => {
+                const reformLevel = train.reformLevel || 0;
+                return reformLevel < targetLevel;
+            });
+
+            if (trainsToReform.length === 0) {
+                showNotification('没有需要改造的火车！');
+                return;
+            }
+
+            // 先计算所有火车改造所需的总改造石
+            let totalCost = 0;
+            const trainCosts = [];
+            for (const train of trainsToReform) {
+                const currentLevel = train.reformLevel || 0;
+                let costForThisTrain = 0;
+                for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
+                    costForThisTrain += lvl * 5;
+                }
+                trainCosts.push({ train, cost: costForThisTrain });
+                totalCost += costForThisTrain;
+            }
+
+            // 检查改造石是否足够
+            if (gameState.reformStones < totalCost) {
+                // 改造石不足，逐个改造直到耗尽
+                let usedStones = 0;
+                let reformedCount = 0;
+                for (const { train, cost } of trainCosts) {
+                    if (gameState.reformStones >= usedStones + cost) {
+                        usedStones += cost;
+                        train.reformLevel = targetLevel;
+                        reformedCount++;
+                    } else {
+                        break;
+                    }
+                }
+                if (usedStones > 0) {
+                    gameState.reformStones -= usedStones;
+                    updateUI();
+                    renderReformPanel();
+                }
+                showNotification(`改造石不足！已成功改造 ${reformedCount} 辆火车至 ${targetLevel} 级，消耗 ${usedStones} 改造石。还需 ${totalCost - usedStones} 改造石改造剩余火车。`);
+            } else {
+                // 改造石足够，全部改造
+                gameState.reformStones -= totalCost;
+                for (const { train } of trainCosts) {
+                    train.reformLevel = targetLevel;
+                }
+                updateUI();
+                renderReformPanel();
+                showNotification(`成功将 ${trainsToReform.length} 辆火车改造至 ${targetLevel} 级！消耗 ${totalCost} 改造石。`);
+            }
+        }
+
         function upgradeIncomeBonus() {
             if (gameState.points < 3000) { showNotification('点卷不足！'); return; }
             gameState.points -= 3000;
@@ -3997,7 +4366,8 @@
         }
         
         function isTrainRestricted(train) {
-            if (train.fromRedeemCode && train.name === '马年纪念号' && gameState.level < 54) {
+            // 兑换码获得的火车在54级前无法操作
+            if (train.fromRedeemCode && gameState.level < 54) {
                 return true;
             }
             return false;
@@ -4110,7 +4480,7 @@
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `铁路大亨存档_${new Date().toISOString().slice(0,10)}.txt`;
+            a.download = `铁轨帝国存档_${new Date().toISOString().slice(0,10)}.txt`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
@@ -4210,7 +4580,7 @@
             };
             selectedStartCity = null;
             selectedEndCity = null;
-            gameState.ownedTrains.push({ id: Date.now() + Math.random(), type: 'normal', name: '和谐号', speed: 80, weight: 600, purchasePrice: 5000, upgradeLevel: 0, comfort: 100 });
+            gameState.ownedTrains.push({ id: Date.now() + Math.random(), type: 'normal', name: '启程号', speed: 80, weight: 600, purchasePrice: 5000, upgradeLevel: 0, comfort: 100 });
             closeRestartModal();
             updateUI();
             updateLevelUI();
@@ -4257,9 +4627,9 @@
                     gameState.totalEarnings += rt.earnings;
                     addExp(Math.floor(rt.distance / 5));
                     checkDailyPointsReset();
-                    if (gameState.dailyPointsEarned < 3000) {
+                    if (gameState.dailyPointsEarned < 6000) {
                         const points = Math.floor(Math.random() * 5) + 1;
-                        const canEarn = Math.min(points, 1500 - gameState.dailyPointsEarned);
+                        const canEarn = Math.min(points, 6000 - gameState.dailyPointsEarned);
                         gameState.points += canEarn;
                         gameState.dailyPointsEarned += canEarn;
                     }
@@ -4277,6 +4647,10 @@
                         const cost = Math.round(calculateWeight(train) * rt.distance * 0.01);
                         if (gameState.gold >= cost) {
                             gameState.gold -= cost;
+                            // 交换出发和到达城市（往返运营）
+                            const tempCity = rt.startCity;
+                            rt.startCity = rt.endCity;
+                            rt.endCity = tempCity;
                             // 重新计算时间和收益，使员工和改造加成立即生效
                             rt.totalTime = calculateTime(train, rt.distance);
                             rt.earnings = calculateEarnings(train, rt.distance);
@@ -4334,6 +4708,10 @@
                 if (gameState.challengeProgress === undefined) gameState.challengeProgress = 0;
                 if (gameState.challengeBonus === undefined) gameState.challengeBonus = 0;
                 if (gameState.trainParts === undefined) gameState.trainParts = 0;
+                // 火车上限增加记录兼容
+                if (gameState.trainLimitIncreases === undefined) {
+                    gameState.trainLimitIncreases = { normal: 0, intercity: 0, highspeed: 0, anime: 0, zodiac: 0 };
+                }
                 gameState.ownedTrains.forEach(train => { 
                     if (train.reformLevel === undefined) train.reformLevel = 0;
                     if (train.goldReformLevel === undefined) train.goldReformLevel = 0;
@@ -4432,7 +4810,7 @@
         function init() {
             loadGame();
             if (gameState.ownedTrains.length === 0) {
-                gameState.ownedTrains.push({ id: Date.now() + Math.random(), type: 'normal', name: '和谐号', speed: 80, weight: 600, purchasePrice: 5000, upgradeLevel: 0, comfort: 100 });
+                gameState.ownedTrains.push({ id: Date.now() + Math.random(), type: 'normal', name: '启程号', speed: 80, weight: 600, purchasePrice: 5000, upgradeLevel: 0, comfort: 100 });
             }
             gameState.ownedTrains.forEach(train => {
                 if (train.comfort === undefined) {
@@ -4469,11 +4847,15 @@
                 }
                 
                 if (delta > 1000) {
+                    // 离线/后台补偿：补上错过的秒数
                     const missedSeconds = Math.floor(delta / 1000);
                     for (let i = 0; i < missedSeconds; i++) gameLoop();
+                    lastTime = now;
+                } else {
+                    // 正常情况：执行一次游戏循环
+                    lastTime = now;
+                    gameLoop();
                 }
-                lastTime = now;
-                gameLoop();
             }
             
             setInterval(gameLoopWithBackground, 1000);
@@ -4534,8 +4916,6 @@
     
     <!-- 游戏底部说明 -->
     <div style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,rgba(10,10,15,0.95));padding:15px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--fg-secondary);z-index:100;pointer-events:none;">
-        <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">游戏制作者：顶级萌新</span>
-        <span style="margin:0 15px;color:var(--fg-secondary);">|</span>
         <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">游戏QQ群：806903918</span>
     </div>
 <!--客服 开始-->
@@ -4554,6 +4934,5 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>    </div>
-
 </body>
 </html>
