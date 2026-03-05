@@ -1076,16 +1076,16 @@
                     <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;margin-bottom:15px;">
                         <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📈 增加上限（每种最多增加30次）</div>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <button class="btn btn-small" onclick="increaseTrainLimit('normal')" style="background:linear-gradient(135deg,#2a4a3a,#1a2a2a);border-color:#00ff88;">
+                            <button class="btn btn-small" onclick="increaseTrainLimit('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">
                                 普通火车+1
                             </button>
-                            <button class="btn btn-small" onclick="increaseTrainLimit('intercity')" style="background:linear-gradient(135deg,#2a3a4a,#1a2a2a);border-color:#00d4ff;">
+                            <button class="btn btn-small" onclick="increaseTrainLimit('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">
                                 城际火车+1
                             </button>
-                            <button class="btn btn-small" onclick="increaseTrainLimit('highspeed')" style="background:linear-gradient(135deg,#4a3a2a,#2a2a1a);border-color:#ffd700;">
+                            <button class="btn btn-small" onclick="increaseTrainLimit('highspeed')" style="background:linear-gradient(135deg,#ffd700,#cc9900);border-color:#ffd700;color:#000;font-weight:600;">
                                 高铁+1
                             </button>
-                            <button class="btn btn-small" onclick="increaseTrainLimit('anime')" style="background:linear-gradient(135deg,#4a2a4a,#2a1a2a);border-color:#ff3366;">
+                            <button class="btn btn-small" onclick="increaseTrainLimit('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">
                                 自创火车+1
                             </button>
                         </div>
@@ -1231,9 +1231,15 @@
                             <button class="btn btn-primary" id="upgradeBonusBtn" onclick="upgradeIncomeBonus()">消耗 3000 点卷提升 1%</button>
                         </div>
                     </div>
-                    <div class="panel-title" style="margin-top:25px;">火车改造</div>
+                    <div class="panel-title" style="margin-top:25px;">火车强化</div>
+                    <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;">
+                        <span style="font-size:12px;color:var(--fg-secondary);">一键强化至</span>
+                        <input type="number" id="targetUpgradeLevelInput" min="1" max="20" value="10" style="width:60px;padding:5px;text-align:center;background:var(--bg-secondary);border:1px solid var(--border);color:var(--fg);border-radius:4px;">
+                        <span style="font-size:12px;color:var(--fg-secondary);">级</span>
+                        <button class="btn btn-primary" onclick="batchUpgradeTrains()" style="flex:1;">⚡ 一键强化</button>
+                    </div>
                     <div class="section-box">
-                        <div class="section-title">选择火车进行改造</div>
+                        <div class="section-title">选择火车进行强化</div>
                         <select id="trainUpgradeSelect" onchange="showTrainUpgradeDetail()"><option value="">-- 请选择火车 --</option></select>
                     </div>
                     <div id="trainUpgradeDetail"></div>
@@ -1317,6 +1323,18 @@
         <div id="changelogPanel" class="panel" style="display:none;">
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
+                        <div class="changelog-version">
+                            <div class="changelog-date">3.5 铁轨帝国更新内容</div>
+                            <ul class="changelog-list">
+                                <li>修复一键退役、一键改造、员工一键分配对限制车生效的BUG</li>
+                                <li>离线收益调整至最大12小时，新增离线经验计算</li>
+                                <li>修复离线收益偶现失效bug</li>
+                                <li>调整上限按钮颜色过暗问题</li>
+                                <li>调整火车购买等级需求</li>
+                                <li>新增兑换码taptap，使用后获得2000点卷+300改造石</li>
+                                <li>点卷强化界面新增一键强化按钮</li>
+                            </ul>
+                        </div>
                         <div class="changelog-version">
                             <div class="changelog-date">3.4 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
@@ -1621,94 +1639,94 @@
                 { name: "北京号", speed: 136, weight: 460, price: 125000, level: 8, comfort: 450 },
                 { name: "上海号", speed: 144, weight: 440, price: 160000, level: 9, comfort: 500 },
                 { name: "广州号", speed: 152, weight: 420, price: 200000, level: 10, comfort: 550 },
-                { name: "深圳号", speed: 160, weight: 400, price: 250000, level: 12, comfort: 650 },
-                { name: "成都号", speed: 168, weight: 380, price: 300000, level: 14, comfort: 750 },
-                { name: "重庆号", speed: 176, weight: 360, price: 350000, level: 16, comfort: 850 },
-                { name: "杭州号", speed: 184, weight: 340, price: 400000, level: 18, comfort: 950 },
-                { name: "武汉号", speed: 192, weight: 320, price: 440000, level: 20, comfort: 1050 },
-                { name: "西安号", speed: 200, weight: 300, price: 470000, level: 22, comfort: 1150 },
-                { name: "南京号", speed: 208, weight: 280, price: 485000, level: 24, comfort: 1250 },
-                { name: "天津号", speed: 216, weight: 260, price: 495000, level: 26, comfort: 1350 },
-                { name: "苏州号", speed: 224, weight: 240, price: 498000, level: 28, comfort: 1450 },
-                { name: "郑州号", speed: 235, weight: 220, price: 500000, level: 30, comfort: 1550 }
+                { name: "深圳号", speed: 160, weight: 400, price: 250000, level: 11, comfort: 650 },
+                { name: "成都号", speed: 168, weight: 380, price: 300000, level: 12, comfort: 750 },
+                { name: "重庆号", speed: 176, weight: 360, price: 350000, level: 13, comfort: 850 },
+                { name: "杭州号", speed: 184, weight: 340, price: 400000, level: 14, comfort: 950 },
+                { name: "武汉号", speed: 192, weight: 320, price: 440000, level: 15, comfort: 1050 },
+                { name: "西安号", speed: 200, weight: 300, price: 470000, level: 16, comfort: 1150 },
+                { name: "南京号", speed: 208, weight: 280, price: 485000, level: 17, comfort: 1250 },
+                { name: "天津号", speed: 216, weight: 260, price: 495000, level: 18, comfort: 1350 },
+                { name: "苏州号", speed: 224, weight: 240, price: 498000, level: 19, comfort: 1450 },
+                { name: "郑州号", speed: 235, weight: 220, price: 500000, level: 20, comfort: 1550 }
             ],
             intercity: [
-                { name: "城际快线1号", speed: 250, weight: 400, price: 1000000, level: 15, comfort: 1600 },
-                { name: "城际快线2号", speed: 265, weight: 390, price: 1500000, level: 17, comfort: 1750 },
-                { name: "城际快线3号", speed: 280, weight: 380, price: 2100000, level: 19, comfort: 1900 },
+                { name: "城际快线1号", speed: 250, weight: 400, price: 1000000, level: 18, comfort: 1600 },
+                { name: "城际快线2号", speed: 265, weight: 390, price: 1500000, level: 19, comfort: 1750 },
+                { name: "城际快线3号", speed: 280, weight: 380, price: 2100000, level: 20, comfort: 1900 },
                 { name: "城际快线4号", speed: 295, weight: 370, price: 2800000, level: 21, comfort: 2050 },
-                { name: "城际快线5号", speed: 310, weight: 360, price: 3600000, level: 23, comfort: 2200 },
-                { name: "城际快线6号", speed: 325, weight: 350, price: 4500000, level: 25, comfort: 2350 },
-                { name: "城际快线7号", speed: 340, weight: 340, price: 5500000, level: 27, comfort: 2500 },
-                { name: "城际快线8号", speed: 355, weight: 330, price: 6600000, level: 29, comfort: 2650 },
-                { name: "城际快线9号", speed: 370, weight: 320, price: 7800000, level: 31, comfort: 2800 },
-                { name: "城际快线10号", speed: 385, weight: 310, price: 9100000, level: 33, comfort: 2950 },
-                { name: "城际快线11号", speed: 400, weight: 300, price: 10500000, level: 35, comfort: 3100 },
-                { name: "城际快线12号", speed: 415, weight: 290, price: 12000000, level: 37, comfort: 3250 },
-                { name: "城际快线13号", speed: 430, weight: 280, price: 13600000, level: 39, comfort: 3400 },
-                { name: "城际快线14号", speed: 445, weight: 270, price: 15300000, level: 41, comfort: 3550 },
-                { name: "城际快线15号", speed: 465, weight: 260, price: 20000000, level: 43, comfort: 3700 }
+                { name: "城际快线5号", speed: 310, weight: 360, price: 3600000, level: 22, comfort: 2200 },
+                { name: "城际快线6号", speed: 325, weight: 350, price: 4500000, level: 23, comfort: 2350 },
+                { name: "城际快线7号", speed: 340, weight: 340, price: 5500000, level: 24, comfort: 2500 },
+                { name: "城际快线8号", speed: 355, weight: 330, price: 6600000, level: 25, comfort: 2650 },
+                { name: "城际快线9号", speed: 370, weight: 320, price: 7800000, level: 26, comfort: 2800 },
+                { name: "城际快线10号", speed: 385, weight: 310, price: 9100000, level: 27, comfort: 2950 },
+                { name: "城际快线11号", speed: 400, weight: 300, price: 10500000, level: 28, comfort: 3100 },
+                { name: "城际快线12号", speed: 415, weight: 290, price: 12000000, level: 29, comfort: 3250 },
+                { name: "城际快线13号", speed: 430, weight: 280, price: 13600000, level: 30, comfort: 3400 },
+                { name: "城际快线14号", speed: 445, weight: 270, price: 15300000, level: 31, comfort: 3550 },
+                { name: "城际快线15号", speed: 465, weight: 260, price: 20000000, level: 33, comfort: 3700 }
             ],
             highspeed: [
-                { name: "京沪高铁1号", speed: 480, weight: 320, price: 60000000, level: 32, comfort: 3850 },
-                { name: "京沪高铁2号", speed: 500, weight: 310, price: 80000000, level: 34, comfort: 4000 },
-                { name: "京沪高铁3号", speed: 520, weight: 300, price: 105000000, level: 36, comfort: 4150 },
-                { name: "京沪高铁4号", speed: 540, weight: 290, price: 135000000, level: 38, comfort: 4300 },
-                { name: "京沪高铁5号", speed: 560, weight: 280, price: 170000000, level: 40, comfort: 4450 },
-                { name: "京广高铁1号", speed: 580, weight: 270, price: 210000000, level: 42, comfort: 4600 },
-                { name: "京广高铁2号", speed: 600, weight: 260, price: 255000000, level: 44, comfort: 4750 },
-                { name: "京广高铁3号", speed: 620, weight: 250, price: 305000000, level: 46, comfort: 4900 },
-                { name: "沪昆高铁1号", speed: 640, weight: 240, price: 360000000, level: 48, comfort: 5050 },
-                { name: "沪昆高铁2号", speed: 660, weight: 230, price: 420000000, level: 50, comfort: 5200 },
-                { name: "沪昆高铁3号", speed: 680, weight: 220, price: 490000000, level: 52, comfort: 5350 },
-                { name: "哈大高铁1号", speed: 700, weight: 210, price: 570000000, level: 54, comfort: 5500 },
-                { name: "哈大高铁2号", speed: 720, weight: 200, price: 660000000, level: 56, comfort: 5650 },
-                { name: "西成高铁1号", speed: 740, weight: 190, price: 760000000, level: 58, comfort: 5800 },
-                { name: "西成高铁2号", speed: 770, weight: 180, price: 900000000, level: 60, comfort: 5950 }
+                { name: "京沪高铁1号", speed: 480, weight: 320, price: 60000000, level: 31, comfort: 3850 },
+                { name: "京沪高铁2号", speed: 500, weight: 310, price: 80000000, level: 32, comfort: 4000 },
+                { name: "京沪高铁3号", speed: 520, weight: 300, price: 105000000, level: 33, comfort: 4150 },
+                { name: "京沪高铁4号", speed: 540, weight: 290, price: 135000000, level: 34, comfort: 4300 },
+                { name: "京沪高铁5号", speed: 560, weight: 280, price: 170000000, level: 35, comfort: 4450 },
+                { name: "京广高铁1号", speed: 580, weight: 270, price: 210000000, level: 36, comfort: 4600 },
+                { name: "京广高铁2号", speed: 600, weight: 260, price: 255000000, level: 37, comfort: 4750 },
+                { name: "京广高铁3号", speed: 620, weight: 250, price: 305000000, level: 38, comfort: 4900 },
+                { name: "沪昆高铁1号", speed: 640, weight: 240, price: 360000000, level: 39, comfort: 5050 },
+                { name: "沪昆高铁2号", speed: 660, weight: 230, price: 420000000, level: 40, comfort: 5200 },
+                { name: "沪昆高铁3号", speed: 680, weight: 220, price: 490000000, level: 41, comfort: 5350 },
+                { name: "哈大高铁1号", speed: 700, weight: 210, price: 570000000, level: 42, comfort: 5500 },
+                { name: "哈大高铁2号", speed: 720, weight: 200, price: 660000000, level: 44, comfort: 5650 },
+                { name: "西成高铁1号", speed: 740, weight: 190, price: 760000000, level: 46, comfort: 5800 },
+                { name: "西成高铁2号", speed: 770, weight: 180, price: 900000000, level: 48, comfort: 5950 }
             ],
             anime: [
-                { name: "萌猫号", speed: 780, weight: 280, price: 3600000000, level: 20, comfort: 6100 },
-                { name: "寻梦号", speed: 800, weight: 270, price: 4200000000, level: 22, comfort: 6250 },
-                { name: "魔法号", speed: 820, weight: 260, price: 4900000000, level: 24, comfort: 6400 },
-                { name: "云端号", speed: 840, weight: 250, price: 5700000000, level: 26, comfort: 6550 },
-                { name: "风语号", speed: 860, weight: 240, price: 6600000000, level: 28, comfort: 6700 },
-                { name: "影舞号", speed: 880, weight: 230, price: 7600000000, level: 30, comfort: 6850 },
-                { name: "航海号", speed: 900, weight: 220, price: 8700000000, level: 32, comfort: 7000 },
-                { name: "侦探号", speed: 920, weight: 210, price: 9900000000, level: 34, comfort: 7150 },
-                { name: "蓝猫号", speed: 940, weight: 200, price: 11200000000, level: 36, comfort: 7300 },
-                { name: "精灵号", speed: 960, weight: 190, price: 12600000000, level: 38, comfort: 7450 },
-                { name: "数码号", speed: 980, weight: 180, price: 14100000000, level: 40, comfort: 7600 },
-                { name: "斗士号", speed: 1000, weight: 170, price: 15700000000, level: 42, comfort: 7750 },
-                { name: "热血号", speed: 1020, weight: 160, price: 17400000000, level: 44, comfort: 7900 },
-                { name: "福音号", speed: 1040, weight: 150, price: 19200000000, level: 46, comfort: 8050 },
-                { name: "巨人号", speed: 1070, weight: 140, price: 22000000000, level: 48, comfort: 8200 }
+                { name: "萌猫号", speed: 780, weight: 280, price: 3600000000, level: 45, comfort: 6100 },
+                { name: "寻梦号", speed: 800, weight: 270, price: 4200000000, level: 46, comfort: 6250 },
+                { name: "魔法号", speed: 820, weight: 260, price: 4900000000, level: 47, comfort: 6400 },
+                { name: "云端号", speed: 840, weight: 250, price: 5700000000, level: 48, comfort: 6550 },
+                { name: "风语号", speed: 860, weight: 240, price: 6600000000, level: 49, comfort: 6700 },
+                { name: "影舞号", speed: 880, weight: 230, price: 7600000000, level: 50, comfort: 6850 },
+                { name: "航海号", speed: 900, weight: 220, price: 8700000000, level: 51, comfort: 7000 },
+                { name: "侦探号", speed: 920, weight: 210, price: 9900000000, level: 52, comfort: 7150 },
+                { name: "蓝猫号", speed: 940, weight: 200, price: 11200000000, level: 53, comfort: 7300 },
+                { name: "精灵号", speed: 960, weight: 190, price: 12600000000, level: 54, comfort: 7450 },
+                { name: "数码号", speed: 980, weight: 180, price: 14100000000, level: 55, comfort: 7600 },
+                { name: "斗士号", speed: 1000, weight: 170, price: 15700000000, level: 56, comfort: 7750 },
+                { name: "热血号", speed: 1020, weight: 160, price: 17400000000, level: 57, comfort: 7900 },
+                { name: "福音号", speed: 1040, weight: 150, price: 19200000000, level: 58, comfort: 8050 },
+                { name: "巨人号", speed: 1070, weight: 140, price: 22000000000, level: 60, comfort: 8200 }
             ],
             zodiac: [
-                { name: "鼠年纪念号", speed: 1080, weight: 200, price: 110000000000, level: 47, comfort: 8350 },
-                { name: "牛年纪念号", speed: 1100, weight: 195, price: 125000000000, level: 49, comfort: 8500 },
-                { name: "虎年纪念号", speed: 1120, weight: 190, price: 142000000000, level: 50, comfort: 8650 },
-                { name: "兔年纪念号", speed: 1140, weight: 185, price: 160000000000, level: 51, comfort: 8800 },
-                { name: "龙年纪念号", speed: 1160, weight: 180, price: 180000000000, level: 52, comfort: 8950 },
-                { name: "蛇年纪念号", speed: 1180, weight: 175, price: 200000000000, level: 53, comfort: 9100 },
-                { name: "马年纪念号", speed: 1200, weight: 170, price: 222000000000, level: 54, comfort: 9250 },
-                { name: "羊年纪念号", speed: 1220, weight: 165, price: 245000000000, level: 55, comfort: 9400 },
-                { name: "猴年纪念号", speed: 1240, weight: 160, price: 270000000000, level: 56, comfort: 9550 },
-                { name: "鸡年纪念号", speed: 1260, weight: 155, price: 296000000000, level: 57, comfort: 9700 },
-                { name: "狗年纪念号", speed: 1280, weight: 150, price: 324000000000, level: 58, comfort: 9850 },
-                { name: "猪年纪念号", speed: 1300, weight: 145, price: 353000000000, level: 59, comfort: 10000 },
-                { name: "2026元宵号", speed: 1310, weight: 142, price: 368000000000, level: 59, comfort: 10075 },
-                { name: "金龙号", speed: 1320, weight: 140, price: 384000000000, level: 60, comfort: 10150 },
-                { name: "银龙号", speed: 1340, weight: 135, price: 416000000000, level: 61, comfort: 10300 },
-                { name: "祥龙号", speed: 1360, weight: 130, price: 450000000000, level: 62, comfort: 10450 },
-                { name: "瑞龙号", speed: 1380, weight: 125, price: 486000000000, level: 63, comfort: 10600 },
-                { name: "福龙号", speed: 1400, weight: 120, price: 524000000000, level: 64, comfort: 10750 },
-                { name: "喜龙号", speed: 1420, weight: 115, price: 564000000000, level: 65, comfort: 10900 },
-                { name: "财龙号", speed: 1440, weight: 110, price: 606000000000, level: 66, comfort: 11050 },
-                { name: "运龙号", speed: 1500, weight: 100, price: 700000000000, level: 66, comfort: 11200 },
-                { name: "锅巴号", speed: 1550, weight: 95, price: 850000000000, level: 66, comfort: 11400 },
-                { name: "树叶号", speed: 1600, weight: 90, price: 1000000000000, level: 66, comfort: 11600 },
-                { name: "git号", speed: 1800, weight: 70, price: 1500000000000, level: 66, comfort: 11800 },
-                { name: "顶级萌新号", speed: 2000, weight: 50, price: 2000000000000, level: 66, comfort: 12000 }
+                { name: "鼠年纪念号", speed: 1080, weight: 200, price: 110000000000, level: 49, comfort: 8350 },
+                { name: "牛年纪念号", speed: 1100, weight: 195, price: 125000000000, level: 50, comfort: 8500 },
+                { name: "虎年纪念号", speed: 1120, weight: 190, price: 142000000000, level: 51, comfort: 8650 },
+                { name: "兔年纪念号", speed: 1140, weight: 185, price: 160000000000, level: 52, comfort: 8800 },
+                { name: "龙年纪念号", speed: 1160, weight: 180, price: 180000000000, level: 53, comfort: 8950 },
+                { name: "蛇年纪念号", speed: 1180, weight: 175, price: 200000000000, level: 54, comfort: 9100 },
+                { name: "马年纪念号", speed: 1200, weight: 170, price: 222000000000, level: 55, comfort: 9250 },
+                { name: "羊年纪念号", speed: 1220, weight: 165, price: 245000000000, level: 56, comfort: 9400 },
+                { name: "猴年纪念号", speed: 1240, weight: 160, price: 270000000000, level: 57, comfort: 9550 },
+                { name: "鸡年纪念号", speed: 1260, weight: 155, price: 296000000000, level: 58, comfort: 9700 },
+                { name: "狗年纪念号", speed: 1280, weight: 150, price: 324000000000, level: 59, comfort: 9850 },
+                { name: "猪年纪念号", speed: 1300, weight: 145, price: 353000000000, level: 60, comfort: 10000 },
+                { name: "2026元宵号", speed: 1310, weight: 142, price: 368000000000, level: 61, comfort: 10075 },
+                { name: "金龙号", speed: 1320, weight: 140, price: 384000000000, level: 62, comfort: 10150 },
+                { name: "银龙号", speed: 1340, weight: 135, price: 416000000000, level: 63, comfort: 10300 },
+                { name: "祥龙号", speed: 1360, weight: 130, price: 450000000000, level: 64, comfort: 10450 },
+                { name: "瑞龙号", speed: 1380, weight: 125, price: 486000000000, level: 65, comfort: 10600 },
+                { name: "福龙号", speed: 1400, weight: 120, price: 524000000000, level: 66, comfort: 10750 },
+                { name: "喜龙号", speed: 1420, weight: 115, price: 564000000000, level: 67, comfort: 10900 },
+                { name: "财龙号", speed: 1440, weight: 110, price: 606000000000, level: 68, comfort: 11050 },
+                { name: "运龙号", speed: 1500, weight: 100, price: 700000000000, level: 69, comfort: 11200 },
+                { name: "锅巴号", speed: 1550, weight: 95, price: 850000000000, level: 70, comfort: 11400 },
+                { name: "树叶号", speed: 1600, weight: 90, price: 1000000000000, level: 71, comfort: 11600 },
+                { name: "git号", speed: 1800, weight: 70, price: 1500000000000, level: 72, comfort: 11800 },
+                { name: "顶级萌新号", speed: 2000, weight: 50, price: 2000000000000, level: 74, comfort: 12000 }
             ]
         };
 
@@ -1746,6 +1764,7 @@
             "914181599": { points: 3000, reformStones: 288, used: false },
             "顶级萌新": { points: 5000, reformStones: 388, used: false },
             "guoba": { points: 2000, reformStones: 288, used: false },
+            "taptap": { points: 2000, reformStones: 300, used: false },
             "gityx": { train: "马年纪念号", used: false },
             "2026元宵快乐": { train: "2026元宵号", used: false }
         };
@@ -2130,9 +2149,16 @@
                 return;
             }
             
+            // 获取选中的火车，排除受限火车
             const trainsToRetire = selectedTrainIds.map(id => 
                 gameState.ownedTrains.find(t => Math.abs(t.id - id) < 0.0001)
-            ).filter(t => t);
+            ).filter(t => t && !isTrainRestricted(t));
+            
+            if (trainsToRetire.length === 0) {
+                showNotification('没有可以退役的火车！（兑换码火车需54级后才能退役）');
+                return;
+            }
+            
             const runningTrains = trainsToRetire.filter(train => 
                 gameState.runningTrains.some(rt => Math.abs(rt.trainId - train.id) < 0.0001 && !rt.paused)
             );
@@ -4176,9 +4202,9 @@
                 return;
             }
 
-            // 获取没有员工的火车
+            // 获取没有员工且不受限制的火车
             const trainsWithoutEmployee = gameState.ownedTrains.filter(train => {
-                return !gameState.employees.some(e => e.trainId === train.id);
+                return !gameState.employees.some(e => e.trainId === train.id) && !isTrainRestricted(train);
             });
 
             if (trainsWithoutEmployee.length === 0) {
@@ -4281,10 +4307,10 @@
             // 确保reformStones已初始化
             if (gameState.reformStones === undefined) gameState.reformStones = 0;
 
-            // 获取需要改造的火车（改造等级小于目标等级的）
+            // 获取需要改造的火车（改造等级小于目标等级且不受限制的）
             const trainsToReform = gameState.ownedTrains.filter(train => {
                 const reformLevel = train.reformLevel || 0;
-                return reformLevel < targetLevel;
+                return reformLevel < targetLevel && !isTrainRestricted(train);
             });
 
             if (trainsToReform.length === 0) {
@@ -4364,7 +4390,55 @@
             showTrainUpgradeDetail();
             showNotification(`${train.name} 改造升级成功！`);
         }
-        
+
+        // 一键强化：将所有强化等级小于目标等级的火车强化至目标等级
+        function batchUpgradeTrains() {
+            const targetLevel = parseInt(document.getElementById('targetUpgradeLevelInput').value);
+            if (isNaN(targetLevel) || targetLevel < 1 || targetLevel > 20) {
+                showNotification('请输入有效的目标等级（1-20）！');
+                return;
+            }
+
+            // 获取需要强化的火车（强化等级小于目标等级且不受限制的）
+            const trainsToUpgrade = gameState.ownedTrains.filter(train => {
+                const upgradeLevel = train.upgradeLevel || 0;
+                return upgradeLevel < targetLevel && !isTrainRestricted(train);
+            });
+
+            if (trainsToUpgrade.length === 0) {
+                showNotification('没有需要强化的火车！');
+                return;
+            }
+
+            // 先计算所有火车强化所需的总点卷
+            let totalCost = 0;
+            const trainCosts = [];
+            for (const train of trainsToUpgrade) {
+                const currentLevel = train.upgradeLevel || 0;
+                let costForThisTrain = 0;
+                for (let lvl = currentLevel + 1; lvl <= targetLevel; lvl++) {
+                    costForThisTrain += calculateTrainUpgradeCost(lvl);
+                }
+                trainCosts.push({ train, cost: costForThisTrain });
+                totalCost += costForThisTrain;
+            }
+
+            // 检查点卷是否足够
+            if (gameState.points < totalCost) {
+                showNotification(`点卷不足！需要 ${totalCost} 点卷，当前只有 ${gameState.points} 点卷。`);
+                return;
+            }
+
+            // 点卷足够，全部强化
+            gameState.points -= totalCost;
+            for (const { train } of trainCosts) {
+                train.upgradeLevel = targetLevel;
+            }
+            updateUI();
+            renderUpgradePanel();
+            showNotification(`成功将 ${trainsToUpgrade.length} 辆火车强化至 ${targetLevel} 级！消耗 ${totalCost} 点卷。`);
+        }
+
         function isTrainRestricted(train) {
             // 兑换码获得的火车在54级前无法操作
             if (train.fromRedeemCode && gameState.level < 54) {
@@ -4719,16 +4793,17 @@
                 
                 // 恢复运行中的火车数据,而不是清空
                 if (!gameState.runningTrains) gameState.runningTrains = [];
-                
+
                 // 计算离线期间的火车运营
                 if (gameState.lastOnlineTime && gameState.runningTrains.length > 0) {
                     const offlineTime = (Date.now() - new Date(gameState.lastOnlineTime).getTime()) / 1000;
-                    
+
                     if (offlineTime > 10) {
                         let totalOfflineEarnings = 0;
-                        
-                        // 处理离线期间的火车运营
-                        const maxOfflineSeconds = Math.min(Math.floor(offlineTime), 3600); // 最多计算1小时
+                        let totalOfflineExp = 0;
+
+                        // 处理离线期间的火车运营（最多计算12小时）
+                        const maxOfflineSeconds = Math.min(Math.floor(offlineTime), 43200);
                         for (let i = 0; i < maxOfflineSeconds; i++) {
                             gameState.runningTrains.forEach(rt => {
                                 if (!rt.paused) {
@@ -4736,7 +4811,8 @@
                                     if (rt.remainingTime <= 0) {
                                         totalOfflineEarnings += rt.earnings;
                                         gameState.totalEarnings += rt.earnings;
-                                        
+                                        totalOfflineExp += Math.floor(rt.distance / 5);
+
                                         const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
                                         if (train) {
                                             const cost = Math.round(calculateWeight(train) * rt.distance * 0.01);
@@ -4752,15 +4828,21 @@
                                 }
                             });
                         }
-                        
+
                         // 显示离线收益
-                        if (totalOfflineEarnings > 0) {
+                        if (totalOfflineEarnings > 0 || totalOfflineExp > 0) {
                             gameState.gold += totalOfflineEarnings;
-                            document.getElementById('offlineEarnings').textContent = formatNumber(totalOfflineEarnings);
+                            // 添加离线经验值
+                            if (totalOfflineExp > 0) {
+                                addExp(totalOfflineExp);
+                            }
+                            document.getElementById('offlineEarnings').textContent = formatNumber(totalOfflineEarnings) + (totalOfflineExp > 0 ? ' + ' + totalOfflineExp + ' 经验' : '');
                             document.getElementById('offlineModal').classList.add('show');
                         }
                     }
                 }
+                // 更新最后在线时间，避免重复计算离线收益
+                gameState.lastOnlineTime = new Date().toISOString();
             }
         }
 
@@ -4809,6 +4891,10 @@
         // ==================== 初始化 ====================
         function init() {
             loadGame();
+            // 确保lastOnlineTime已初始化
+            if (!gameState.lastOnlineTime) {
+                gameState.lastOnlineTime = new Date().toISOString();
+            }
             if (gameState.ownedTrains.length === 0) {
                 gameState.ownedTrains.push({ id: Date.now() + Math.random(), type: 'normal', name: '启程号', speed: 80, weight: 600, purchasePrice: 5000, upgradeLevel: 0, comfort: 100 });
             }
@@ -4834,7 +4920,7 @@
             function gameLoopWithBackground() {
                 const now = Date.now();
                 const delta = now - lastTime;
-                
+
                 // 时间加速检测：每秒检查循环次数
                 loopCount++;
                 if (now - loopCheckTime >= 1000) {
@@ -4845,10 +4931,10 @@
                     loopCount = 0;
                     loopCheckTime = now;
                 }
-                
+
                 if (delta > 1000) {
-                    // 离线/后台补偿：补上错过的秒数
-                    const missedSeconds = Math.floor(delta / 1000);
+                    // 离线/后台补偿：补上错过的秒数（最多12小时）
+                    const missedSeconds = Math.min(Math.floor(delta / 1000), 43200);
                     for (let i = 0; i < missedSeconds; i++) gameLoop();
                     lastTime = now;
                 } else {
@@ -4859,21 +4945,25 @@
             }
             
             setInterval(gameLoopWithBackground, 1000);
-            setInterval(() => { saveGame(); gameState.lastOnlineTime = new Date().toISOString(); }, 30000);
+            setInterval(() => { gameState.lastOnlineTime = new Date().toISOString(); saveGame(); }, 30000);
             
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
+                    // 页面变为可见时，计算离线收益
                     if (gameState.lastOnlineTime) {
                         const offlineTime = (Date.now() - new Date(gameState.lastOnlineTime).getTime()) / 1000;
                         if (offlineTime > 5) {
-                            const missedSeconds = Math.min(Math.floor(offlineTime), 3600);
+                            const missedSeconds = Math.min(Math.floor(offlineTime), 43200); // 最多计算12小时
+                            let totalEarnings = 0;
+                            let totalExp = 0;
                             for (let i = 0; i < missedSeconds; i++) {
                                 gameState.runningTrains.forEach(rt => {
                                     if (!rt.paused) {
                                         rt.remainingTime--;
                                         if (rt.remainingTime <= 0) {
-                                            gameState.gold += rt.earnings;
+                                            totalEarnings += rt.earnings;
                                             gameState.totalEarnings += rt.earnings;
+                                            totalExp += Math.floor(rt.distance / 5);
                                             const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
                                             if (train) {
                                                 const cost = Math.round(calculateWeight(train) * rt.distance * 0.01);
@@ -4889,12 +4979,22 @@
                                     }
                                 });
                             }
-                            showNotification(`离线补偿：${missedSeconds}秒的运营收益！`);
+                            // 添加离线收益和经验
+                            if (totalEarnings > 0) {
+                                gameState.gold += totalEarnings;
+                            }
+                            if (totalExp > 0) {
+                                addExp(totalExp);
+                            }
+                            if (totalEarnings > 0 || totalExp > 0) {
+                                showNotification(`离线补偿：${missedSeconds}秒的运营收益！获得 ${formatNumber(totalEarnings)} 金币` + (totalExp > 0 ? ` +${totalExp}经验` : ''));
+                            }
                         }
                     }
                     gameState.lastOnlineTime = new Date().toISOString();
                     saveGame();
                 } else {
+                    // 页面变为不可见时，保存当前时间
                     gameState.lastOnlineTime = new Date().toISOString();
                     saveGame();
                 }
@@ -4934,5 +5034,6 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>    </div>
+
 </body>
 </html>
