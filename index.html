@@ -1415,6 +1415,16 @@
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
                         <div class="changelog-version">
+                            <div class="changelog-date">3.6 铁轨帝国更新内容-2</div>
+                            <ul class="changelog-list">
+                                <li>新增更多设置按钮</li>
+                                <li>手机的更多设置界面新增显示经验、天气、保存、重置游戏等信息</li>
+                                <li>火车、员工、城市、运营等多界面新增分页功能</li>
+                                <li>继续优化450关以后闯关收益</li>
+                                <li>降低普通火车和城际火车增加上限的金币消耗</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-version">
                             <div class="changelog-date">3.6 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
                                 <li>全面适配手机界面，进行优化</li>
@@ -2208,10 +2218,19 @@
             document.getElementById('worldCities').style.display = tab === 'world' ? 'grid' : 'none';
         }
 
+        let shopPage = 1;
+        const shopItemsPerPage = 10;
+
         function showShopTab(tab) {
             currentShopTab = tab;
+            shopPage = 1; // 重置页码
             document.querySelectorAll('#shopPanel .tabs .tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
+            renderShop();
+        }
+
+        function changeShopPage(delta) {
+            shopPage += delta;
             renderShop();
         }
 
@@ -2304,8 +2323,8 @@
                 anime: 1000000000
             };
             const multipliers = {
-                normal: 1.4,
-                intercity: 1.45,
+                normal: 1.3,
+                intercity: 1.25,
                 highspeed: 1.5,
                 anime: 1.7
             };
@@ -2430,9 +2449,12 @@
 
         // 火车筛选状态
         let trainFilter = 'all';
+        let trainPage = 1;
+        const trainsPerPage = 10; // 每页显示10辆火车
 
         function filterTrains(filter) {
             trainFilter = filter;
+            trainPage = 1; // 重置页码
             // 更新按钮样式
             const btns = {
                 all: document.getElementById('filterTrainAllBtn'),
@@ -2461,6 +2483,11 @@
                 btns[filter].style.boxShadow = '0 0 15px ' + colors[filter];
             }
 
+            renderTrainList();
+        }
+
+        function changeTrainPage(delta) {
+            trainPage += delta;
             renderTrainList();
         }
 
@@ -2495,7 +2522,33 @@
                 return;
             }
 
-            container.innerHTML = filteredTrains.map(train => {
+            // 检测是否为移动端
+            const isMobile = window.innerWidth <= 768;
+            
+            // 分页处理（PC端和移动端都启用）
+            let displayTrains = filteredTrains;
+            let totalPages = 1;
+            if (filteredTrains.length > trainsPerPage) {
+                totalPages = Math.ceil(filteredTrains.length / trainsPerPage);
+                if (trainPage < 1) trainPage = 1;
+                if (trainPage > totalPages) trainPage = totalPages;
+                const startIndex = (trainPage - 1) * trainsPerPage;
+                displayTrains = filteredTrains.slice(startIndex, startIndex + trainsPerPage);
+            }
+
+            let html = '';
+
+            // 添加分页控件（放在上面）
+            if (totalPages > 1) {
+                html += `
+                <div class="train-pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <button class="btn btn-secondary btn-small" onclick="changeTrainPage(-1)" ${trainPage <= 1 ? 'disabled' : ''}>◀ 上一页</button>
+                    <span style="color:var(--fg-primary);font-size:12px;">${trainPage} / ${totalPages}</span>
+                    <button class="btn btn-secondary btn-small" onclick="changeTrainPage(1)" ${trainPage >= totalPages ? 'disabled' : ''}>下一页 ▶</button>
+                </div>`;
+            }
+
+            html += displayTrains.map(train => {
                 const typeInfo = trainTypes[train.type];
                 const isRunning = gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused);
                 const upgradeLevel = train.upgradeLevel || 0;
@@ -2529,6 +2582,8 @@
                     </div>
                 </div>`;
             }).join('');
+
+            container.innerHTML = html;
         }
 
         function renameTrain(trainId) {
@@ -2632,9 +2687,12 @@
 
         // 员工筛选状态
         let employeeFilter = 'all';
+        let employeePage = 1;
+        const employeesPerPage = 10;
 
         function filterEmployees(filter) {
             employeeFilter = filter;
+            employeePage = 1; // 重置页码
             // 更新按钮样式
             const allBtn = document.getElementById('filterAllBtn');
             const assignedBtn = document.getElementById('filterAssignedBtn');
@@ -2670,6 +2728,11 @@
             renderEmployeeList();
         }
 
+        function changeEmployeePage(delta) {
+            employeePage += delta;
+            renderEmployeeList();
+        }
+
         function renderEmployeeList() {
             const container = document.getElementById('employeeList');
             const employeeLimit = getEmployeeLimit();
@@ -2702,7 +2765,30 @@
                 return;
             }
 
-            container.innerHTML = filteredEmployees.map(emp => {
+            // 分页处理
+            let displayEmployees = filteredEmployees;
+            let totalPages = 1;
+            if (filteredEmployees.length > employeesPerPage) {
+                totalPages = Math.ceil(filteredEmployees.length / employeesPerPage);
+                if (employeePage < 1) employeePage = 1;
+                if (employeePage > totalPages) employeePage = totalPages;
+                const startIndex = (employeePage - 1) * employeesPerPage;
+                displayEmployees = filteredEmployees.slice(startIndex, startIndex + employeesPerPage);
+            }
+
+            let html = '';
+
+            // 添加分页控件
+            if (totalPages > 1) {
+                html += `
+                <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <button class="btn btn-secondary btn-small" onclick="changeEmployeePage(-1)" ${employeePage <= 1 ? 'disabled' : ''}>◀ 上一页</button>
+                    <span style="color:var(--fg-primary);font-size:12px;">${employeePage} / ${totalPages}</span>
+                    <button class="btn btn-secondary btn-small" onclick="changeEmployeePage(1)" ${employeePage >= totalPages ? 'disabled' : ''}>下一页 ▶</button>
+                </div>`;
+            }
+
+            html += displayEmployees.map(emp => {
                 const typeInfo = employeeTypes[emp.type];
                 const assignedTrain = gameState.ownedTrains.find(t => t.id === emp.trainId);
                 const upgradeCost = calculateUpgradeCost(emp.level);
@@ -2732,6 +2818,8 @@
                     <div style="margin-top:8px;font-size:10px;color:var(--fg-secondary);">解雇返还 ${totalUpgradeCost} 点卷</div>
                 </div>`;
             }).join('');
+
+            container.innerHTML = html;
         }
 
         function showEmployeeDetail() {
@@ -2764,7 +2852,32 @@
         function renderShop() {
             const container = document.getElementById('shopList');
             const trains = trainData[currentShopTab];
-            container.innerHTML = trains.map((train, index) => {
+
+            // 分页处理
+            let totalPages = 1;
+            let displayTrains = trains;
+            if (trains.length > shopItemsPerPage) {
+                totalPages = Math.ceil(trains.length / shopItemsPerPage);
+                if (shopPage < 1) shopPage = 1;
+                if (shopPage > totalPages) shopPage = totalPages;
+                const startIndex = (shopPage - 1) * shopItemsPerPage;
+                displayTrains = trains.slice(startIndex, startIndex + shopItemsPerPage);
+            }
+
+            let html = '';
+
+            // 添加分页控件
+            if (totalPages > 1) {
+                html += `
+                <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <button class="btn btn-secondary btn-small" onclick="changeShopPage(-1)" ${shopPage <= 1 ? 'disabled' : ''}>◀ 上一页</button>
+                    <span style="color:var(--fg-primary);font-size:12px;">${shopPage} / ${totalPages}</span>
+                    <button class="btn btn-secondary btn-small" onclick="changeShopPage(1)" ${shopPage >= totalPages ? 'disabled' : ''}>下一页 ▶</button>
+                </div>`;
+            }
+
+            html += displayTrains.map((train, index) => {
+                const actualIndex = (shopPage - 1) * shopItemsPerPage + index;
                 const requiredLevel = train.level || 1;
                 const currentTypeCount = gameState.ownedTrains.filter(t => t.type === currentShopTab).length;
                 const limit = getTrainLimit(currentShopTab);
@@ -2772,7 +2885,7 @@
                 const levelOk = gameState.level >= requiredLevel;
                 const comfort = train.comfort || 100;
                 const comfortBonus = (comfort / 100).toFixed(1);
-                const inputId = `buyCount_${currentShopTab}_${index}`;
+                const inputId = `buyCount_${currentShopTab}_${actualIndex}`;
                 return `<div class="train-card">
                     <div class="train-name">${train.name}</div>
                     <span class="train-type type-${currentShopTab}">${trainTypes[currentShopTab].name}</span>
@@ -2789,6 +2902,16 @@
                     </div>
                 </div>`;
             }).join('');
+
+            container.innerHTML = html;
+        }
+
+        let runningTrainPage = 1;
+        const runningTrainsPerPage = 10;
+
+        function changeRunningTrainPage(delta) {
+            runningTrainPage += delta;
+            renderRunningTrains();
         }
 
         function renderRunningTrains() {
@@ -2797,7 +2920,31 @@
                 container.innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无运营中的火车</div>';
                 return;
             }
-            container.innerHTML = gameState.runningTrains.map(rt => {
+
+            // 分页处理
+            let displayTrains = gameState.runningTrains;
+            let totalPages = 1;
+            if (gameState.runningTrains.length > runningTrainsPerPage) {
+                totalPages = Math.ceil(gameState.runningTrains.length / runningTrainsPerPage);
+                if (runningTrainPage < 1) runningTrainPage = 1;
+                if (runningTrainPage > totalPages) runningTrainPage = totalPages;
+                const startIndex = (runningTrainPage - 1) * runningTrainsPerPage;
+                displayTrains = gameState.runningTrains.slice(startIndex, startIndex + runningTrainsPerPage);
+            }
+
+            let html = '';
+
+            // 添加分页控件
+            if (totalPages > 1) {
+                html += `
+                <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <button class="btn btn-secondary btn-small" onclick="changeRunningTrainPage(-1)" ${runningTrainPage <= 1 ? 'disabled' : ''}>◀ 上一页</button>
+                    <span style="color:var(--fg-primary);font-size:12px;">${runningTrainPage} / ${totalPages}</span>
+                    <button class="btn btn-secondary btn-small" onclick="changeRunningTrainPage(1)" ${runningTrainPage >= totalPages ? 'disabled' : ''}>下一页 ▶</button>
+                </div>`;
+            }
+
+            html += displayTrains.map(rt => {
                 const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
                 const progress = ((rt.totalTime - rt.remainingTime) / rt.totalTime * 100).toFixed(1);
                 const rtIndex = gameState.runningTrains.indexOf(rt);
@@ -2815,13 +2962,18 @@
                     </div>
                 </div>`;
             }).join('');
+
+            container.innerHTML = html;
         }
 
         // 城市筛选状态
         let cityFilter = 'all';
+        let cityPage = 1;
+        const citiesPerPage = 10;
 
         function filterCities(filter) {
             cityFilter = filter;
+            cityPage = 1; // 重置页码
             // 更新按钮样式
             const btns = {
                 all: document.getElementById('filterCityAllBtn'),
@@ -2847,6 +2999,11 @@
             renderCityUnlockList();
         }
 
+        function changeCityPage(delta) {
+            cityPage += delta;
+            renderCityUnlockList();
+        }
+
         function renderCityUnlockList() {
             const container = document.getElementById('cityUnlockList');
             // 合并城市列表并去重
@@ -2857,52 +3014,67 @@
 
             // 分离已解锁和未解锁的城市
             const unlockedCities = allCitiesUnique.filter(c => isCityUnlocked(c.name));
-            const lockedCities = allCitiesUnique.filter(c => !isCityUnlocked(c.name));
+            const lockedCities = allCitiesUnique.filter(c => !isCityUnlocked(c.name)).sort((a, b) => a.unlockLevel - b.unlockLevel);
+
+            // 根据筛选条件获取要显示的城市
+            let displayCities = [];
+            if (cityFilter === 'all') {
+                displayCities = [...unlockedCities, ...lockedCities];
+            } else if (cityFilter === 'unlocked') {
+                displayCities = unlockedCities;
+            } else if (cityFilter === 'locked') {
+                displayCities = lockedCities;
+            }
+
+            if (displayCities.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无符合条件的城市</div>';
+                return;
+            }
+
+            // 分页处理
+            let totalPages = 1;
+            let paginatedCities = displayCities;
+            if (displayCities.length > citiesPerPage) {
+                totalPages = Math.ceil(displayCities.length / citiesPerPage);
+                if (cityPage < 1) cityPage = 1;
+                if (cityPage > totalPages) cityPage = totalPages;
+                const startIndex = (cityPage - 1) * citiesPerPage;
+                paginatedCities = displayCities.slice(startIndex, startIndex + citiesPerPage);
+            }
 
             let html = '';
 
-            // 根据筛选条件显示城市
-            if (cityFilter === 'all' || cityFilter === 'unlocked') {
-                // 显示已解锁的城市
-                if (unlockedCities.length > 0) {
-                    html += `<div style="margin-bottom:15px;">
-                        <div style="color:var(--neon-green);font-size:12px;margin-bottom:10px;font-weight:600;">✓ 已解锁城市 (${unlockedCities.length})</div>
-                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
-                            ${unlockedCities.map(city => `
-                                <div class="train-card" style="border-color:var(--neon-green);background:rgba(0,255,136,0.05);">
-                                    <div class="train-name" style="color:var(--neon-green);">${city.name}</div>
-                                    <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
-                                    <button class="btn btn-danger btn-small" onclick="showLockCityModal('${city.name}')" style="width:100%;">关闭城市</button>
-                                </div>
-                            `).join('')}
-                        </div>
+            // 添加分页控件
+            if (totalPages > 1) {
+                html += `
+                <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <button class="btn btn-secondary btn-small" onclick="changeCityPage(-1)" ${cityPage <= 1 ? 'disabled' : ''}>◀ 上一页</button>
+                    <span style="color:var(--fg-primary);font-size:12px;">${cityPage} / ${totalPages}</span>
+                    <button class="btn btn-secondary btn-small" onclick="changeCityPage(1)" ${cityPage >= totalPages ? 'disabled' : ''}>下一页 ▶</button>
+                </div>`;
+            }
+
+            html += '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">';
+
+            paginatedCities.forEach(city => {
+                const isUnlocked = isCityUnlocked(city.name);
+                if (isUnlocked) {
+                    html += `<div class="train-card" style="border-color:var(--neon-green);background:rgba(0,255,136,0.05);">
+                        <div class="train-name" style="color:var(--neon-green);">${city.name}</div>
+                        <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
+                        <button class="btn btn-danger btn-small" onclick="showLockCityModal('${city.name}')" style="width:100%;">关闭城市</button>
+                    </div>`;
+                } else {
+                    const canUnlock = gameState.level >= city.unlockLevel && gameState.gold >= city.unlockCost;
+                    html += `<div class="train-card">
+                        <div class="train-name">${city.name}</div>
+                        <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
+                        <button class="btn btn-primary btn-small" onclick="showUnlockCityModal('${city.name}')" ${canUnlock ? '' : 'disabled'}>${gameState.level < city.unlockLevel ? '等级不足' : gameState.gold < city.unlockCost ? '金币不足' : '解锁'}</button>
                     </div>`;
                 }
-            }
+            });
 
-            if (cityFilter === 'all' || cityFilter === 'locked') {
-                // 显示未解锁的城市
-                if (lockedCities.length > 0) {
-                    html += `<div>
-                        <div style="color:var(--neon-cyan);font-size:12px;margin-bottom:10px;font-weight:600;">🔒 未解锁城市 (${lockedCities.length})</div>
-                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
-                            ${lockedCities.sort((a, b) => a.unlockLevel - b.unlockLevel).map(city => {
-                                const canUnlock = gameState.level >= city.unlockLevel && gameState.gold >= city.unlockCost;
-                                return `<div class="train-card">
-                                    <div class="train-name">${city.name}</div>
-                                    <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
-                                    <button class="btn btn-primary btn-small" onclick="showUnlockCityModal('${city.name}')" ${canUnlock ? '' : 'disabled'}>${gameState.level < city.unlockLevel ? '等级不足' : gameState.gold < city.unlockCost ? '金币不足' : '解锁'}</button>
-                                </div>`;
-                            }).join('')}
-                        </div>
-                    </div>`;
-                }
-            }
-
-            if (!html) {
-                html = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无符合条件的城市</div>';
-            }
-
+            html += '</div>';
             container.innerHTML = html;
         }
 
@@ -3043,22 +3215,22 @@
 
             if (gameState.challengeLevel >= 2500) {
                 // 2500关及以上
-                stonesReward = Math.floor(Math.random() * 4) + 7;  // 7-10个改造石
-                pointsReward = Math.floor(Math.random() * 4) + 7;  // 7-10点卷
-                expReward = Math.floor(Math.random() * 5001) + 10000;  // 10000-15000经验
-                bonusReward = 0.35;
+                stonesReward = Math.floor(Math.random() * 15) + 11;  // 11-25个改造石
+                pointsReward = Math.floor(Math.random() * 133) + 18;  // 18-150点卷
+                expReward = Math.floor(Math.random() * 850001) + 150000;  // 150000-1000000经验
+                bonusReward = 0.6;
             } else if (gameState.challengeLevel >= 1000) {
                 // 1000关及以上
-                stonesReward = Math.floor(Math.random() * 5) + 5;  // 5-9个改造石
-                pointsReward = Math.floor(Math.random() * 5) + 5;  // 5-9点卷
-                expReward = Math.floor(Math.random() * 3001) + 7000;  // 7000-10000经验
-                bonusReward = 0.25;
+                stonesReward = Math.floor(Math.random() * 5) + 6;  // 6-10个改造石
+                pointsReward = Math.floor(Math.random() * 6) + 10;  // 10-15点卷
+                expReward = Math.floor(Math.random() * 100001) + 150000;  // 150000-250000经验
+                bonusReward = 0.5;
             } else if (gameState.challengeLevel >= 450) {
                 // 450关及以上
                 stonesReward = Math.floor(Math.random() * 5) + 3;  // 3-7个改造石
-                pointsReward = Math.floor(Math.random() * 5) + 3;  // 3-7点卷
-                expReward = Math.floor(Math.random() * 3001) + 5000;  // 5000-8000经验
-                bonusReward = 0.15;
+                pointsReward = Math.floor(Math.random() * 5) + 5;  // 5-9点卷
+                expReward = Math.floor(Math.random() * 80001) + 60000;  // 60000-140000经验
+                bonusReward = 0.45;
             } else if (gameState.challengeLevel >= 100) {
                 // 100关及以上
                 stonesReward = Math.floor(Math.random() * 5) + 1;  // 1-5个改造石
@@ -5002,6 +5174,21 @@
         }
 
         function showMobileMoreModal() {
+            // 更新游戏信息
+            document.getElementById('mobileLevel').textContent = gameState.level;
+            document.getElementById('mobileExp').textContent = formatNumber(gameState.exp);
+            document.getElementById('mobileExpToNext').textContent = formatNumber(gameState.expToNext);
+            const expBonus = gameState.expBonus || 0;
+            document.getElementById('mobileExpBonus').textContent = expBonus * 15;
+            
+            // 更新天气信息
+            document.getElementById('mobileWeather').textContent = document.getElementById('weatherInfo').textContent;
+            document.getElementById('mobileWeatherEffect').textContent = document.getElementById('weatherEffect').textContent || '-';
+            document.getElementById('mobileWeatherTimer').textContent = document.getElementById('weatherTimer').textContent || '-';
+            
+            // 更新今日点卷
+            document.getElementById('mobileDailyPoints').textContent = formatNumber(gameState.dailyPointsEarned || 0);
+            
             document.getElementById('mobileMoreModal').classList.add('show');
         }
 
@@ -5521,16 +5708,63 @@
 
     <!-- Mobile More Modal -->
     <div class="modal" id="mobileMoreModal">
-        <div class="modal-content" style="max-width:300px;">
+        <div class="modal-content" style="max-width:350px;">
             <div class="modal-header">
                 <h3>更多功能</h3>
                 <button class="modal-close" onclick="closeMobileMoreModal()">&times;</button>
             </div>
-            <div style="padding:15px;display:flex;flex-direction:column;gap:10px;">
-                <button class="btn btn-secondary" onclick="manualSave();closeMobileMoreModal();" style="width:100%;">💾 手动保存</button>
-                <button class="btn btn-primary" onclick="exportSave();closeMobileMoreModal();" style="width:100%;">📤 导出存档</button>
-                <button class="btn btn-primary" onclick="showImportModal();closeMobileMoreModal();" style="width:100%;">📥 导入存档</button>
-                <button class="btn btn-danger" onclick="confirmRestart();closeMobileMoreModal();" style="width:100%;">🔄 重新开始</button>
+            <div style="padding:15px;">
+                <!-- 游戏信息 -->
+                <div style="margin-bottom:15px;padding:12px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📊 游戏信息</div>
+                    <div style="display:grid;gap:8px;font-size:12px;">
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">当前等级:</span>
+                            <span style="color:var(--neon-green);">Lv.<span id="mobileLevel">1</span></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">升级经验:</span>
+                            <span style="color:var(--neon-yellow);"><span id="mobileExp">0</span> / <span id="mobileExpToNext">500</span></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">经验加成:</span>
+                            <span style="color:var(--neon-magenta);">+<span id="mobileExpBonus">0</span>%</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 天气信息 -->
+                <div style="margin-bottom:15px;padding:12px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">🌤️ 天气信息</div>
+                    <div style="display:grid;gap:8px;font-size:12px;">
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">当前天气:</span>
+                            <span id="mobileWeather">☀️ 晴天</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">天气效果:</span>
+                            <span id="mobileWeatherEffect" style="color:var(--neon-yellow);">-</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">剩余时间:</span>
+                            <span id="mobileWeatherTimer" style="color:var(--fg-secondary);">-</span>
+                        </div>
+                    </div>
+                </div>
+                <!-- 今日点卷 -->
+                <div style="margin-bottom:15px;padding:12px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">🎫 今日点卷</div>
+                    <div style="display:flex;justify-content:space-between;font-size:12px;">
+                        <span style="color:var(--fg-secondary);">已获取:</span>
+                        <span style="color:var(--neon-cyan);"><span id="mobileDailyPoints">0</span> / 6000</span>
+                    </div>
+                </div>
+                <!-- 功能按钮 -->
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <button class="btn btn-secondary" onclick="manualSave();closeMobileMoreModal();" style="width:100%;">💾 手动保存</button>
+                    <button class="btn btn-primary" onclick="exportSave();closeMobileMoreModal();" style="width:100%;">📤 导出存档</button>
+                    <button class="btn btn-primary" onclick="showImportModal();closeMobileMoreModal();" style="width:100%;">📥 导入存档</button>
+                    <button class="btn btn-danger" onclick="confirmRestart();closeMobileMoreModal();" style="width:100%;">🔄 重新开始</button>
+                </div>
             </div>
         </div>
     </div>
