@@ -970,6 +970,75 @@
             .btn { padding: 8px 14px; font-size: 10px; }
         }
 
+        /* Mobile bottom navigation */
+        .mobile-bottom-nav {
+            display: none;
+        }
+
+        @media screen and (max-width: 768px) {
+            .sidebar {
+                display: none;
+            }
+            .desktop-footer {
+                display: none;
+            }
+            .mobile-qq-info {
+                display: block !important;
+            }
+            .main-content {
+                grid-template-columns: 1fr;
+                padding-bottom: 70px;
+            }
+            .center-panel {
+                order: 1;
+            }
+            .right-panel {
+                order: 2;
+            }
+            .mobile-bottom-nav {
+                display: flex;
+                position: fixed;
+                bottom: 0;
+                left: 0;
+                right: 0;
+                background: linear-gradient(180deg, rgba(18, 18, 26, 0.98) 0%, rgba(10, 10, 15, 0.99) 100%);
+                border-top: 1px solid var(--border);
+                padding: 8px 5px;
+                z-index: 1000;
+                overflow-x: auto;
+                gap: 4px;
+                -webkit-overflow-scrolling: touch;
+            }
+            .mobile-bottom-nav::-webkit-scrollbar {
+                display: none;
+            }
+            .mobile-nav-btn {
+                flex: 0 0 auto;
+                min-width: 60px;
+                padding: 8px 10px;
+                background: transparent;
+                border: 1px solid var(--border);
+                border-radius: 4px;
+                color: var(--fg-secondary);
+                font-size: 10px;
+                text-align: center;
+                cursor: pointer;
+                transition: all 0.2s;
+                white-space: nowrap;
+            }
+            .mobile-nav-btn:active,
+            .mobile-nav-btn.active {
+                background: linear-gradient(135deg, rgba(255, 105, 180, 0.2), rgba(157, 78, 221, 0.15));
+                border-color: var(--neon-pink);
+                color: var(--neon-pink);
+            }
+            .mobile-nav-btn .nav-icon {
+                display: block;
+                font-size: 18px;
+                margin-bottom: 2px;
+            }
+        }
+
         /* Scrollbar */
         ::-webkit-scrollbar { width: 6px; }
         ::-webkit-scrollbar-track { background: var(--bg-void); }
@@ -1073,24 +1142,35 @@
                         <button class="btn btn-secondary btn-small" onclick="toggleSelectAllTrains()">全选/取消</button>
                         <button class="btn btn-danger btn-small" onclick="batchRetireTrains()">批量退役 (<span id="selectedTrainCount">0</span>)</button>
                     </div>
+                    <div style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap;">
+                        <button class="btn btn-small" id="filterTrainAllBtn" onclick="filterTrains('all')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">全部</button>
+                        <button class="btn btn-small" id="filterTrainNormalBtn" onclick="filterTrains('normal')" style="background:linear-gradient(135deg,#3a8a5a,#2a6a4a);border-color:#00ff88;color:#fff;font-weight:600;">普通</button>
+                        <button class="btn btn-small" id="filterTrainIntercityBtn" onclick="filterTrains('intercity')" style="background:linear-gradient(135deg,#3a6a8a,#2a4a6a);border-color:#00d4ff;color:#fff;font-weight:600;">城际</button>
+                        <button class="btn btn-small" id="filterTrainHighspeedBtn" onclick="filterTrains('highspeed')" style="background:linear-gradient(135deg,#8a7a3a,#6a5a2a);border-color:#ffd700;color:#fff;font-weight:600;">高铁</button>
+                        <button class="btn btn-small" id="filterTrainAnimeBtn" onclick="filterTrains('anime')" style="background:linear-gradient(135deg,#8a3a6a,#6a2a4a);border-color:#ff3366;color:#fff;font-weight:600;">自创</button>
+                        <button class="btn btn-small" id="filterTrainZodiacBtn" onclick="filterTrains('zodiac')" style="background:linear-gradient(135deg,#8a5a2a,#6a3a1a);border-color:#ff6b00;color:#fff;font-weight:600;">生肖</button>
+                    </div>
                     <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;margin-bottom:15px;">
                         <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📈 增加上限（每种最多增加30次）</div>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <button class="btn btn-small" onclick="increaseTrainLimit('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">
+                            <button class="btn btn-small" id="increaseNormalBtn" onclick="increaseTrainLimit('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">
                                 普通火车+1
                             </button>
-                            <button class="btn btn-small" onclick="increaseTrainLimit('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">
+                            <button class="btn btn-small" id="increaseIntercityBtn" onclick="increaseTrainLimit('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">
                                 城际火车+1
                             </button>
-                            <button class="btn btn-small" onclick="increaseTrainLimit('highspeed')" style="background:linear-gradient(135deg,#ffd700,#cc9900);border-color:#ffd700;color:#000;font-weight:600;">
+                            <button class="btn btn-small" id="increaseHighspeedBtn" onclick="increaseTrainLimit('highspeed')" style="background:linear-gradient(135deg,#ffd700,#cc9900);border-color:#ffd700;color:#000;font-weight:600;">
                                 高铁+1
                             </button>
-                            <button class="btn btn-small" onclick="increaseTrainLimit('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">
+                            <button class="btn btn-small" id="increaseAnimeBtn" onclick="increaseTrainLimit('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">
                                 自创火车+1
                             </button>
                         </div>
                     </div>
                     <div id="trainList"></div>
+                    <div class="mobile-qq-info" style="display:none;text-align:center;padding:15px;margin-top:15px;background:rgba(0,0,0,0.3);border-radius:8px;">
+                        <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;font-family:'Share Tech Mono',monospace;font-size:12px;">游戏QQ群：806903918</span>
+                    </div>
                 </div>
 
                 <div id="routesPanel" class="panel" style="display:none;">
@@ -1123,7 +1203,7 @@
                 </div>
 
                 <div id="employeesPanel" class="panel" style="display:none;">
-                    <div class="panel-title"><span>员工管理 <span id="employeeCountInfo" style="font-size:11px;color:var(--fg-secondary);"></span></span><button class="btn btn-secondary" onclick="hireEmployee()">招聘 (1000金币)</button></div>
+                    <div class="panel-title"><span>员工管理 <span id="employeeCountInfo" style="font-size:11px;color:var(--fg-secondary);"></span></span><button class="btn btn-secondary" id="hireEmployeeBtn" onclick="hireEmployee()">招聘 (1000金币)</button></div>
                     <div style="display:flex;gap:10px;margin-bottom:15px;">
                         <button class="btn btn-success" onclick="autoAssignEmployees()" style="flex:1;">📤 一键分配</button>
                         <button class="btn btn-warning" onclick="unassignAllEmployees()" style="flex:1;">📥 一键取消分配</button>
@@ -1133,6 +1213,11 @@
                         <input type="number" id="targetLevelInput" min="1" max="40" value="10" style="width:60px;padding:5px;text-align:center;background:var(--bg-secondary);border:1px solid var(--border);color:var(--fg);border-radius:4px;">
                         <span style="font-size:12px;color:var(--fg-secondary);">级</span>
                         <button class="btn btn-primary" onclick="batchUpgradeEmployees()" style="flex:1;">⬆️ 一键升级</button>
+                    </div>
+                    <div style="display:flex;gap:10px;margin-bottom:15px;">
+                        <button class="btn btn-small" id="filterAllBtn" onclick="filterEmployees('all')" style="flex:1;background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">全部</button>
+                        <button class="btn btn-small" id="filterAssignedBtn" onclick="filterEmployees('assigned')" style="flex:1;background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">已分配</button>
+                        <button class="btn btn-small" id="filterUnassignedBtn" onclick="filterEmployees('unassigned')" style="flex:1;background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">未分配</button>
                     </div>
                     <div id="employeeList"></div>
                 </div>
@@ -1173,6 +1258,7 @@
                             <button class="btn btn-secondary btn-small" onclick="zoomInMap()" style="width:40px;height:40px;padding:0;font-size:20px;font-weight:700;border-width:2px;box-shadow:0 0 15px rgba(0,212,255,0.3);">+</button>
                             <button class="btn btn-secondary btn-small" onclick="zoomOutMap()" style="width:40px;height:40px;padding:0;font-size:20px;font-weight:700;border-width:2px;box-shadow:0 0 15px rgba(0,212,255,0.3);">−</button>
                             <button class="btn btn-secondary btn-small" onclick="resetMapZoom()" style="width:40px;height:40px;padding:0;font-size:16px;border-width:2px;box-shadow:0 0 15px rgba(0,212,255,0.3);">⟲</button>
+                            <button class="btn btn-secondary btn-small" id="toggleRotationBtn" onclick="toggleMapRotation()" style="width:40px;height:40px;padding:0;font-size:16px;border-width:2px;box-shadow:0 0 15px rgba(0,212,255,0.3);">⏸</button>
                         </div>
                         
                         <!-- 缩放级别显示 -->
@@ -1217,6 +1303,11 @@
 
                 <div id="citiesPanel" class="panel" style="display:none;">
                     <div class="panel-title">城市解锁</div>
+                    <div style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap;">
+                        <button class="btn btn-small" id="filterCityAllBtn" onclick="filterCities('all')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">全部</button>
+                        <button class="btn btn-small" id="filterCityUnlockedBtn" onclick="filterCities('unlocked')" style="background:linear-gradient(135deg,#3a8a5a,#2a6a4a);border-color:#00ff88;color:#fff;font-weight:600;">已解锁</button>
+                        <button class="btn btn-small" id="filterCityLockedBtn" onclick="filterCities('locked')" style="background:linear-gradient(135deg,#8a5a2a,#6a3a1a);border-color:#ff6b00;color:#fff;font-weight:600;">未解锁</button>
+                    </div>
                     <div id="cityUnlockList"></div>
                 </div>
 
@@ -1224,11 +1315,11 @@
                     <div class="panel-title">点卷强化</div>
                     <div class="section-box">
                         <div style="text-align:center;margin-bottom:20px;">
-                            <div class="section-title" style="margin-bottom:10px;">当前收益加成</div>
+                            <div class="section-title" style="margin-bottom:10px;">当前经验加成</div>
                             <div style="font-size:42px;font-family:'Orbitron',sans-serif;font-weight:900;color:var(--neon-green);text-shadow:0 0 30px var(--neon-green);" id="currentBonus">+0%</div>
                         </div>
                         <div style="text-align:center;">
-                            <button class="btn btn-primary" id="upgradeBonusBtn" onclick="upgradeIncomeBonus()">消耗 3000 点卷提升 1%</button>
+                            <button class="btn btn-primary" id="upgradeBonusBtn" onclick="upgradeExpBonus()">消耗 3000 点卷提升 15%</button>
                         </div>
                     </div>
                     <div class="panel-title" style="margin-top:25px;">火车强化</div>
@@ -1323,6 +1414,22 @@
         <div id="changelogPanel" class="panel" style="display:none;">
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
+                        <div class="changelog-version">
+                            <div class="changelog-date">3.6 铁轨帝国更新内容</div>
+                            <ul class="changelog-list">
+                                <li>全面适配手机界面，进行优化</li>
+                                <li>增加员工上限：员工初始上限66个，通过闯关、升级可增加上限，最大192个</li>
+                                <li>员工招聘价格调整</li>
+                                <li>全面增强450关及以后闯关奖励</li>
+                                <li>员工界面添加已分配和未分配筛选按钮</li>
+                                <li>城市界面增加已购买、未购买筛选按钮</li>
+                                <li>火车管理界面增加普通、城际、高铁、自创、生肖限定筛选按钮</li>
+                                <li>点券强化收益获取调整为经验增加</li>
+                                <li>地球仪增加停止旋转按钮</li>
+                                <li>火车管理界面增加上限按钮显示每次扩展价格</li>
+                                <li>调整等级升级经验需求</li>
+                            </ul>
+                        </div>
                         <div class="changelog-version">
                             <div class="changelog-date">3.5 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
@@ -1775,7 +1882,7 @@
             employees: [], runningTrains: [], ownedTrains: [],
             unlockedCities: ["广州", "深圳"], dailyPointsEarned: 0,
             lastDailyReset: null, lastSaveTime: null, lastOnlineTime: null,
-            totalEarnings: 0, incomeBonus: 0, consumedPoints: 0,
+            totalEarnings: 0, expBonus: 0, consumedPoints: 0,
             usedRedeemCodes: [],
             // 改造石系统
             reformStones: 0,           // 当前改造石数量
@@ -1813,7 +1920,6 @@
                 if (emp.type === 'income') earnings *= (1 + employeeTypes.income.baseBonus * emp.level / 100);
                 if (emp.type === 'weight') earnings *= (1 + employeeTypes.weight.incomeBonus * emp.level / 100);  // 减重型收益加成
             });
-            earnings *= (1 + gameState.incomeBonus / 100);
             // 闯关收益加成
             if (gameState.challengeBonus) earnings *= (1 + gameState.challengeBonus / 100);
             if (train.upgradeLevel) earnings *= (1 + train.upgradeLevel * 0.5 / 100);
@@ -1870,18 +1976,66 @@
             return total;
         }
         function calculateExpToNext(level) {
-            // 1-15级：1.8倍，16级及之后：1.65倍
-            if (level <= 15) {
+            // 1-10级：1.8倍，11-20级：1.55倍，21-25级：1.35倍，26-30级：1.3倍，31-35级：1.15倍，36-40级：1.1倍，41-50级：1.05倍，51级及以后：1.055倍
+            if (level <= 10) {
                 return Math.floor(500 * Math.pow(1.8, level - 1));
+            } else if (level <= 20) {
+                // 10级升11级所需经验作为基础，之后按1.55倍增长
+                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9)); // 10级升11级的基础
+                return Math.floor(baseExp10 * Math.pow(1.55, level - 10));
+            } else if (level <= 25) {
+                // 20级升21级所需经验作为基础，之后按1.35倍增长
+                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
+                const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10)); // 20级升21级的基础
+                return Math.floor(baseExp20 * Math.pow(1.35, level - 20));
+            } else if (level <= 30) {
+                // 25级升26级所需经验作为基础，之后按1.3倍增长
+                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
+                const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
+                const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5)); // 25级升26级的基础
+                return Math.floor(baseExp25 * Math.pow(1.3, level - 25));
+            } else if (level <= 35) {
+                // 30级升31级所需经验作为基础，之后按1.15倍增长
+                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
+                const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
+                const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
+                const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5)); // 30级升31级的基础
+                return Math.floor(baseExp30 * Math.pow(1.15, level - 30));
+            } else if (level <= 40) {
+                // 35级升36级所需经验作为基础，之后按1.1倍增长
+                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
+                const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
+                const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
+                const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5));
+                const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5)); // 35级升36级的基础
+                return Math.floor(baseExp35 * Math.pow(1.1, level - 35));
+            } else if (level <= 50) {
+                // 40级升41级所需经验作为基础，之后按1.05倍增长
+                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
+                const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
+                const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
+                const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5));
+                const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5));
+                const baseExp40 = Math.floor(baseExp35 * Math.pow(1.1, 5)); // 40级升41级的基础
+                return Math.floor(baseExp40 * Math.pow(1.05, level - 40));
             } else {
-                // 15级升16级所需经验作为基础，之后按1.65倍增长
-                const baseExp = Math.floor(500 * Math.pow(1.8, 14)); // 15级升16级的基础
-                return Math.floor(baseExp * Math.pow(1.65, level - 15));
+                // 50级升51级所需经验作为基础，之后按1.055倍增长
+                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
+                const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
+                const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
+                const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5));
+                const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5));
+                const baseExp40 = Math.floor(baseExp35 * Math.pow(1.1, 5));
+                const baseExp50 = Math.floor(baseExp40 * Math.pow(1.05, 10)); // 50级升51级的基础
+                return Math.floor(baseExp50 * Math.pow(1.055, level - 50));
             }
         }
 
         function addExp(amount) {
-            gameState.exp += amount;
+            // 应用经验加成
+            const expBonus = gameState.expBonus || 0;
+            const bonusAmount = Math.floor(amount * (1 + expBonus * 0.15));
+            gameState.exp += bonusAmount;
             while (gameState.exp >= gameState.expToNext) {
                 gameState.exp -= gameState.expToNext;
                 gameState.level++;
@@ -2005,7 +2159,8 @@
             document.getElementById('gold').textContent = formatNumber(gameState.gold);
             document.getElementById('points').textContent = formatNumber(gameState.points);
             document.getElementById('runningCount').textContent = gameState.runningTrains.length;
-            document.getElementById('incomeBonus').textContent = `+${gameState.incomeBonus}%`;
+            const expBonus = gameState.expBonus || 0;
+            document.getElementById('incomeBonus').textContent = `+${expBonus * 15}%`;
             checkDailyPointsReset();
             document.getElementById('dailyPointsInfo').textContent = `今日点卷: ${gameState.dailyPointsEarned}/6000`;
             updateWeather();
@@ -2029,7 +2184,18 @@
             document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
             document.getElementById(panelName + 'Panel').style.display = 'block';
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            event.target.classList.add('active');
+            // 更新移动端导航栏状态
+            document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
+            // 根据panelName找到对应的移动端按钮并激活
+            const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn');
+            const panelIndex = { trains: 0, routes: 1, employees: 2, shop: 3, running: 4, map: 5, cities: 6, upgrade: 7, redeem: 8, reform: 9, challenge: 10, changelog: 11 };
+            if (panelIndex[panelName] !== undefined && mobileNavBtns[panelIndex[panelName]]) {
+                mobileNavBtns[panelIndex[panelName]].classList.add('active');
+            }
+            // 如果是从侧边栏点击的，更新侧边栏按钮状态
+            if (event && event.target && event.target.classList.contains('nav-btn')) {
+                event.target.classList.add('active');
+            }
             const renderFuncs = { trains: renderTrainList, routes: renderRoutePanel, employees: renderEmployeeList, shop: renderShop, running: renderRunningTrains, map: renderMap, cities: renderCityUnlockList, upgrade: renderUpgradePanel, redeem: renderRedeemPanel, reform: renderReformPanel, challenge: renderChallengePanel };
             if (renderFuncs[panelName]) renderFuncs[panelName]();
         }
@@ -2066,18 +2232,34 @@
             updateSelectedTrainCount();
             renderTrainList();
         }
-        
+
         function toggleSelectAllTrains() {
-            const selectableTrains = gameState.ownedTrains.filter(train => 
+            // 根据当前筛选条件获取可选火车
+            let filteredTrains = gameState.ownedTrains;
+            if (trainFilter !== 'all') {
+                filteredTrains = gameState.ownedTrains.filter(train => train.type === trainFilter);
+            }
+            const selectableTrains = filteredTrains.filter(train =>
                 !gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused)
             );
-            const allSelected = selectableTrains.every(train => 
+            const allSelected = selectableTrains.every(train =>
                 selectedTrainIds.some(id => Math.abs(id - train.id) < 0.0001)
             );
             if (allSelected) {
-                selectedTrainIds = [];
+                // 取消选中当前筛选的火车
+                selectableTrains.forEach(train => {
+                    const index = selectedTrainIds.findIndex(id => Math.abs(id - train.id) < 0.0001);
+                    if (index > -1) {
+                        selectedTrainIds.splice(index, 1);
+                    }
+                });
             } else {
-                selectedTrainIds = selectableTrains.map(t => t.id);
+                // 选中当前筛选的火车
+                selectableTrains.forEach(train => {
+                    if (!selectedTrainIds.some(id => Math.abs(id - train.id) < 0.0001)) {
+                        selectedTrainIds.push(train.id);
+                    }
+                });
             }
             updateSelectedTrainCount();
             renderTrainList();
@@ -2088,6 +2270,28 @@
             const baseLimits = { normal: 20, intercity: 24, highspeed: 28, anime: 33, zodiac: 999 };
             const increased = (gameState.trainLimitIncreases && gameState.trainLimitIncreases[type]) || 0;
             return baseLimits[type] + increased;
+        }
+
+        // 获取员工上限
+        // 基础上限：66
+        // 等级加成：20级后每升1级+2，50级后不再增加（20-50级共30级，+60）
+        // 闯关加成：600关后每25关+1，最多+66（600-2250关，共66次）
+        function getEmployeeLimit() {
+            let limit = 66; // 基础上限
+
+            // 等级加成：20级后每升1级+2，50级后不再增加
+            if (gameState.level > 20) {
+                const levelBonus = Math.min(gameState.level - 20, 30) * 2; // 最多30级（20-50），每级+2
+                limit += levelBonus;
+            }
+
+            // 闯关加成：600关后每25关+1，最多+66
+            if (gameState.challengeLevel > 600) {
+                const challengeBonus = Math.min(Math.floor((gameState.challengeLevel - 600) / 25), 66);
+                limit += challengeBonus;
+            }
+
+            return limit;
         }
 
         // 计算增加上限消耗
@@ -2106,6 +2310,28 @@
                 anime: 1.7
             };
             return Math.floor(baseCosts[type] * Math.pow(multipliers[type], currentIncreases));
+        }
+
+        // 更新增加上限按钮显示
+        function updateLimitIncreaseButtons() {
+            const types = ['normal', 'intercity', 'highspeed', 'anime'];
+            const names = { normal: '普通火车', intercity: '城际火车', highspeed: '高铁', anime: '自创火车' };
+            const btnIds = { normal: 'increaseNormalBtn', intercity: 'increaseIntercityBtn', highspeed: 'increaseHighspeedBtn', anime: 'increaseAnimeBtn' };
+
+            types.forEach(type => {
+                const btn = document.getElementById(btnIds[type]);
+                if (btn) {
+                    const currentIncreases = (gameState.trainLimitIncreases && gameState.trainLimitIncreases[type]) || 0;
+                    if (currentIncreases >= 30) {
+                        btn.innerHTML = `${names[type]}已满`;
+                        btn.disabled = true;
+                    } else {
+                        const cost = calculateLimitIncreaseCost(type);
+                        btn.innerHTML = `${names[type]}+1<br><span style="font-size:10px;opacity:0.8;">${formatNumber(cost)}金</span>`;
+                        btn.disabled = gameState.gold < cost;
+                    }
+                }
+            });
         }
 
         // 增加火车上限
@@ -2202,6 +2428,42 @@
             showNotification(`成功退役 ${trainsToRetire.length} 辆火车！`);
         }
 
+        // 火车筛选状态
+        let trainFilter = 'all';
+
+        function filterTrains(filter) {
+            trainFilter = filter;
+            // 更新按钮样式
+            const btns = {
+                all: document.getElementById('filterTrainAllBtn'),
+                normal: document.getElementById('filterTrainNormalBtn'),
+                intercity: document.getElementById('filterTrainIntercityBtn'),
+                highspeed: document.getElementById('filterTrainHighspeedBtn'),
+                anime: document.getElementById('filterTrainAnimeBtn'),
+                zodiac: document.getElementById('filterTrainZodiacBtn')
+            };
+
+            // 重置所有按钮样式
+            Object.entries(btns).forEach(([key, btn]) => {
+                btn.style.boxShadow = 'none';
+            });
+
+            // 高亮当前选中的按钮
+            if (btns[filter]) {
+                const colors = {
+                    all: '#00ff88',
+                    normal: '#00ff88',
+                    intercity: '#00d4ff',
+                    highspeed: '#ffd700',
+                    anime: '#ff3366',
+                    zodiac: '#ff6b00'
+                };
+                btns[filter].style.boxShadow = '0 0 15px ' + colors[filter];
+            }
+
+            renderTrainList();
+        }
+
         function renderTrainList() {
             const container = document.getElementById('trainList');
             const typeNames = { normal: '普通火车', intercity: '城际列车', highspeed: '高铁', anime: '自创火车', zodiac: '生肖限定' };
@@ -2213,11 +2475,27 @@
                 return `${typeNames[type]}:${counts[type]}/${limit}`;
             }).join(' ');
             document.getElementById('trainCountInfo').textContent = `共${totalCount}辆 | ${countInfo}`;
+
+            // 更新增加上限按钮显示
+            updateLimitIncreaseButtons();
+
             if (gameState.ownedTrains.length === 0) {
                 container.innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无火车，请前往商店购买</div>';
                 return;
             }
-            container.innerHTML = gameState.ownedTrains.map(train => {
+
+            // 根据筛选条件过滤火车
+            let filteredTrains = gameState.ownedTrains;
+            if (trainFilter !== 'all') {
+                filteredTrains = gameState.ownedTrains.filter(train => train.type === trainFilter);
+            }
+
+            if (filteredTrains.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无符合条件的火车</div>';
+                return;
+            }
+
+            container.innerHTML = filteredTrains.map(train => {
                 const typeInfo = trainTypes[train.type];
                 const isRunning = gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused);
                 const upgradeLevel = train.upgradeLevel || 0;
@@ -2352,28 +2630,89 @@
             }
         }
 
+        // 员工筛选状态
+        let employeeFilter = 'all';
+
+        function filterEmployees(filter) {
+            employeeFilter = filter;
+            // 更新按钮样式
+            const allBtn = document.getElementById('filterAllBtn');
+            const assignedBtn = document.getElementById('filterAssignedBtn');
+            const unassignedBtn = document.getElementById('filterUnassignedBtn');
+
+            // 重置所有按钮样式为默认亮色
+            allBtn.style.background = 'linear-gradient(135deg,#00ff88,#00aa55)';
+            allBtn.style.borderColor = '#00ff88';
+            allBtn.style.color = '#000';
+            allBtn.style.fontWeight = '600';
+
+            assignedBtn.style.background = 'linear-gradient(135deg,#00d4ff,#0099cc)';
+            assignedBtn.style.borderColor = '#00d4ff';
+            assignedBtn.style.color = '#000';
+            assignedBtn.style.fontWeight = '600';
+
+            unassignedBtn.style.background = 'linear-gradient(135deg,#ff3366,#cc0044)';
+            unassignedBtn.style.borderColor = '#ff3366';
+            unassignedBtn.style.color = '#fff';
+            unassignedBtn.style.fontWeight = '600';
+
+            // 高亮当前选中的按钮（添加发光效果）
+            const activeBtn = filter === 'all' ? allBtn : (filter === 'assigned' ? assignedBtn : unassignedBtn);
+            activeBtn.style.boxShadow = '0 0 15px ' + (filter === 'all' ? '#00ff88' : (filter === 'assigned' ? '#00d4ff' : '#ff3366'));
+
+            // 移除其他按钮的发光效果
+            [allBtn, assignedBtn, unassignedBtn].forEach(btn => {
+                if (btn !== activeBtn) {
+                    btn.style.boxShadow = 'none';
+                }
+            });
+
+            renderEmployeeList();
+        }
+
         function renderEmployeeList() {
             const container = document.getElementById('employeeList');
-            const employeeLimit = 66;
+            const employeeLimit = getEmployeeLimit();
             const currentCount = gameState.employees.length;
             document.getElementById('employeeCountInfo').textContent = `(${currentCount}/${employeeLimit})`;
-            
+
+            // 更新招聘按钮显示价格
+            const hireBtn = document.getElementById('hireEmployeeBtn');
+            if (hireBtn) {
+                const hireCost = calculateHireCost();
+                hireBtn.textContent = `招聘 (${formatNumber(hireCost)}金币)`;
+                hireBtn.disabled = currentCount >= employeeLimit || gameState.gold < hireCost;
+            }
+
             if (gameState.employees.length === 0) {
                 container.innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无员工，请点击招聘按钮</div>';
                 return;
             }
-            
-            container.innerHTML = gameState.employees.map(emp => {
+
+            // 根据筛选条件过滤员工
+            let filteredEmployees = gameState.employees;
+            if (employeeFilter === 'assigned') {
+                filteredEmployees = gameState.employees.filter(emp => emp.trainId !== null);
+            } else if (employeeFilter === 'unassigned') {
+                filteredEmployees = gameState.employees.filter(emp => emp.trainId === null);
+            }
+
+            if (filteredEmployees.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无符合条件的员工</div>';
+                return;
+            }
+
+            container.innerHTML = filteredEmployees.map(emp => {
                 const typeInfo = employeeTypes[emp.type];
                 const assignedTrain = gameState.ownedTrains.find(t => t.id === emp.trainId);
                 const upgradeCost = calculateUpgradeCost(emp.level);
                 const canUpgrade = emp.level < 40 && gameState.points >= upgradeCost;
                 const totalUpgradeCost = calculateTotalUpgradeCost(emp.level);
-                
+
                 return `<div class="employee-card">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                         <div>
-                            <strong style="font-size:16px;background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${emp.name}</strong> 
+                            <strong style="font-size:16px;background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${emp.name}</strong>
                             <span class="employee-type type-${emp.type}">${typeInfo.name}</span>
                         </div>
                         <div style="color:var(--neon-cyan);font-size:12px;">Lv.${emp.level}/40</div>
@@ -2478,64 +2817,100 @@
             }).join('');
         }
 
+        // 城市筛选状态
+        let cityFilter = 'all';
+
+        function filterCities(filter) {
+            cityFilter = filter;
+            // 更新按钮样式
+            const btns = {
+                all: document.getElementById('filterCityAllBtn'),
+                unlocked: document.getElementById('filterCityUnlockedBtn'),
+                locked: document.getElementById('filterCityLockedBtn')
+            };
+
+            // 重置所有按钮样式
+            Object.entries(btns).forEach(([key, btn]) => {
+                btn.style.boxShadow = 'none';
+            });
+
+            // 高亮当前选中的按钮
+            if (btns[filter]) {
+                const colors = {
+                    all: '#00ff88',
+                    unlocked: '#00ff88',
+                    locked: '#ff6b00'
+                };
+                btns[filter].style.boxShadow = '0 0 15px ' + colors[filter];
+            }
+
+            renderCityUnlockList();
+        }
+
         function renderCityUnlockList() {
             const container = document.getElementById('cityUnlockList');
             // 合并城市列表并去重
             const allCitiesRaw = [...cities.china, ...cities.world];
-            const allCitiesUnique = allCitiesRaw.filter((city, index, self) => 
+            const allCitiesUnique = allCitiesRaw.filter((city, index, self) =>
                 index === self.findIndex(c => c.name === city.name)
             );
-            
+
             // 分离已解锁和未解锁的城市
             const unlockedCities = allCitiesUnique.filter(c => isCityUnlocked(c.name));
             const lockedCities = allCitiesUnique.filter(c => !isCityUnlocked(c.name));
-            
+
             let html = '';
-            
-            // 显示已解锁的城市
-            if (unlockedCities.length > 0) {
-                html += `<div style="margin-bottom:15px;">
-                    <div style="color:var(--neon-green);font-size:12px;margin-bottom:10px;font-weight:600;">✓ 已解锁城市 (${unlockedCities.length})</div>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
-                        ${unlockedCities.map(city => `
-                            <div class="train-card" style="border-color:var(--neon-green);background:rgba(0,255,136,0.05);">
-                                <div class="train-name" style="color:var(--neon-green);">${city.name}</div>
-                                <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
-                                <button class="btn btn-danger btn-small" onclick="showLockCityModal('${city.name}')" style="width:100%;">关闭城市</button>
-                            </div>
-                        `).join('')}
-                    </div>
-                </div>`;
+
+            // 根据筛选条件显示城市
+            if (cityFilter === 'all' || cityFilter === 'unlocked') {
+                // 显示已解锁的城市
+                if (unlockedCities.length > 0) {
+                    html += `<div style="margin-bottom:15px;">
+                        <div style="color:var(--neon-green);font-size:12px;margin-bottom:10px;font-weight:600;">✓ 已解锁城市 (${unlockedCities.length})</div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
+                            ${unlockedCities.map(city => `
+                                <div class="train-card" style="border-color:var(--neon-green);background:rgba(0,255,136,0.05);">
+                                    <div class="train-name" style="color:var(--neon-green);">${city.name}</div>
+                                    <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
+                                    <button class="btn btn-danger btn-small" onclick="showLockCityModal('${city.name}')" style="width:100%;">关闭城市</button>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>`;
+                }
             }
-            
-            // 显示未解锁的城市
-            if (lockedCities.length > 0) {
-                html += `<div>
-                    <div style="color:var(--neon-cyan);font-size:12px;margin-bottom:10px;font-weight:600;">🔒 未解锁城市 (${lockedCities.length})</div>
-                    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
-                        ${lockedCities.sort((a, b) => a.unlockLevel - b.unlockLevel).map(city => {
-                            const canUnlock = gameState.level >= city.unlockLevel && gameState.gold >= city.unlockCost;
-                            return `<div class="train-card">
-                                <div class="train-name">${city.name}</div>
-                                <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
-                                <button class="btn btn-primary btn-small" onclick="showUnlockCityModal('${city.name}')" ${canUnlock ? '' : 'disabled'}>${gameState.level < city.unlockLevel ? '等级不足' : gameState.gold < city.unlockCost ? '金币不足' : '解锁'}</button>
-                            </div>`;
-                        }).join('')}
-                    </div>
-                </div>`;
+
+            if (cityFilter === 'all' || cityFilter === 'locked') {
+                // 显示未解锁的城市
+                if (lockedCities.length > 0) {
+                    html += `<div>
+                        <div style="color:var(--neon-cyan);font-size:12px;margin-bottom:10px;font-weight:600;">🔒 未解锁城市 (${lockedCities.length})</div>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;">
+                            ${lockedCities.sort((a, b) => a.unlockLevel - b.unlockLevel).map(city => {
+                                const canUnlock = gameState.level >= city.unlockLevel && gameState.gold >= city.unlockCost;
+                                return `<div class="train-card">
+                                    <div class="train-name">${city.name}</div>
+                                    <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
+                                    <button class="btn btn-primary btn-small" onclick="showUnlockCityModal('${city.name}')" ${canUnlock ? '' : 'disabled'}>${gameState.level < city.unlockLevel ? '等级不足' : gameState.gold < city.unlockCost ? '金币不足' : '解锁'}</button>
+                                </div>`;
+                            }).join('')}
+                        </div>
+                    </div>`;
+                }
             }
-            
+
             if (!html) {
-                html = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无城市数据</div>';
+                html = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无符合条件的城市</div>';
             }
-            
+
             container.innerHTML = html;
         }
 
         function renderUpgradePanel() {
-            document.getElementById('currentBonus').textContent = `+${gameState.incomeBonus}%`;
+            const expBonus = gameState.expBonus || 0;
+            document.getElementById('currentBonus').textContent = `+${expBonus * 15}%`;
             document.getElementById('upgradeBonusBtn').disabled = gameState.points < 3000;
-            
+
             const select = document.getElementById('trainUpgradeSelect');
             select.innerHTML = '<option value="">-- 请选择火车 --</option>' +
                 gameState.ownedTrains.map(t => `<option value="${t.id}">${t.name} ${t.upgradeLevel ? 'Lv.' + t.upgradeLevel : '未改造'}</option>`).join('');
@@ -2663,16 +3038,43 @@
             // 重置进度
             gameState.challengeProgress = 0;
 
-            // 增加收益加成
-            gameState.challengeBonus = (gameState.challengeBonus || 0) + 0.05;
+            // 根据关卡计算奖励
+            let stonesReward, pointsReward, expReward, bonusReward;
 
-            // 随机奖励
-            const stonesReward = Math.floor(Math.random() * 5) + 1; // 1-5个改造石
-            const pointsReward = Math.floor(Math.random() * 5) + 1; // 1-5点卷
-            // 第101关开始经验翻倍：3000-6000
-            const expReward = gameState.challengeLevel >= 100
-                ? Math.floor(Math.random() * 3001) + 3000  // 3000-6000经验
-                : Math.floor(Math.random() * 1001) + 1000; // 1000-2000经验
+            if (gameState.challengeLevel >= 2500) {
+                // 2500关及以上
+                stonesReward = Math.floor(Math.random() * 4) + 7;  // 7-10个改造石
+                pointsReward = Math.floor(Math.random() * 4) + 7;  // 7-10点卷
+                expReward = Math.floor(Math.random() * 5001) + 10000;  // 10000-15000经验
+                bonusReward = 0.35;
+            } else if (gameState.challengeLevel >= 1000) {
+                // 1000关及以上
+                stonesReward = Math.floor(Math.random() * 5) + 5;  // 5-9个改造石
+                pointsReward = Math.floor(Math.random() * 5) + 5;  // 5-9点卷
+                expReward = Math.floor(Math.random() * 3001) + 7000;  // 7000-10000经验
+                bonusReward = 0.25;
+            } else if (gameState.challengeLevel >= 450) {
+                // 450关及以上
+                stonesReward = Math.floor(Math.random() * 5) + 3;  // 3-7个改造石
+                pointsReward = Math.floor(Math.random() * 5) + 3;  // 3-7点卷
+                expReward = Math.floor(Math.random() * 3001) + 5000;  // 5000-8000经验
+                bonusReward = 0.15;
+            } else if (gameState.challengeLevel >= 100) {
+                // 100关及以上
+                stonesReward = Math.floor(Math.random() * 5) + 1;  // 1-5个改造石
+                pointsReward = Math.floor(Math.random() * 5) + 1;  // 1-5点卷
+                expReward = Math.floor(Math.random() * 3001) + 3000;  // 3000-6000经验
+                bonusReward = 0.05;
+            } else {
+                // 1-99关
+                stonesReward = Math.floor(Math.random() * 5) + 1;  // 1-5个改造石
+                pointsReward = Math.floor(Math.random() * 5) + 1;  // 1-5点卷
+                expReward = Math.floor(Math.random() * 1001) + 1000;  // 1000-2000经验
+                bonusReward = 0.05;
+            }
+
+            // 增加收益加成
+            gameState.challengeBonus = (gameState.challengeBonus || 0) + bonusReward;
 
             // 确保reformStones已初始化并添加奖励
             if (gameState.reformStones === undefined) gameState.reformStones = 0;
@@ -2680,7 +3082,7 @@
             gameState.points += pointsReward;
             addExp(expReward);
 
-            showNotification(`🎉 恭喜通关！获得：改造石×${stonesReward}、点卷×${pointsReward}、经验×${expReward}、收益+0.05%`);
+            showNotification(`🎉 恭喜通关！获得：改造石×${stonesReward}、点卷×${pointsReward}、经验×${expReward}、收益+${bonusReward}%`);
         }
 
         function toggleAutoChallenge() {
@@ -2948,6 +3350,18 @@
 
         function updateZoomLevel() {
             document.getElementById('mapZoomLevel').textContent = Math.round(mapZoom * 100) + '%';
+        }
+
+        function toggleMapRotation() {
+            globeAutoRotate = !globeAutoRotate;
+            const btn = document.getElementById('toggleRotationBtn');
+            if (globeAutoRotate) {
+                btn.textContent = '⏸';
+                btn.title = '暂停旋转';
+            } else {
+                btn.textContent = '▶';
+                btn.title = '继续旋转';
+            }
         }
 
         function initMapControls() {
@@ -4159,15 +4573,25 @@
             }
         }
 
+        // 计算员工招聘价格
+        // 第一名员工1000，从第二名开始价格=现有员工数量×现有员工数量×1000
+        function calculateHireCost() {
+            const currentCount = gameState.employees.length;
+            if (currentCount === 0) return 1000;
+            return currentCount * currentCount * 1000;
+        }
+
         function hireEmployee() {
-            if (gameState.employees.length >= 66) { showNotification('员工数量已达上限(66名)！'); return; }
-            if (gameState.gold < 1000) { showNotification('金币不足！'); return; }
-            gameState.gold -= 1000;
+            const employeeLimit = getEmployeeLimit();
+            if (gameState.employees.length >= employeeLimit) { showNotification(`员工数量已达上限(${employeeLimit}名)！`); return; }
+            const hireCost = calculateHireCost();
+            if (gameState.gold < hireCost) { showNotification(`金币不足！需要 ${formatNumber(hireCost)} 金币`); return; }
+            gameState.gold -= hireCost;
             const types = ['income', 'speed', 'weight'];
             gameState.employees.push({ id: Date.now() + Math.random(), name: employeeNames[Math.floor(Math.random() * employeeNames.length)], type: types[Math.floor(Math.random() * types.length)], level: 1, trainId: null });
             updateUI();
             renderEmployeeList();
-            showNotification('成功招聘员工！');
+            showNotification(`成功招聘员工！花费 ${formatNumber(hireCost)} 金币`);
         }
 
         function upgradeEmployee(empId) {
@@ -4363,14 +4787,14 @@
             }
         }
 
-        function upgradeIncomeBonus() {
+        function upgradeExpBonus() {
             if (gameState.points < 3000) { showNotification('点卷不足！'); return; }
             gameState.points -= 3000;
             gameState.consumedPoints += 3000;
-            gameState.incomeBonus++;
+            gameState.expBonus = (gameState.expBonus || 0) + 1;
             updateUI();
             renderUpgradePanel();
-            showNotification(`收益加成提升至 +${gameState.incomeBonus}%！`);
+            showNotification(`经验加成提升至 +${gameState.expBonus * 15}%！`);
         }
 
         function upgradeTrain(trainId) {
@@ -4576,6 +5000,14 @@
         function closeImportModal() {
             document.getElementById('importModal').classList.remove('show');
         }
+
+        function showMobileMoreModal() {
+            document.getElementById('mobileMoreModal').classList.add('show');
+        }
+
+        function closeMobileMoreModal() {
+            document.getElementById('mobileMoreModal').classList.remove('show');
+        }
         
         function importSave() {
             const importData = document.getElementById('importData').value.trim();
@@ -4649,7 +5081,7 @@
                 employees: [], runningTrains: [], ownedTrains: [],
                 unlockedCities: ["广州", "深圳"], dailyPointsEarned: 0,
                 lastDailyReset: null, lastSaveTime: null, lastOnlineTime: null,
-                totalEarnings: 0, incomeBonus: 0, consumedPoints: 0,
+                totalEarnings: 0, expBonus: 0, consumedPoints: 0,
                 usedRedeemCodes: []
             };
             selectedStartCity = null;
@@ -4770,7 +5202,11 @@
                 const loadedState = JSON.parse(saved);
                 gameState = { ...gameState, ...loadedState };
                 if (!gameState.unlockedCities) gameState.unlockedCities = ["广州", "深圳"];
-                if (gameState.incomeBonus === undefined) gameState.incomeBonus = 0;
+                // 兼容旧存档：incomeBonus 转换为 expBonus
+                if (gameState.expBonus === undefined) {
+                    gameState.expBonus = gameState.incomeBonus || 0;
+                    delete gameState.incomeBonus;
+                }
                 if (gameState.consumedPoints === undefined) gameState.consumedPoints = 0;
                 if (!gameState.usedRedeemCodes) gameState.usedRedeemCodes = [];
                 gameState.ownedTrains.forEach(train => { if (train.upgradeLevel === undefined) train.upgradeLevel = 0; });
@@ -4832,17 +5268,22 @@
                         // 显示离线收益
                         if (totalOfflineEarnings > 0 || totalOfflineExp > 0) {
                             gameState.gold += totalOfflineEarnings;
+                            // 计算加成后的经验值
+                            const expBonus = gameState.expBonus || 0;
+                            const bonusExp = Math.floor(totalOfflineExp * (1 + expBonus * 0.15));
                             // 添加离线经验值
-                            if (totalOfflineExp > 0) {
-                                addExp(totalOfflineExp);
+                            if (bonusExp > 0) {
+                                addExp(totalOfflineExp); // addExp内部会再次计算加成
                             }
-                            document.getElementById('offlineEarnings').textContent = formatNumber(totalOfflineEarnings) + (totalOfflineExp > 0 ? ' + ' + totalOfflineExp + ' 经验' : '');
+                            document.getElementById('offlineEarnings').textContent = formatNumber(totalOfflineEarnings) + (bonusExp > 0 ? ' + ' + bonusExp + ' 经验' : '');
                             document.getElementById('offlineModal').classList.add('show');
                         }
                     }
                 }
                 // 更新最后在线时间，避免重复计算离线收益
                 gameState.lastOnlineTime = new Date().toISOString();
+                // 立即保存，确保lastOnlineTime被持久化
+                saveGame();
             }
         }
 
@@ -4945,7 +5386,7 @@
             }
             
             setInterval(gameLoopWithBackground, 1000);
-            setInterval(() => { gameState.lastOnlineTime = new Date().toISOString(); saveGame(); }, 30000);
+            setInterval(() => { gameState.lastOnlineTime = new Date().toISOString(); saveGame(); }, 10000);
             
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
@@ -4983,31 +5424,34 @@
                             if (totalEarnings > 0) {
                                 gameState.gold += totalEarnings;
                             }
+                            // 计算加成后的经验值
+                            const expBonus = gameState.expBonus || 0;
+                            const bonusExp = Math.floor(totalExp * (1 + expBonus * 0.15));
                             if (totalExp > 0) {
-                                addExp(totalExp);
+                                addExp(totalExp); // addExp内部会再次计算加成
                             }
-                            if (totalEarnings > 0 || totalExp > 0) {
-                                showNotification(`离线补偿：${missedSeconds}秒的运营收益！获得 ${formatNumber(totalEarnings)} 金币` + (totalExp > 0 ? ` +${totalExp}经验` : ''));
+                            if (totalEarnings > 0 || bonusExp > 0) {
+                                showNotification(`离线补偿：${missedSeconds}秒的运营收益！获得 ${formatNumber(totalEarnings)} 金币` + (bonusExp > 0 ? ` +${bonusExp}经验` : ''));
                             }
                         }
                     }
                     gameState.lastOnlineTime = new Date().toISOString();
-                    saveGame();
+                    localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
                 } else {
                     // 页面变为不可见时，保存当前时间
                     gameState.lastOnlineTime = new Date().toISOString();
-                    saveGame();
+                    localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
                 }
             });
             
             window.addEventListener('beforeunload', () => { 
                 gameState.lastOnlineTime = new Date().toISOString(); 
-                saveGame(); 
+                localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
             });
             
             window.addEventListener('pagehide', () => { 
                 gameState.lastOnlineTime = new Date().toISOString(); 
-                saveGame(); 
+                localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
             });
         }
 
@@ -5015,8 +5459,80 @@
     </script>
     
     <!-- 游戏底部说明 -->
-    <div style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,rgba(10,10,15,0.95));padding:15px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--fg-secondary);z-index:100;pointer-events:none;">
+    <div style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,rgba(10,10,15,0.95));padding:15px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--fg-secondary);z-index:100;pointer-events:none;" class="desktop-footer">
         <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">游戏QQ群：806903918</span>
+    </div>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="mobile-bottom-nav" id="mobileBottomNav">
+        <button class="mobile-nav-btn active" onclick="showPanel('trains')">
+            <span class="nav-icon">🚂</span>
+            <span>火车</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('routes')">
+            <span class="nav-icon">🛤️</span>
+            <span>路线</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('employees')">
+            <span class="nav-icon">👥</span>
+            <span>员工</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('shop')">
+            <span class="nav-icon">🏪</span>
+            <span>商店</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('running')">
+            <span class="nav-icon">📊</span>
+            <span>运营</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('map')">
+            <span class="nav-icon">🗺️</span>
+            <span>地图</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('cities')">
+            <span class="nav-icon">🏙️</span>
+            <span>城市</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('upgrade')">
+            <span class="nav-icon">🔧</span>
+            <span>强化</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('redeem')">
+            <span class="nav-icon">🎁</span>
+            <span>兑换</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('reform')">
+            <span class="nav-icon">💎</span>
+            <span>改造</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('challenge')">
+            <span class="nav-icon">🏆</span>
+            <span>闯关</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('changelog')">
+            <span class="nav-icon">📋</span>
+            <span>更新</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showMobileMoreModal()">
+            <span class="nav-icon">⚙️</span>
+            <span>更多</span>
+        </button>
+    </div>
+
+    <!-- Mobile More Modal -->
+    <div class="modal" id="mobileMoreModal">
+        <div class="modal-content" style="max-width:300px;">
+            <div class="modal-header">
+                <h3>更多功能</h3>
+                <button class="modal-close" onclick="closeMobileMoreModal()">&times;</button>
+            </div>
+            <div style="padding:15px;display:flex;flex-direction:column;gap:10px;">
+                <button class="btn btn-secondary" onclick="manualSave();closeMobileMoreModal();" style="width:100%;">💾 手动保存</button>
+                <button class="btn btn-primary" onclick="exportSave();closeMobileMoreModal();" style="width:100%;">📤 导出存档</button>
+                <button class="btn btn-primary" onclick="showImportModal();closeMobileMoreModal();" style="width:100%;">📥 导入存档</button>
+                <button class="btn btn-danger" onclick="confirmRestart();closeMobileMoreModal();" style="width:100%;">🔄 重新开始</button>
+            </div>
+        </div>
     </div>
 <!--客服 开始-->
 <script src="//g8hh.github.io/static/js/jquery.min.js"></script>
