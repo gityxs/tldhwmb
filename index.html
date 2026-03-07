@@ -1415,6 +1415,18 @@
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
                         <div class="changelog-version">
+                            <div class="changelog-date">3.7 铁轨帝国更新内容</div>
+                            <ul class="changelog-list">
+                                <li>修复导入导出存档因数据过大导致报错bug</li>
+                                <li>修复偶现员工招聘未到位bug</li>
+                                <li>修复离线收益bug</li>
+                                <li>调整100-499闯关收益</li>
+                                <li>新增兑换码：妇女节快乐</li>
+                                <li>新增火车管理界面显示司机</li>
+                                <li>新增兑换码：3月7日补偿</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-version">
                             <div class="changelog-date">3.6 铁轨帝国更新内容-2</div>
                             <ul class="changelog-list">
                                 <li>新增更多设置按钮</li>
@@ -1883,7 +1895,9 @@
             "guoba": { points: 2000, reformStones: 288, used: false },
             "taptap": { points: 2000, reformStones: 300, used: false },
             "gityx": { train: "马年纪念号", used: false },
-            "2026元宵快乐": { train: "2026元宵号", used: false }
+            "2026元宵快乐": { train: "2026元宵号", used: false },
+            "妇女节快乐": { train: "影舞号", used: false },
+            "3月7日补偿": { points: 3888, reformStones: 600, used: false }
         };
 
         // ==================== 游戏状态 ====================
@@ -2562,6 +2576,11 @@
                 if (refundPoints > 0) refundText += ` <span style="color:var(--neon-magenta);">${refundPoints}点</span>`;
                 if (refundStones > 0) refundText += ` <span style="color:var(--neon-cyan);">${refundStones}石</span>`;
                 const isSelected = selectedTrainIds.some(id => Math.abs(id - train.id) < 0.0001);
+                // 检查是否配备司机
+                const assignedDriver = gameState.employees.find(emp => emp.trainId === train.id);
+                const driverInfo = assignedDriver 
+                    ? `<span style="color:var(--neon-green);font-size:10px;">👤 ${assignedDriver.name}</span>` 
+                    : `<span style="color:var(--fg-secondary);font-size:10px;">👤 未配备</span>`;
                 return `<div class="train-card ${isSelected ? 'selected' : ''}">
                     <div class="train-name" style="display:flex;justify-content:space-between;align-items:center;">
                         <span style="display:flex;align-items:center;gap:8px;">
@@ -2574,6 +2593,7 @@
                     ${isRunning ? '<span style="color:var(--neon-green);margin-left:8px;font-size:10px;">● 运营中</span>' : ''}
                     <div class="train-stats"><span>⚡ ${train.speed} km/h</span><span>⚖️ ${train.weight} t</span></div>
                     <div class="train-stats"><span>🛋️ ${comfort}</span><span style="color:var(--neon-yellow);">收入+${comfortBonus}%</span></div>
+                    <div style="font-size:11px;margin-top:4px;">${driverInfo}</div>
                     ${upgradeLevel > 0 ? `<div style="font-size:11px;color:var(--neon-magenta);margin-top:8px;">强化: Lv.${upgradeLevel}/20 (+${upgradeLevel * 0.5}%)</div>` : ''}
                     ${reformLevel > 0 ? `<div style="font-size:11px;color:var(--neon-cyan);margin-top:4px;">改造: Lv.${reformLevel}/25 (速度+${reformLevel}%)</div>` : ''}
                     <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
@@ -2601,7 +2621,7 @@
             const train = gameState.ownedTrains.find(t => t.id === trainId);
             if (!train) return;
             if (isTrainRestricted(train)) {
-                showNotification('该火车需要达到54级才能退役！');
+                showNotification(`该火车需要达到${getTrainRestrictLevel(train)}级才能退役！`);
                 return;
             }
             if (gameState.runningTrains.some(rt => rt.trainId === trainId && !rt.paused)) {
@@ -3103,7 +3123,7 @@
                     <div class="train-name">${train.name}</div>
                     <span class="train-type type-${train.type}">${trainTypes[train.type].name}</span>
                     <div style="margin:12px 0;color:var(--neon-orange);font-size:12px;text-align:center;">
-                        ⚠️ 该火车需要达到54级才能进行升级！<br>
+                        ⚠️ 该火车需要达到${getTrainRestrictLevel(train)}级才能进行升级！<br>
                         当前等级：${gameState.level}级
                     </div>
                 </div>`;
@@ -3232,11 +3252,11 @@
                 expReward = Math.floor(Math.random() * 80001) + 60000;  // 60000-140000经验
                 bonusReward = 0.45;
             } else if (gameState.challengeLevel >= 100) {
-                // 100关及以上
-                stonesReward = Math.floor(Math.random() * 5) + 1;  // 1-5个改造石
-                pointsReward = Math.floor(Math.random() * 5) + 1;  // 1-5点卷
-                expReward = Math.floor(Math.random() * 3001) + 3000;  // 3000-6000经验
-                bonusReward = 0.05;
+                // 100-499关
+                stonesReward = Math.floor(Math.random() * 5) + 2;  // 2-6个改造石
+                pointsReward = Math.floor(Math.random() * 3) + 3;  // 3-5点卷
+                expReward = Math.floor(Math.random() * 40000) + 20000;  // 20000-59999经验
+                bonusReward = 0.15;
             } else {
                 // 1-99关
                 stonesReward = Math.floor(Math.random() * 5) + 1;  // 1-5个改造石
@@ -3324,7 +3344,7 @@
                     <div class="train-name">${train.name}</div>
                     <span class="train-type type-${train.type}">${trainTypes[train.type].name}</span>
                     <div style="margin:12px 0;color:var(--neon-orange);font-size:12px;text-align:center;">
-                        ⚠️ 该火车需要达到54级才能进行改造！<br>
+                        ⚠️ 该火车需要达到${getTrainRestrictLevel(train)}级才能进行改造！<br>
                         当前等级：${gameState.level}级
                     </div>
                 </div>`;
@@ -3390,7 +3410,7 @@
             const train = gameState.ownedTrains.find(t => t.id === trainId);
             if (!train) return;
             if (isTrainRestricted(train)) {
-                showNotification('该火车需要达到54级才能进行改造！');
+                showNotification(`该火车需要达到${getTrainRestrictLevel(train)}级才能进行改造！`);
                 return;
             }
             
@@ -3421,7 +3441,7 @@
             const train = gameState.ownedTrains.find(t => t.id === trainId);
             if (!train) return;
             if (isTrainRestricted(train)) {
-                showNotification('该火车需要达到54级才能进行改造！');
+                showNotification(`该火车需要达到${getTrainRestrictLevel(train)}级才能进行改造！`);
                 return;
             }
             
@@ -4753,17 +4773,52 @@
             return currentCount * currentCount * 1000;
         }
 
+        // 员工ID计数器，确保唯一性
+        let employeeIdCounter = 0;
+
         function hireEmployee() {
             const employeeLimit = getEmployeeLimit();
-            if (gameState.employees.length >= employeeLimit) { showNotification(`员工数量已达上限(${employeeLimit}名)！`); return; }
+            if (gameState.employees.length >= employeeLimit) { 
+                showNotification(`员工数量已达上限(${employeeLimit}名)！`); 
+                return; 
+            }
             const hireCost = calculateHireCost();
-            if (gameState.gold < hireCost) { showNotification(`金币不足！需要 ${formatNumber(hireCost)} 金币`); return; }
+            if (gameState.gold < hireCost) { 
+                showNotification(`金币不足！需要 ${formatNumber(hireCost)} 金币`); 
+                return; 
+            }
+            
+            // 先扣除金币
             gameState.gold -= hireCost;
+            
+            // 生成唯一ID
+            employeeIdCounter++;
+            const newId = Date.now() * 1000 + employeeIdCounter;
+            
+            // 随机选择员工类型和名字
             const types = ['income', 'speed', 'weight'];
-            gameState.employees.push({ id: Date.now() + Math.random(), name: employeeNames[Math.floor(Math.random() * employeeNames.length)], type: types[Math.floor(Math.random() * types.length)], level: 1, trainId: null });
+            const randomType = types[Math.floor(Math.random() * types.length)];
+            const randomName = employeeNames[Math.floor(Math.random() * employeeNames.length)];
+            
+            // 创建新员工
+            const newEmployee = {
+                id: newId,
+                name: randomName,
+                type: randomType,
+                level: 1,
+                trainId: null
+            };
+            
+            // 添加到员工列表
+            gameState.employees.push(newEmployee);
+            
+            // 立即保存
+            saveGame();
+            
+            // 更新界面
             updateUI();
             renderEmployeeList();
-            showNotification(`成功招聘员工！花费 ${formatNumber(hireCost)} 金币`);
+            showNotification(`成功招聘员工：${randomName}！花费 ${formatNumber(hireCost)} 金币`);
         }
 
         function upgradeEmployee(empId) {
@@ -4973,7 +5028,7 @@
             const train = gameState.ownedTrains.find(t => t.id === trainId);
             if (!train) return;
             if (isTrainRestricted(train)) {
-                showNotification('该火车需要达到54级才能进行升级！');
+                showNotification(`该火车需要达到${getTrainRestrictLevel(train)}级才能进行升级！`);
                 return;
             }
             const currentLevel = train.upgradeLevel || 0;
@@ -5037,10 +5092,25 @@
 
         function isTrainRestricted(train) {
             // 兑换码获得的火车在54级前无法操作
+            // 影舞号特殊处理：50级前无法操作
+            if (train.name === '影舞号' && train.fromRedeemCode && gameState.level < 50) {
+                return true;
+            }
             if (train.fromRedeemCode && gameState.level < 54) {
                 return true;
             }
             return false;
+        }
+
+        function getTrainRestrictLevel(train) {
+            // 获取火车限制等级
+            if (train.name === '影舞号' && train.fromRedeemCode) {
+                return 50;
+            }
+            if (train.fromRedeemCode) {
+                return 54;
+            }
+            return 0;
         }
 
         function redeemCode() {
@@ -5064,11 +5134,20 @@
             }
             if (redeemCodes[code].train) {
                 const trainName = redeemCodes[code].train;
-                const trainDataItem = trainData.zodiac.find(t => t.name === trainName);
+                // 在所有火车类型中查找
+                let trainDataItem = null;
+                let trainType = null;
+                for (const type of ['normal', 'intercity', 'highspeed', 'anime', 'zodiac']) {
+                    trainDataItem = trainData[type].find(t => t.name === trainName);
+                    if (trainDataItem) {
+                        trainType = type;
+                        break;
+                    }
+                }
                 if (trainDataItem) {
                     gameState.ownedTrains.push({
                         id: Date.now() + Math.random(),
-                        type: 'zodiac',
+                        type: trainType,
                         name: trainName,
                         speed: trainDataItem.speed,
                         weight: trainDataItem.weight,
@@ -5093,10 +5172,11 @@
                 <div style="margin-bottom:12px;"><button class="btn btn-secondary" onclick="assignEmployee(${emp.id}, null)" style="width:100%;">取消分配</button></div>
                 ${gameState.ownedTrains.map(train => {
                     const restricted = isTrainRestricted(train);
+                    const restrictLevel = getTrainRestrictLevel(train);
                     return `<div class="train-card ${restricted ? 'disabled' : ''}" onclick="${restricted ? '' : `assignEmployee(${emp.id}, ${train.id})`}" style="${restricted ? 'opacity:0.5;cursor:not-allowed;' : ''}">
                         <div class="train-name">${train.name}</div>
                         <span class="train-type type-${train.type}">${trainTypes[train.type].name}</span>
-                        ${restricted ? '<div style="color:var(--neon-orange);font-size:10px;margin-top:5px;">⚠️ 需要54级</div>' : ''}
+                        ${restricted ? `<div style="color:var(--neon-orange);font-size:10px;margin-top:5px;">⚠️ 需要${restrictLevel}级</div>` : ''}
                     </div>`;
                 }).join('')}`;
             document.getElementById('employeeModal').classList.add('show');
@@ -5106,7 +5186,7 @@
             if (trainId !== null) {
                 const train = gameState.ownedTrains.find(t => t.id === trainId);
                 if (isTrainRestricted(train)) {
-                    showNotification('该火车需要达到54级才能分配司机！');
+                    showNotification(`该火车需要达到${getTrainRestrictLevel(train)}级才能分配司机！`);
                     return;
                 }
                 // 检查该火车是否已经有其他司机
@@ -5142,8 +5222,27 @@
                 return;
             }
             
-            // 转换为Base64编码
-            const encodedData = btoa(unescape(encodeURIComponent(saveData)));
+            // 使用分块Base64编码处理大数据
+            let encodedData;
+            try {
+                // 先尝试标准方式
+                encodedData = btoa(unescape(encodeURIComponent(saveData)));
+            } catch (e) {
+                // 如果失败，使用分块处理
+                try {
+                    const utf8Data = unescape(encodeURIComponent(saveData));
+                    const chunkSize = 65536; // 64KB chunks
+                    let result = '';
+                    for (let i = 0; i < utf8Data.length; i += chunkSize) {
+                        const chunk = utf8Data.slice(i, i + chunkSize);
+                        result += btoa(chunk);
+                    }
+                    encodedData = result;
+                } catch (e2) {
+                    // 最后尝试直接保存JSON
+                    encodedData = saveData;
+                }
+            }
             
             // 创建下载链接
             const blob = new Blob([encodedData], { type: 'text/plain' });
@@ -5207,14 +5306,26 @@
                 // 尝试解码Base64
                 let decodedData;
                 try {
+                    // 先尝试标准解码
                     decodedData = decodeURIComponent(escape(atob(importData)));
                 } catch (e) {
-                    // 如果不是Base64，尝试直接解析JSON
-                    decodedData = importData;
+                    // 尝试直接解析JSON（可能是未编码的JSON）
+                    try {
+                        JSON.parse(importData);
+                        decodedData = importData;
+                    } catch (e2) {
+                        // 可能是分块编码的数据，尝试其他方式
+                        throw new Error('无法解码存档数据，请确保完整复制了存档内容');
+                    }
                 }
                 
                 // 验证JSON格式
-                const parsedData = JSON.parse(decodedData);
+                let parsedData;
+                try {
+                    parsedData = JSON.parse(decodedData);
+                } catch (e) {
+                    throw new Error('JSON解析失败，存档数据可能已损坏');
+                }
                 
                 // 验证存档数据的基本结构
                 if (typeof parsedData !== 'object' || parsedData === null) {
@@ -5575,6 +5686,7 @@
             setInterval(gameLoopWithBackground, 1000);
             setInterval(() => { gameState.lastOnlineTime = new Date().toISOString(); saveGame(); }, 10000);
             
+            // 使用多种方式确保lastOnlineTime被保存
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
                     // 页面变为可见时，计算离线收益
@@ -5631,12 +5743,28 @@
                 }
             });
             
-            window.addEventListener('beforeunload', () => { 
+            // 多重保存机制，确保关闭游戏时lastOnlineTime被保存
+            window.addEventListener('beforeunload', (e) => { 
+                gameState.lastOnlineTime = new Date().toISOString(); 
+                localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
+                // 对于某些浏览器，需要设置returnValue
+                e.preventDefault();
+                e.returnValue = '';
+            });
+            
+            window.addEventListener('pagehide', () => { 
                 gameState.lastOnlineTime = new Date().toISOString(); 
                 localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
             });
             
-            window.addEventListener('pagehide', () => { 
+            // 添加unload事件作为备用
+            window.addEventListener('unload', () => { 
+                gameState.lastOnlineTime = new Date().toISOString(); 
+                localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
+            });
+            
+            // 添加freeze事件（移动端）
+            document.addEventListener('freeze', () => {
                 gameState.lastOnlineTime = new Date().toISOString(); 
                 localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
             });
