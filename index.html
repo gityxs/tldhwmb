@@ -5857,13 +5857,25 @@
                 // 计算离线期间的火车运营
                 if (gameState.lastOnlineTime && gameState.runningTrains.length > 0) {
                     const offlineTime = (Date.now() - new Date(gameState.lastOnlineTime).getTime()) / 1000;
-
-                    if (offlineTime > 10) {
+                    
+                    // 防作弊：检测时间是否被修改
+                    if (offlineTime < 0) {
+                        // 系统时间被调后，不计算离线收益
+                        console.warn('检测到系统时间异常，跳过离线收益计算');
+                        gameState.lastOnlineTime = new Date().toISOString();
+                    } else if (offlineTime > 10) {
                         let totalOfflineEarnings = 0;
                         let totalOfflineExp = 0;
 
-                        // 处理离线期间的火车运营（最多计算12小时）
-                        const maxOfflineSeconds = Math.min(Math.floor(offlineTime), 43200);
+                        // 防作弊：限制最大离线时间为12小时
+                        const maxOfflineTime = 43200;
+                        const maxOfflineSeconds = Math.min(Math.floor(offlineTime), maxOfflineTime);
+                        
+                        // 检测异常离线时间
+                        if (offlineTime > maxOfflineTime * 10) {
+                            console.warn('检测到异常离线时间，已限制为12小时');
+                        }
+                        
                         for (let i = 0; i < maxOfflineSeconds; i++) {
                             gameState.runningTrains.forEach(rt => {
                                 if (!rt.paused) {
@@ -5983,21 +5995,69 @@
             // 时间加速检测变量
             let loopCount = 0;
             let loopCheckTime = Date.now();
+            let speedViolationCount = 0; // 速度违规计数
+            const MAX_VIOLATIONS = 3; // 最大违规次数
+            let gameLocked = false; // 游戏是否被锁定
             
-            function gameLoopWithBackground() {
+            // 检测时间是否被加速
+            function checkTimeAcceleration() {
+                if (gameLocked) return true;
+                
                 const now = Date.now();
-                const delta = now - lastTime;
-
-                // 时间加速检测：每秒检查循环次数
-                loopCount++;
-                if (now - loopCheckTime >= 1000) {
+                const realDelta = now - loopCheckTime;
+                
+                // 检测1：循环频率检测
+                if (realDelta >= 1000) {
                     if (loopCount > 2) {
-                        // 每秒执行超过2次循环，可能在使用加速器
-                        showNotification('检测到异常游戏速度！');
+                        speedViolationCount++;
+                        console.warn(`检测到异常游戏速度！违规次数: ${speedViolationCount}/${MAX_VIOLATIONS}`);
+                        
+                        if (speedViolationCount >= MAX_VIOLATIONS) {
+                            lockGame();
+                            return true;
+                        }
+                        showNotification(`⚠️ 检测到异常游戏速度！警告 ${speedViolationCount}/${MAX_VIOLATIONS}`);
                     }
                     loopCount = 0;
                     loopCheckTime = now;
                 }
+                
+                // 检测2：时间跳跃检测（检测系统时间是否被修改）
+                if (gameState.lastTimeCheck) {
+                    const expectedDelta = now - gameState.lastTimeCheck;
+                    if (expectedDelta < 500 && loopCount > 0) {
+                        // 时间跳跃过快
+                        speedViolationCount++;
+                        if (speedViolationCount >= MAX_VIOLATIONS) {
+                            lockGame();
+                            return true;
+                        }
+                    }
+                }
+                gameState.lastTimeCheck = now;
+                
+                return false;
+            }
+            
+            // 锁定游戏
+            function lockGame() {
+                gameLocked = true;
+                showNotification('🚫 检测到作弊行为，游戏已锁定！请刷新页面重新开始。');
+                // 清除所有运营中的火车
+                gameState.runningTrains = [];
+                updateUI();
+                renderRunningTrains();
+            }
+            
+            function gameLoopWithBackground() {
+                if (gameLocked) return; // 游戏锁定时不执行
+                
+                const now = Date.now();
+                const delta = now - lastTime;
+                loopCount++;
+
+                // 时间加速检测
+                if (checkTimeAcceleration()) return;
 
                 if (delta > 1000) {
                     // 离线/后台补偿：补上错过的秒数（最多12小时）
@@ -6020,8 +6080,24 @@
                     // 页面变为可见时，计算离线收益
                     if (gameState.lastOnlineTime) {
                         const offlineTime = (Date.now() - new Date(gameState.lastOnlineTime).getTime()) / 1000;
+                        
+                        // 防作弊：检测时间是否被修改（离线时间异常）
+                        if (offlineTime < 0) {
+                            // 系统时间被调后，不计算离线收益
+                            showNotification('⚠️ 检测到系统时间异常！');
+                            gameState.lastOnlineTime = new Date().toISOString();
+                            return;
+                        }
+                        
+                        // 防作弊：限制最大离线时间为12小时，防止通过修改时间作弊
+                        const maxOfflineTime = 43200; // 12小时
+                        if (offlineTime > maxOfflineTime * 10) {
+                            // 离线时间异常长（超过5天），可能是修改系统时间
+                            showNotification('⚠️ 检测到异常离线时间，已限制为12小时');
+                        }
+                        
                         if (offlineTime > 5) {
-                            const missedSeconds = Math.min(Math.floor(offlineTime), 43200); // 最多计算12小时
+                            const missedSeconds = Math.min(Math.floor(offlineTime), maxOfflineTime);
                             let totalEarnings = 0;
                             let totalExp = 0;
                             for (let i = 0; i < missedSeconds; i++) {
