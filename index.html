@@ -5856,7 +5856,9 @@
 
                 // 计算离线期间的火车运营
                 if (gameState.lastOnlineTime && gameState.runningTrains.length > 0) {
-                    const offlineTime = (Date.now() - new Date(gameState.lastOnlineTime).getTime()) / 1000;
+                    // 使用校准后的时间计算离线时间，防止修改系统时间作弊
+                    const calibratedNow = typeof getCalibratedTime === 'function' ? getCalibratedTime() : Date.now();
+                    const offlineTime = (calibratedNow - new Date(gameState.lastOnlineTime).getTime()) / 1000;
                     
                     // 防作弊：检测时间是否被修改
                     if (offlineTime < 0) {
@@ -5990,6 +5992,131 @@
             
             initMapControls();
             
+            // ==================== 服务器时间校对系统 ====================
+            let serverTimeOffset = 0; // 服务器时间与本地时间的偏移量
+            let lastServerTimeSync = 0; // 上次同步服务器时间的时间戳
+            let serverTimeSynced = false; // 是否已同步服务器时间
+            let timeCheatDetected = false; // 是否检测到时间作弊
+            
+            // 从多个时间服务器获取时间
+            async function fetchServerTime() {
+                const timeApis = [
+                    // 使用世界时间API
+                    'https://worldtimeapi.org/api/ip',
+                    // 备用：使用淘宝时间接口
+                    'https://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp'
+                ];
+                
+                for (const api of timeApis) {
+                    try {
+                        const controller = new AbortController();
+                        const timeoutId = setTimeout(() => controller.abort(), 3000);
+                        
+                        const response = await fetch(api, { 
+                            method: 'GET',
+                            signal: controller.signal,
+                            cache: 'no-cache'
+                        });
+                        
+                        clearTimeout(timeoutId);
+                        
+                        if (response.ok) {
+                            const data = await response.json();
+                            let serverTime;
+                            
+                            if (api.includes('worldtimeapi')) {
+                                serverTime = new Date(data.datetime).getTime();
+                            } else if (api.includes('taobao')) {
+                                serverTime = parseInt(data.data.t);
+                            }
+                            
+                            if (serverTime) {
+                                const localTime = Date.now();
+                                serverTimeOffset = serverTime - localTime;
+                                lastServerTimeSync = localTime;
+                                serverTimeSynced = true;
+                                console.log(`服务器时间同步成功，偏移量: ${serverTimeOffset}ms`);
+                                return serverTimeOffset;
+                            }
+                        }
+                    } catch (e) {
+                        console.warn(`时间API ${api} 请求失败:`, e.message);
+                    }
+                }
+                
+                // 如果所有API都失败，使用备用方案：通过HTTP响应头获取时间
+                try {
+                    const response = await fetch(window.location.href, { 
+                        method: 'HEAD',
+                        cache: 'no-cache'
+                    });
+                    const serverDate = response.headers.get('Date');
+                    if (serverDate) {
+                        const serverTime = new Date(serverDate).getTime();
+                        const localTime = Date.now();
+                        serverTimeOffset = serverTime - localTime;
+                        lastServerTimeSync = localTime;
+                        serverTimeSynced = true;
+                        console.log(`通过HTTP头同步时间成功，偏移量: ${serverTimeOffset}ms`);
+                        return serverTimeOffset;
+                    }
+                } catch (e) {
+                    console.warn('HTTP头时间获取失败:', e.message);
+                }
+                
+                return null;
+            }
+            
+            // 获取校准后的时间
+            function getCalibratedTime() {
+                if (serverTimeSynced) {
+                    return Date.now() + serverTimeOffset;
+                }
+                return Date.now();
+            }
+            
+            // 检测时间作弊
+            function checkTimeCheat() {
+                if (!serverTimeSynced || timeCheatDetected) return false;
+                
+                const localTime = Date.now();
+                const calibratedTime = getCalibratedTime();
+                const diff = Math.abs(localTime - calibratedTime);
+                
+                // 如果本地时间与校准时间相差超过60秒，可能是在作弊
+                if (diff > 60000) {
+                    timeCheatDetected = true;
+                    showNotification('🚫 检测到系统时间异常！');
+                    console.warn(`时间差异过大: ${diff}ms，本地时间可能被修改`);
+                    // 直接强制重置游戏
+                    forceResetGame();
+                    return true;
+                }
+                
+                return false;
+            }
+            
+            // 定期同步服务器时间
+            async function syncServerTime() {
+                await fetchServerTime();
+                
+                // 每5秒同步一次
+                setInterval(async () => {
+                    const oldOffset = serverTimeOffset;
+                    await fetchServerTime();
+                    
+                    // 检测时间偏移量是否突然变化（可能修改了系统时间）
+                    if (serverTimeSynced && Math.abs(serverTimeOffset - oldOffset) > 30000) {
+                        timeCheatDetected = true;
+                        showNotification('🚫 检测到时间异常变化！');
+                        forceResetGame();
+                    }
+                }, 5000);
+            }
+            
+            // 启动时间同步
+            syncServerTime();
+            
             let lastTime = Date.now();
             
             // 时间加速检测变量
@@ -5999,68 +6126,41 @@
             const MAX_VIOLATIONS = 3; // 最大违规次数
             let gameLocked = false; // 游戏是否被锁定
             
-            // 检测时间是否被加速
-            function checkTimeAcceleration() {
-                if (gameLocked) return true;
+            function gameLoopWithBackground() {
+                if (gameLocked) return;
                 
-                const now = Date.now();
-                const realDelta = now - loopCheckTime;
+                // 检测时间作弊
+                if (checkTimeCheat()) {
+                    speedViolationCount++;
+                    if (speedViolationCount >= MAX_VIOLATIONS) {
+                        lockGame();
+                        return;
+                    }
+                }
                 
-                // 检测1：循环频率检测
-                if (realDelta >= 1000) {
+                // 使用校准后的时间
+                const now = getCalibratedTime();
+                const delta = now - lastTime;
+
+                // 时间加速检测：每秒检查循环次数
+                loopCount++;
+                if (now - loopCheckTime >= 1000) {
                     if (loopCount > 2) {
                         speedViolationCount++;
                         console.warn(`检测到异常游戏速度！违规次数: ${speedViolationCount}/${MAX_VIOLATIONS}`);
-                        
                         if (speedViolationCount >= MAX_VIOLATIONS) {
                             lockGame();
-                            return true;
+                            return;
                         }
-                        showNotification(`⚠️ 检测到异常游戏速度！警告 ${speedViolationCount}/${MAX_VIOLATIONS}`);
+                        showNotification(`⚠️ 检测到加速器！警告 ${speedViolationCount}/${MAX_VIOLATIONS}`);
                     }
                     loopCount = 0;
                     loopCheckTime = now;
                 }
-                
-                // 检测2：时间跳跃检测（检测系统时间是否被修改）
-                if (gameState.lastTimeCheck) {
-                    const expectedDelta = now - gameState.lastTimeCheck;
-                    if (expectedDelta < 500 && loopCount > 0) {
-                        // 时间跳跃过快
-                        speedViolationCount++;
-                        if (speedViolationCount >= MAX_VIOLATIONS) {
-                            lockGame();
-                            return true;
-                        }
-                    }
-                }
-                gameState.lastTimeCheck = now;
-                
-                return false;
-            }
-            
-            // 锁定游戏
-            function lockGame() {
-                gameLocked = true;
-                showNotification('🚫 检测到作弊行为，游戏已锁定！请刷新页面重新开始。');
-                // 清除所有运营中的火车
-                gameState.runningTrains = [];
-                updateUI();
-                renderRunningTrains();
-            }
-            
-            function gameLoopWithBackground() {
-                if (gameLocked) return; // 游戏锁定时不执行
-                
-                const now = Date.now();
-                const delta = now - lastTime;
-                loopCount++;
-
-                // 时间加速检测
-                if (checkTimeAcceleration()) return;
 
                 if (delta > 1000) {
                     // 离线/后台补偿：补上错过的秒数（最多12小时）
+                    // 使用校准时间计算，防止修改系统时间作弊
                     const missedSeconds = Math.min(Math.floor(delta / 1000), 43200);
                     for (let i = 0; i < missedSeconds; i++) gameLoop();
                     lastTime = now;
@@ -6069,6 +6169,73 @@
                     lastTime = now;
                     gameLoop();
                 }
+            }
+            
+            // 锁定游戏
+            function lockGame() {
+                gameLocked = true;
+                showNotification('🚫 检测到作弊行为，游戏已锁定！');
+                // 强制重置游戏
+                forceResetGame();
+            }
+            
+            // 强制重置游戏
+            function forceResetGame() {
+                gameLocked = true;
+                showNotification('🚫 检测到作弊行为，游戏已强制重置！');
+                
+                // 清除本地存储
+                localStorage.removeItem('railroadTycoon');
+                
+                // 重置游戏状态到初始状态
+                gameState = {
+                    gold: 20000, points: 0, level: 1, exp: 0, expToNext: 500,
+                    employees: [], runningTrains: [], ownedTrains: [],
+                    unlockedCities: ["广州", "深圳"], dailyPointsEarned: 0,
+                    lastDailyReset: null, lastSaveTime: null, lastOnlineTime: new Date().toISOString(),
+                    totalEarnings: 0, expBonus: 0, consumedPoints: 0,
+                    usedRedeemCodes: [],
+                    reformStones: 0,
+                    dailyReformStonesEarned: 0,
+                    vipExp: 0,
+                    currentWeather: 'sunny',
+                    lastWeatherUpdate: null,
+                    challengeLevel: 0,
+                    challengeProgress: 0,
+                    challengeBonus: 0,
+                    trainParts: 0,
+                    trainLimitIncreases: { normal: 0, intercity: 0, highspeed: 0, anime: 0, zodiac: 0 }
+                };
+                
+                // 添加初始火车
+                gameState.ownedTrains.push({ 
+                    id: Date.now() + Math.random(), 
+                    type: 'normal', 
+                    name: '启程号', 
+                    speed: 80, 
+                    weight: 600, 
+                    purchasePrice: 5000, 
+                    upgradeLevel: 0, 
+                    comfort: 100 
+                });
+                
+                // 重置选择状态
+                selectedStartCity = null;
+                selectedEndCity = null;
+                
+                // 更新界面
+                updateUI();
+                updateLevelUI();
+                renderTrainList();
+                renderRightPanel();
+                
+                // 保存重置后的状态
+                saveGame();
+                
+                // 显示提示
+                setTimeout(() => {
+                    showNotification('游戏已重置，请重新开始！');
+                }, 1000);
             }
             
             setInterval(gameLoopWithBackground, 1000);
@@ -6080,24 +6247,8 @@
                     // 页面变为可见时，计算离线收益
                     if (gameState.lastOnlineTime) {
                         const offlineTime = (Date.now() - new Date(gameState.lastOnlineTime).getTime()) / 1000;
-                        
-                        // 防作弊：检测时间是否被修改（离线时间异常）
-                        if (offlineTime < 0) {
-                            // 系统时间被调后，不计算离线收益
-                            showNotification('⚠️ 检测到系统时间异常！');
-                            gameState.lastOnlineTime = new Date().toISOString();
-                            return;
-                        }
-                        
-                        // 防作弊：限制最大离线时间为12小时，防止通过修改时间作弊
-                        const maxOfflineTime = 43200; // 12小时
-                        if (offlineTime > maxOfflineTime * 10) {
-                            // 离线时间异常长（超过5天），可能是修改系统时间
-                            showNotification('⚠️ 检测到异常离线时间，已限制为12小时');
-                        }
-                        
                         if (offlineTime > 5) {
-                            const missedSeconds = Math.min(Math.floor(offlineTime), maxOfflineTime);
+                            const missedSeconds = Math.min(Math.floor(offlineTime), 43200); // 最多计算12小时
                             let totalEarnings = 0;
                             let totalExp = 0;
                             for (let i = 0; i < missedSeconds; i++) {
@@ -6318,5 +6469,6 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>    </div>
+
 </body>
 </html>
