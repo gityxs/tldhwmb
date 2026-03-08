@@ -5723,6 +5723,27 @@
             setTimeout(() => notification.remove(), 2000);
         }
 
+        // 显示作弊警告弹窗（全局函数）
+        function showCheatWarningModal() {
+            // 先移除已存在的弹窗
+            const existingModal = document.getElementById('cheatWarningModal');
+            if (existingModal) existingModal.remove();
+            
+            // 创建警告弹窗
+            const modalHtml = `
+                <div id="cheatWarningModal" class="modal show" style="z-index:10001;">
+                    <div class="modal-content" style="max-width:400px;text-align:center;padding:30px;">
+                        <div style="font-size:48px;margin-bottom:20px;">⚠️</div>
+                        <h3 style="color:var(--neon-orange);margin-bottom:15px;">作弊警告</h3>
+                        <p style="margin-bottom:20px;color:var(--fg-secondary);">检测到您正在尝试修改游戏时间！</p>
+                        <p style="margin-bottom:20px;color:var(--neon-red);font-weight:600;">这是第一次警告，如果再次检测到作弊行为，游戏将被强制重置，所有进度将丢失！</p>
+                        <button class="btn btn-primary" onclick="document.getElementById('cheatWarningModal').remove()" style="width:100%;padding:12px;">我已了解，不再作弊</button>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+
         // ==================== 游戏循环 ====================
         function gameLoop() {
             updateWeather();
@@ -6103,23 +6124,6 @@
                 }
                 
                 return false;
-            }
-            
-            // 显示作弊警告弹窗
-            function showCheatWarningModal() {
-                // 创建警告弹窗
-                const modalHtml = `
-                    <div id="cheatWarningModal" class="modal show" style="z-index:10001;">
-                        <div class="modal-content" style="max-width:400px;text-align:center;padding:30px;">
-                            <div style="font-size:48px;margin-bottom:20px;">⚠️</div>
-                            <h3 style="color:var(--neon-orange);margin-bottom:15px;">作弊警告</h3>
-                            <p style="margin-bottom:20px;color:var(--fg-secondary);">检测到您正在尝试修改游戏时间！</p>
-                            <p style="margin-bottom:20px;color:var(--neon-red);font-weight:600;">这是第一次警告，如果再次检测到作弊行为，游戏将被强制重置，所有进度将丢失！</p>
-                            <button class="btn btn-primary" onclick="document.getElementById('cheatWarningModal').remove()" style="width:100%;padding:12px;">我已了解，不再作弊</button>
-                        </div>
-                    </div>
-                `;
-                document.body.insertAdjacentHTML('beforeend', modalHtml);
             }
             
             // 定期同步服务器时间
