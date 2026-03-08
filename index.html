@@ -5729,6 +5729,9 @@
             const existingModal = document.getElementById('cheatWarningModal');
             if (existingModal) existingModal.remove();
             
+            // 暂停游戏
+            window.cheatWarningPaused = true;
+            
             // 创建警告弹窗
             const modalHtml = `
                 <div id="cheatWarningModal" class="modal show" style="z-index:10001;">
@@ -5737,11 +5740,20 @@
                         <h3 style="color:var(--neon-orange);margin-bottom:15px;">作弊警告</h3>
                         <p style="margin-bottom:20px;color:var(--fg-secondary);">检测到您正在尝试修改游戏时间！</p>
                         <p style="margin-bottom:20px;color:var(--neon-red);font-weight:600;">这是第一次警告，如果再次检测到作弊行为，游戏将被强制重置，所有进度将丢失！</p>
-                        <button class="btn btn-primary" onclick="document.getElementById('cheatWarningModal').remove()" style="width:100%;padding:12px;">我已了解，不再作弊</button>
+                        <button class="btn btn-primary" onclick="closeCheatWarningAndResume()" style="width:100%;padding:12px;">我已了解，不再作弊</button>
                     </div>
                 </div>
             `;
             document.body.insertAdjacentHTML('beforeend', modalHtml);
+        }
+        
+        // 关闭作弊警告弹窗并恢复游戏
+        function closeCheatWarningAndResume() {
+            const modal = document.getElementById('cheatWarningModal');
+            if (modal) modal.remove();
+            window.cheatWarningPaused = false;
+            // 标记已确认警告，下次作弊直接重置
+            window.cheatWarningConfirmed = true;
         }
 
         // ==================== 游戏循环 ====================
@@ -6110,15 +6122,18 @@
                     timeCheatDetected = true;
                     console.warn(`时间差异过大: ${diff}ms，本地时间可能被修改`);
                     
-                    // 检查是否已经警告过
-                    if (!cheatWarningGiven) {
+                    // 检查是否已经确认过警告（点击过按钮）
+                    if (window.cheatWarningConfirmed) {
+                        // 已确认警告后继续作弊，直接强制重置游戏
+                        forceResetGame();
+                    } else if (!cheatWarningGiven) {
                         // 第一次作弊，弹窗警告
                         cheatWarningGiven = true;
                         showCheatWarningModal();
                         timeCheatDetected = false; // 重置，给玩家一次机会
                     } else {
-                        // 已经警告过，直接强制重置游戏
-                        forceResetGame();
+                        // 已经警告过但还没点击按钮，继续检测
+                        timeCheatDetected = false;
                     }
                     return true;
                 }
@@ -6140,15 +6155,18 @@
                         timeCheatDetected = true;
                         console.warn('检测到时间偏移量异常变化');
                         
-                        // 检查是否已经警告过
-                        if (!cheatWarningGiven) {
+                        // 检查是否已经确认过警告（点击过按钮）
+                        if (window.cheatWarningConfirmed) {
+                            // 已确认警告后继续作弊，直接强制重置游戏
+                            forceResetGame();
+                        } else if (!cheatWarningGiven) {
                             // 第一次作弊，弹窗警告
                             cheatWarningGiven = true;
                             showCheatWarningModal();
                             timeCheatDetected = false; // 重置，给玩家一次机会
                         } else {
-                            // 已经警告过，直接强制重置游戏
-                            forceResetGame();
+                            // 已经警告过但还没点击按钮，继续检测
+                            timeCheatDetected = false;
                         }
                     }
                 }, 5000);
@@ -6168,6 +6186,8 @@
             
             function gameLoopWithBackground() {
                 if (gameLocked) return;
+                // 如果作弊警告弹窗显示中，暂停游戏
+                if (window.cheatWarningPaused) return;
                 
                 // 检测时间作弊
                 if (checkTimeCheat()) {
