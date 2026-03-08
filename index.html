@@ -6115,17 +6115,11 @@
                             <h3 style="color:var(--neon-orange);margin-bottom:15px;">作弊警告</h3>
                             <p style="margin-bottom:20px;color:var(--fg-secondary);">检测到您正在尝试修改游戏时间！</p>
                             <p style="margin-bottom:20px;color:var(--neon-red);font-weight:600;">这是第一次警告，如果再次检测到作弊行为，游戏将被强制重置，所有进度将丢失！</p>
-                            <button class="btn btn-primary" onclick="closeCheatWarningModal()" style="width:100%;padding:12px;">我已了解，不再作弊</button>
+                            <button class="btn btn-primary" onclick="document.getElementById('cheatWarningModal').remove()" style="width:100%;padding:12px;">我已了解，不再作弊</button>
                         </div>
                     </div>
                 `;
                 document.body.insertAdjacentHTML('beforeend', modalHtml);
-            }
-            
-            // 关闭作弊警告弹窗
-            function closeCheatWarningModal() {
-                const modal = document.getElementById('cheatWarningModal');
-                if (modal) modal.remove();
             }
             
             // 定期同步服务器时间
