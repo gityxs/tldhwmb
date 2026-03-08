@@ -5997,6 +5997,7 @@
             let lastServerTimeSync = 0; // 上次同步服务器时间的时间戳
             let serverTimeSynced = false; // 是否已同步服务器时间
             let timeCheatDetected = false; // 是否检测到时间作弊
+            let cheatWarningGiven = false; // 是否已给出作弊警告
             
             // 从多个时间服务器获取时间
             async function fetchServerTime() {
@@ -6086,14 +6087,45 @@
                 // 如果本地时间与校准时间相差超过60秒，可能是在作弊
                 if (diff > 60000) {
                     timeCheatDetected = true;
-                    showNotification('🚫 检测到系统时间异常！');
                     console.warn(`时间差异过大: ${diff}ms，本地时间可能被修改`);
-                    // 直接强制重置游戏
-                    forceResetGame();
+                    
+                    // 检查是否已经警告过
+                    if (!cheatWarningGiven) {
+                        // 第一次作弊，弹窗警告
+                        cheatWarningGiven = true;
+                        showCheatWarningModal();
+                        timeCheatDetected = false; // 重置，给玩家一次机会
+                    } else {
+                        // 已经警告过，直接强制重置游戏
+                        forceResetGame();
+                    }
                     return true;
                 }
                 
                 return false;
+            }
+            
+            // 显示作弊警告弹窗
+            function showCheatWarningModal() {
+                // 创建警告弹窗
+                const modalHtml = `
+                    <div id="cheatWarningModal" class="modal show" style="z-index:10001;">
+                        <div class="modal-content" style="max-width:400px;text-align:center;padding:30px;">
+                            <div style="font-size:48px;margin-bottom:20px;">⚠️</div>
+                            <h3 style="color:var(--neon-orange);margin-bottom:15px;">作弊警告</h3>
+                            <p style="margin-bottom:20px;color:var(--fg-secondary);">检测到您正在尝试修改游戏时间！</p>
+                            <p style="margin-bottom:20px;color:var(--neon-red);font-weight:600;">这是第一次警告，如果再次检测到作弊行为，游戏将被强制重置，所有进度将丢失！</p>
+                            <button class="btn btn-primary" onclick="closeCheatWarningModal()" style="width:100%;padding:12px;">我已了解，不再作弊</button>
+                        </div>
+                    </div>
+                `;
+                document.body.insertAdjacentHTML('beforeend', modalHtml);
+            }
+            
+            // 关闭作弊警告弹窗
+            function closeCheatWarningModal() {
+                const modal = document.getElementById('cheatWarningModal');
+                if (modal) modal.remove();
             }
             
             // 定期同步服务器时间
@@ -6108,8 +6140,18 @@
                     // 检测时间偏移量是否突然变化（可能修改了系统时间）
                     if (serverTimeSynced && Math.abs(serverTimeOffset - oldOffset) > 30000) {
                         timeCheatDetected = true;
-                        showNotification('🚫 检测到时间异常变化！');
-                        forceResetGame();
+                        console.warn('检测到时间偏移量异常变化');
+                        
+                        // 检查是否已经警告过
+                        if (!cheatWarningGiven) {
+                            // 第一次作弊，弹窗警告
+                            cheatWarningGiven = true;
+                            showCheatWarningModal();
+                            timeCheatDetected = false; // 重置，给玩家一次机会
+                        } else {
+                            // 已经警告过，直接强制重置游戏
+                            forceResetGame();
+                        }
                     }
                 }, 5000);
             }
