@@ -930,6 +930,11 @@
         .type-income { background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)); color: #000; }
         .type-speed { background: var(--neon-cyan); color: #000; }
         .type-weight { background: var(--neon-red); color: #fff; }
+        .type-vip { background: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700); color: #000; font-weight: bold; animation: vipGlow 1.5s ease-in-out infinite; }
+        @keyframes vipGlow {
+            0%, 100% { box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700; }
+            50% { box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ff8c00; }
+        }
 
         /* Responsive */
         @media screen and (max-width: 1200px) {
@@ -1125,6 +1130,7 @@
                     <button class="btn btn-primary btn-small" onclick="showImportModal()" style="width:100%;margin-bottom:8px;">📥 导入存档</button>
                     <button class="btn btn-danger btn-small" onclick="confirmRestart()" style="width:100%;">🔄 重新开始</button>
                     <div id="lastSave" style="margin-top:10px;">上次保存: --</div>
+                    <div id="vipInfo" style="margin-top:5px;color:var(--neon-yellow);font-weight:600;"></div>
                     <div id="dailyPointsInfo" style="margin-top:5px;color:var(--neon-cyan);"></div>
                     <div id="weatherDisplay" style="margin-top:8px;padding:8px;background:rgba(0,0,0,0.3);border-radius:8px;text-align:center;">
                         <div style="font-size:11px;color:var(--fg-secondary);">当前天气</div>
@@ -1195,10 +1201,17 @@
                     <div style="text-align:center;">
                         <button class="btn btn-primary" id="startRouteBtn" onclick="startRoute()" disabled style="padding:15px 40px;margin-bottom:10px;">开始运营</button>
                     </div>
-                    <div style="text-align:center;">
+                    <div style="text-align:center;margin-bottom:10px;">
                         <button class="btn btn-success" onclick="startAllTrains()" style="padding:12px 30px;width:100%;">
                             🚀 一键发车（所有未运营火车）
                         </button>
+                    </div>
+                    <div class="filter-buttons" style="margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
+                        <button class="btn btn-small" onclick="startTrainsByType('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">🚀 普通</button>
+                        <button class="btn btn-small" onclick="startTrainsByType('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">🚀 城际</button>
+                        <button class="btn btn-small" onclick="startTrainsByType('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;">🚀 高铁</button>
+                        <button class="btn btn-small" onclick="startTrainsByType('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">🚀 自创</button>
+                        <button class="btn btn-small" onclick="startTrainsByType('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;">🚀 生肖</button>
                     </div>
                 </div>
 
@@ -1237,9 +1250,17 @@
                 <div id="runningPanel" class="panel" style="display:none;">
                     <div class="panel-title">运营状态</div>
                     <div style="margin-bottom:15px;">
-                        <button class="btn btn-danger" onclick="stopAllTrains()" style="width:100%;">
-                            🛑 一键停车
+                        <button class="btn btn-danger" onclick="stopFilteredTrains()" style="width:100%;">
+                            🛑 一键停车（当前筛选）
                         </button>
+                    </div>
+                    <div class="filter-buttons" style="margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;">
+                        <button id="filterRunningAllBtn" class="btn btn-small" onclick="filterRunningTrains('all')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;box-shadow:0 0 15px #00ff88;">全部</button>
+                        <button id="filterRunningNormalBtn" class="btn btn-small" onclick="filterRunningTrains('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">普通</button>
+                        <button id="filterRunningIntercityBtn" class="btn btn-small" onclick="filterRunningTrains('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">城际</button>
+                        <button id="filterRunningHighspeedBtn" class="btn btn-small" onclick="filterRunningTrains('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;">高铁</button>
+                        <button id="filterRunningAnimeBtn" class="btn btn-small" onclick="filterRunningTrains('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">自创</button>
+                        <button id="filterRunningZodiacBtn" class="btn btn-small" onclick="filterRunningTrains('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;">生肖</button>
                     </div>
                     <div id="runningTrainList"></div>
                 </div>
@@ -1347,7 +1368,7 @@
                 </div>
 
                 <div id="reformPanel" class="panel" style="display:none;">
-                    <div class="panel-title"><span>火车改造</span><span style="font-size:11px;color:var(--fg-secondary);">改造石: <span id="reformStonesCount" style="color:var(--neon-magenta);">0</span> | 今日获取: <span id="dailyReformStones" style="color:var(--neon-cyan);">0</span>/300</span></div>
+                    <div class="panel-title"><span>火车改造</span><span style="font-size:11px;color:var(--fg-secondary);">改造石: <span id="reformStonesCount" style="color:var(--neon-magenta);">0</span> | 今日获取: <span id="dailyReformStones" style="color:var(--neon-cyan);">0</span>/<span id="dailyReformStonesLimit">300</span></span></div>
                     <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;">
                         <span style="font-size:12px;color:var(--fg-secondary);">一键改造至</span>
                         <input type="number" id="targetReformLevelInput" min="1" max="25" value="10" style="width:60px;padding:5px;text-align:center;background:var(--bg-secondary);border:1px solid var(--border);color:var(--fg);border-radius:4px;">
@@ -1414,6 +1435,20 @@
         <div id="changelogPanel" class="panel" style="display:none;">
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
+                        <div class="changelog-version">
+                            <div class="changelog-date">3.8 铁轨帝国更新内容</div>
+                            <ul class="changelog-list">
+                                <li>修复地图暂停后，旋转放大操作又会自动旋转bug</li>
+                                <li>路线系统新增分类按钮，并支持一键分类发车</li>
+                                <li>运营系统新增分类按钮，并支持一键分类停车</li>
+                                <li>新增VIP员工（仅可通过兑换码获取）</li>
+                                <li>新增VIP等级系统（仅可通过兑换码获取）</li>
+                                <li>城市联动规划中，请大家耐心等待</li>
+                                <li>称号系统规划中，也请耐心等待（考虑跟城市联动一起的）</li>
+                                <li>大家有新建议、策划可以提出来！</li>
+                                <li>感谢阿珉巨佬的支持</li>
+                            </ul>
+                        </div>
                         <div class="changelog-version">
                             <div class="changelog-date">3.7 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
@@ -1862,7 +1897,8 @@
         const employeeTypes = {
             income: { name: "收益型", color: "#00ff88", effect: "增加收益", baseBonus: 12.5 },  // 满级500%
             speed: { name: "速度型", color: "#00d4ff", effect: "提高速度", baseBonus: 5 },
-            weight: { name: "减重型", color: "#ff3366", effect: "减重/增收益/提速", baseBonus: 2.475, incomeBonus: 2.5, speedBonus: 1.25 }  // 满级：减重99%，收益+100%，速度+50%
+            weight: { name: "减重型", color: "#ff3366", effect: "减重/增收益/提速", baseBonus: 2.475, incomeBonus: 2.5, speedBonus: 1.25 },  // 满级：减重99%，收益+100%，速度+50%
+            vip: { name: "VIP员工", color: "#ffd700", effect: "全能型", baseBonus: 2.475, incomeBonus: 12.5, speedBonus: 5, isVip: true }  // 满级：减重99%，收益+500%，速度+200%
         };
 
         const weatherTypes = {
@@ -1911,6 +1947,8 @@
             // 改造石系统
             reformStones: 0,           // 当前改造石数量
             dailyReformStonesEarned: 0, // 今日已获取的改造石数量
+            // VIP系统
+            vipExp: 0,                  // VIP经验（1经验=1级）
             // 天气系统
             currentWeather: 'sunny',    // 当前天气
             lastWeatherUpdate: null,    // 上次天气更新时间
@@ -1943,6 +1981,7 @@
             gameState.employees.filter(e => e.trainId === train.id).forEach(emp => {
                 if (emp.type === 'income') earnings *= (1 + employeeTypes.income.baseBonus * emp.level / 100);
                 if (emp.type === 'weight') earnings *= (1 + employeeTypes.weight.incomeBonus * emp.level / 100);  // 减重型收益加成
+                if (emp.type === 'vip') earnings *= (1 + employeeTypes.vip.incomeBonus * emp.level / 100);  // VIP员工收益加成
             });
             // 闯关收益加成
             if (gameState.challengeBonus) earnings *= (1 + gameState.challengeBonus / 100);
@@ -1962,6 +2001,7 @@
             gameState.employees.filter(e => e.trainId === train.id).forEach(emp => {
                 if (emp.type === 'speed') speed *= (1 + employeeTypes.speed.baseBonus * emp.level / 100);
                 if (emp.type === 'weight') speed *= (1 + employeeTypes.weight.speedBonus * emp.level / 100);  // 减重型速度加成
+                if (emp.type === 'vip') speed *= (1 + employeeTypes.vip.speedBonus * emp.level / 100);  // VIP员工速度加成
             });
             const weatherSpeedMod = getWeatherSpeedModifier();
             speed *= (1 + weatherSpeedMod);
@@ -1972,6 +2012,7 @@
             let weight = train.weight;
             gameState.employees.filter(e => e.trainId === train.id).forEach(emp => {
                 if (emp.type === 'weight') weight *= (1 - employeeTypes.weight.baseBonus * emp.level / 100);
+                if (emp.type === 'vip') weight *= (1 - employeeTypes.vip.baseBonus * emp.level / 100);  // VIP员工减重
             });
             return Math.round(weight);
         }
@@ -2056,9 +2097,11 @@
         }
 
         function addExp(amount) {
-            // 应用经验加成
+            // 应用经验加成（闯关加成 + VIP加成）
             const expBonus = gameState.expBonus || 0;
-            const bonusAmount = Math.floor(amount * (1 + expBonus * 0.15));
+            const vipBonus = getVipExpBonus();
+            const totalBonus = expBonus * 0.15 + vipBonus * 0.01;
+            const bonusAmount = Math.floor(amount * (1 + totalBonus));
             gameState.exp += bonusAmount;
             while (gameState.exp >= gameState.expToNext) {
                 gameState.exp -= gameState.expToNext;
@@ -2184,9 +2227,18 @@
             document.getElementById('points').textContent = formatNumber(gameState.points);
             document.getElementById('runningCount').textContent = gameState.runningTrains.length;
             const expBonus = gameState.expBonus || 0;
-            document.getElementById('incomeBonus').textContent = `+${expBonus * 15}%`;
+            const vipBonus = getVipExpBonus();
+            document.getElementById('incomeBonus').textContent = `+${expBonus * 15 + vipBonus}%`;
             checkDailyPointsReset();
-            document.getElementById('dailyPointsInfo').textContent = `今日点卷: ${gameState.dailyPointsEarned}/6000`;
+            // VIP信息显示
+            const vipLevel = getVipLevel();
+            if (vipLevel > 0) {
+                document.getElementById('vipInfo').textContent = `👑 VIP ${vipLevel} | 经验+${vipBonus}% | 点卷上限+${getVipDailyPointsBonus()} | 改造石上限+${getVipDailyReformStonesBonus()}`;
+            } else {
+                document.getElementById('vipInfo').textContent = `👑 VIP 0`;
+            }
+            const dailyLimit = getDailyPointsLimit();
+            document.getElementById('dailyPointsInfo').textContent = `今日点卷: ${gameState.dailyPointsEarned}/${dailyLimit}`;
             updateWeather();
             updateWeatherUI();
         }
@@ -2825,7 +2877,7 @@
                     </div>
                     <div style="margin:12px 0;">
                         <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--fg-secondary);">
-                            <span>${typeInfo.effect}: +${typeInfo.baseBonus * emp.level}%</span>
+                            <span>${emp.type === 'vip' ? `全能: 速度+${typeInfo.speedBonus * emp.level}% 收益+${typeInfo.incomeBonus * emp.level}% 减重${Math.min(typeInfo.baseBonus * emp.level, 99)}%` : `${typeInfo.effect}: +${typeInfo.baseBonus * emp.level}%`}</span>
                             <span style="color:${assignedTrain ? 'var(--neon-green)' : 'var(--fg-secondary)'};">${assignedTrain ? '🚂 ' + assignedTrain.name : '未分配'}</span>
                         </div>
                         <div class="progress-bar"><div class="progress-fill" style="width:${(emp.level/40)*100}%"></div></div>
@@ -2833,9 +2885,9 @@
                     <div style="display:flex;gap:8px;flex-wrap:wrap;">
                         ${emp.level < 40 ? `<button class="btn btn-primary btn-small" onclick="upgradeEmployee(${emp.id})" ${canUpgrade ? '' : 'disabled'}>升级 (${upgradeCost}点)</button>` : '<span style="color:var(--neon-orange);font-size:12px;">已满级</span>'}
                         <button class="btn btn-secondary btn-small" onclick="showAssignModal(${emp.id})">分配</button>
-                        <button class="btn btn-danger btn-small" onclick="fireEmployee(${emp.id})">解雇</button>
+                        ${emp.type !== 'vip' ? `<button class="btn btn-danger btn-small" onclick="fireEmployee(${emp.id})">解雇</button>` : ''}
                     </div>
-                    <div style="margin-top:8px;font-size:10px;color:var(--fg-secondary);">解雇返还 ${totalUpgradeCost} 点卷</div>
+                    <div style="margin-top:8px;font-size:10px;color:var(--fg-secondary);">${emp.type === 'vip' ? 'VIP员工无法解雇' : `解雇返还 ${totalUpgradeCost} 点卷`}</div>
                 </div>`;
             }).join('');
 
@@ -2927,7 +2979,42 @@
         }
 
         let runningTrainPage = 1;
+        let runningTrainFilter = 'all';
         const runningTrainsPerPage = 10;
+
+        function filterRunningTrains(filter) {
+            runningTrainFilter = filter;
+            runningTrainPage = 1; // 重置页码
+            // 更新按钮样式
+            const btns = {
+                all: document.getElementById('filterRunningAllBtn'),
+                normal: document.getElementById('filterRunningNormalBtn'),
+                intercity: document.getElementById('filterRunningIntercityBtn'),
+                highspeed: document.getElementById('filterRunningHighspeedBtn'),
+                anime: document.getElementById('filterRunningAnimeBtn'),
+                zodiac: document.getElementById('filterRunningZodiacBtn')
+            };
+
+            // 重置所有按钮样式
+            Object.entries(btns).forEach(([key, btn]) => {
+                btn.style.boxShadow = 'none';
+            });
+
+            // 高亮当前选中的按钮
+            if (btns[filter]) {
+                const colors = {
+                    all: '#00ff88',
+                    normal: '#00ff88',
+                    intercity: '#00d4ff',
+                    highspeed: '#ffd700',
+                    anime: '#ff3366',
+                    zodiac: '#ff6b00'
+                };
+                btns[filter].style.boxShadow = '0 0 15px ' + colors[filter];
+            }
+
+            renderRunningTrains();
+        }
 
         function changeRunningTrainPage(delta) {
             runningTrainPage += delta;
@@ -2941,15 +3028,29 @@
                 return;
             }
 
+            // 根据筛选条件过滤运营中的火车
+            let filteredTrains = gameState.runningTrains;
+            if (runningTrainFilter !== 'all') {
+                filteredTrains = gameState.runningTrains.filter(rt => {
+                    const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
+                    return train && train.type === runningTrainFilter;
+                });
+            }
+
+            if (filteredTrains.length === 0) {
+                container.innerHTML = '<div style="text-align:center;color:var(--fg-secondary);padding:50px;font-size:13px;">// 暂无符合条件的运营火车</div>';
+                return;
+            }
+
             // 分页处理
-            let displayTrains = gameState.runningTrains;
+            let displayTrains = filteredTrains;
             let totalPages = 1;
-            if (gameState.runningTrains.length > runningTrainsPerPage) {
-                totalPages = Math.ceil(gameState.runningTrains.length / runningTrainsPerPage);
+            if (filteredTrains.length > runningTrainsPerPage) {
+                totalPages = Math.ceil(filteredTrains.length / runningTrainsPerPage);
                 if (runningTrainPage < 1) runningTrainPage = 1;
                 if (runningTrainPage > totalPages) runningTrainPage = totalPages;
                 const startIndex = (runningTrainPage - 1) * runningTrainsPerPage;
-                displayTrains = gameState.runningTrains.slice(startIndex, startIndex + runningTrainsPerPage);
+                displayTrains = filteredTrains.slice(startIndex, startIndex + runningTrainsPerPage);
             }
 
             let html = '';
@@ -3100,7 +3201,8 @@
 
         function renderUpgradePanel() {
             const expBonus = gameState.expBonus || 0;
-            document.getElementById('currentBonus').textContent = `+${expBonus * 15}%`;
+            const vipBonus = getVipExpBonus();
+            document.getElementById('currentBonus').textContent = `+${expBonus * 15 + vipBonus}%`;
             document.getElementById('upgradeBonusBtn').disabled = gameState.points < 3000;
 
             const select = document.getElementById('trainUpgradeSelect');
@@ -3320,6 +3422,7 @@
         function renderReformPanel() {
             document.getElementById('reformStonesCount').textContent = gameState.reformStones || 0;
             document.getElementById('dailyReformStones').textContent = gameState.dailyReformStonesEarned || 0;
+            document.getElementById('dailyReformStonesLimit').textContent = getDailyReformStonesLimit();
             
             const select = document.getElementById('reformTrainSelect');
             select.innerHTML = '<option value="">-- 请选择火车 --</option>' +
@@ -3546,6 +3649,7 @@
 
         function toggleMapRotation() {
             globeAutoRotate = !globeAutoRotate;
+            globeUserPaused = !globeAutoRotate; // 记录用户是否主动暂停
             const btn = document.getElementById('toggleRotationBtn');
             if (globeAutoRotate) {
                 btn.textContent = '⏸';
@@ -3591,20 +3695,36 @@
 
             canvas.addEventListener('mouseup', () => {
                 globeDragging = false;
-                // 3秒后恢复自动旋转
-                setTimeout(() => { globeAutoRotate = true; }, 3000);
+                // 只有用户没有主动暂停时，才恢复自动旋转
+                if (!globeUserPaused) {
+                    setTimeout(() => { 
+                        if (!globeUserPaused) globeAutoRotate = true; 
+                    }, 3000);
+                }
                 canvas.style.cursor = 'grab';
             });
 
             canvas.addEventListener('mouseleave', () => {
                 globeDragging = false;
-                setTimeout(() => { globeAutoRotate = true; }, 3000);
+                // 只有用户没有主动暂停时，才恢复自动旋转
+                if (!globeUserPaused) {
+                    setTimeout(() => { 
+                        if (!globeUserPaused) globeAutoRotate = true; 
+                    }, 3000);
+                }
                 canvas.style.cursor = 'grab';
             });
             
             // 双击恢复自动旋转
             canvas.addEventListener('dblclick', () => {
                 globeAutoRotate = true;
+                globeUserPaused = false; // 清除用户暂停状态
+                // 更新按钮状态
+                const btn = document.getElementById('toggleRotationBtn');
+                if (btn) {
+                    btn.textContent = '⏸';
+                    btn.title = '暂停旋转';
+                }
                 showNotification('已恢复自动旋转');
             });
             
@@ -3681,6 +3801,7 @@
         let globeRotationX = 0.3; // 俯仰角
         let globeRotationY = -1.83;   // 水平旋转角（-105°，使中国居中显示）
         let globeAutoRotate = true;
+        let globeUserPaused = false; // 用户是否主动暂停了旋转
         let globeDragging = false;
         let globeLastMouseX = 0;
         let globeLastMouseY = 0;
@@ -4711,6 +4832,56 @@
             showNotification(`已停止所有 ${runningCount} 辆运营中的火车！`);
         }
 
+        // 按筛选条件一键停车
+        function stopFilteredTrains() {
+            if (gameState.runningTrains.length === 0) {
+                showNotification('当前没有运营中的火车！');
+                return;
+            }
+
+            const typeNames = {
+                all: '全部',
+                normal: '普通火车',
+                intercity: '城际列车',
+                highspeed: '高铁',
+                anime: '自创火车',
+                zodiac: '生肖限定'
+            };
+
+            if (runningTrainFilter === 'all') {
+                // 停止所有火车
+                const runningCount = gameState.runningTrains.length;
+                gameState.runningTrains = [];
+                updateUI();
+                renderRightPanel();
+                renderRunningTrains();
+                showNotification(`已停止所有 ${runningCount} 辆运营中的火车！`);
+            } else {
+                // 停止指定类型的火车
+                const toRemove = [];
+                const toKeep = [];
+                gameState.runningTrains.forEach(rt => {
+                    const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
+                    if (train && train.type === runningTrainFilter) {
+                        toRemove.push(rt);
+                    } else {
+                        toKeep.push(rt);
+                    }
+                });
+
+                if (toRemove.length === 0) {
+                    showNotification(`当前没有运营中的${typeNames[runningTrainFilter]}！`);
+                    return;
+                }
+
+                gameState.runningTrains = toKeep;
+                updateUI();
+                renderRightPanel();
+                renderRunningTrains();
+                showNotification(`已停止 ${toRemove.length} 辆${typeNames[runningTrainFilter]}！`);
+            }
+        }
+
         // 一键发车：所有未运营的火车发车
         function startAllTrains() {
             if (!selectedStartCity || !selectedEndCity) {
@@ -4762,6 +4933,124 @@
                 showNotification('金币不足以发车！');
             } else {
                 showNotification('没有可发车的火车！');
+            }
+        }
+
+        // 按类型一键发车
+        function startTrainsByType(type) {
+            if (!selectedStartCity || !selectedEndCity) {
+                showNotification('请先选择出发城市和到达城市！');
+                return;
+            }
+            if (!isCityUnlocked(selectedStartCity.name) || !isCityUnlocked(selectedEndCity.name)) {
+                showNotification('请先解锁所选城市！');
+                return;
+            }
+
+            const distance = calculateDistance(selectedStartCity, selectedEndCity);
+            let startedCount = 0;
+            let skippedCount = 0;
+
+            const typeNames = {
+                normal: '普通火车',
+                intercity: '城际列车',
+                highspeed: '高铁',
+                anime: '自创火车',
+                zodiac: '生肖限定'
+            };
+
+            // 获取指定类型且未运营的火车
+            const stoppedTrains = gameState.ownedTrains.filter(train => {
+                const isRunning = gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused);
+                return train.type === type && !isRunning;
+            });
+
+            if (stoppedTrains.length === 0) {
+                showNotification(`没有可发车的${typeNames[type]}！`);
+                return;
+            }
+
+            stoppedTrains.forEach(train => {
+                const earnings = calculateEarnings(train, distance);
+                const time = calculateTime(train, distance);
+                const cost = Math.round(calculateWeight(train) * distance * 0.01);
+
+                if (gameState.gold >= cost) {
+                    gameState.gold -= cost;
+                    gameState.runningTrains.push({
+                        trainId: train.id,
+                        startCity: selectedStartCity.name,
+                        endCity: selectedEndCity.name,
+                        distance,
+                        earnings,
+                        totalTime: time,
+                        remainingTime: time,
+                        startTime: Date.now()
+                    });
+                    startedCount++;
+                } else {
+                    skippedCount++;
+                }
+            });
+
+            updateUI();
+            renderRoutePanel();
+            if (startedCount > 0) {
+                showNotification(`成功发车 ${startedCount} 辆${typeNames[type]}！${skippedCount > 0 ? '（' + skippedCount + '辆金币不足）' : ''}`);
+            } else if (skippedCount > 0) {
+                showNotification('金币不足以发车！');
+            }
+        }
+
+        // VIP系统函数
+        // 获取VIP等级（1经验=1级）
+        function getVipLevel() {
+            return gameState.vipExp || 0;
+        }
+
+        // 获取VIP经验加成（+n%）
+        function getVipExpBonus() {
+            return getVipLevel();
+        }
+
+        // 获取VIP每日点卷获取上限加成（+n）
+        function getVipDailyPointsBonus() {
+            return getVipLevel();
+        }
+
+        // 获取VIP每日改造石获取上限加成（+(n-1)）
+        function getVipDailyReformStonesBonus() {
+            return Math.max(0, getVipLevel() - 1);
+        }
+
+        // 获取基础每日点卷上限
+        function getBaseDailyPointsLimit() {
+            return 6000;
+        }
+
+        // 获取实际每日点卷上限（含VIP加成）
+        function getDailyPointsLimit() {
+            return getBaseDailyPointsLimit() + getVipDailyPointsBonus();
+        }
+
+        // 获取基础每日改造石上限
+        function getBaseDailyReformStonesLimit() {
+            return 300;
+        }
+
+        // 获取实际每日改造石上限（含VIP加成）
+        function getDailyReformStonesLimit() {
+            return getBaseDailyReformStonesLimit() + getVipDailyReformStonesBonus();
+        }
+
+        // 添加VIP经验
+        function addVipExp(amount) {
+            const oldLevel = getVipLevel();
+            gameState.vipExp = (gameState.vipExp || 0) + amount;
+            const newLevel = getVipLevel();
+            if (newLevel > oldLevel) {
+                showNotification(`VIP等级提升至 ${newLevel}！`);
+                saveGame();
             }
         }
 
@@ -5093,6 +5382,10 @@
         function isTrainRestricted(train) {
             // 兑换码获得的火车在54级前无法操作
             // 影舞号特殊处理：50级前无法操作
+            // 顶级萌新号无等级限制
+            if (train.name === '顶级萌新号' && train.fromRedeemCode) {
+                return false;
+            }
             if (train.name === '影舞号' && train.fromRedeemCode && gameState.level < 50) {
                 return true;
             }
@@ -5104,6 +5397,9 @@
 
         function getTrainRestrictLevel(train) {
             // 获取火车限制等级
+            if (train.name === '顶级萌新号' && train.fromRedeemCode) {
+                return 0; // 无限制
+            }
             if (train.name === '影舞号' && train.fromRedeemCode) {
                 return 50;
             }
@@ -5134,6 +5430,7 @@
             }
             if (redeemCodes[code].train) {
                 const trainName = redeemCodes[code].train;
+                const trainCount = redeemCodes[code].trainCount || 1; // 默认1辆，可指定多辆
                 // 在所有火车类型中查找
                 let trainDataItem = null;
                 let trainType = null;
@@ -5145,18 +5442,42 @@
                     }
                 }
                 if (trainDataItem) {
-                    gameState.ownedTrains.push({
-                        id: Date.now() + Math.random(),
-                        type: trainType,
-                        name: trainName,
-                        speed: trainDataItem.speed,
-                        weight: trainDataItem.weight,
-                        purchasePrice: trainDataItem.price,
-                        comfort: trainDataItem.comfort || 100,
-                        fromRedeemCode: true
-                    });
-                    rewardMsg.push(`${trainName} 火车`);
+                    // 添加指定数量的火车
+                    for (let i = 0; i < trainCount; i++) {
+                        gameState.ownedTrains.push({
+                            id: Date.now() + Math.random() + i,
+                            type: trainType,
+                            name: trainName,
+                            speed: trainDataItem.speed,
+                            weight: trainDataItem.weight,
+                            purchasePrice: trainDataItem.price,
+                            comfort: trainDataItem.comfort || 100,
+                            fromRedeemCode: true
+                        });
+                    }
+                    rewardMsg.push(`${trainName} 火车×${trainCount}`);
                 }
+            }
+            if (redeemCodes[code].vipEmployee) {
+                const vipCount = redeemCodes[code].vipEmployee;
+                // 添加指定数量的满级VIP员工
+                for (let i = 0; i < vipCount; i++) {
+                    employeeIdCounter++;
+                    const newId = Date.now() * 1000 + employeeIdCounter + i;
+                    gameState.employees.push({
+                        id: newId,
+                        name: 'VIP司机',
+                        type: 'vip',
+                        level: 40, // 满级
+                        trainId: null
+                    });
+                }
+                rewardMsg.push(`VIP员工×${vipCount}`);
+            }
+            if (redeemCodes[code].vipExp) {
+                const vipExpAmount = redeemCodes[code].vipExp;
+                addVipExp(vipExpAmount);
+                rewardMsg.push(`VIP经验×${vipExpAmount}`);
             }
             if (!gameState.usedRedeemCodes) gameState.usedRedeemCodes = [];
             gameState.usedRedeemCodes.push(code);
@@ -5278,7 +5599,8 @@
             document.getElementById('mobileExp').textContent = formatNumber(gameState.exp);
             document.getElementById('mobileExpToNext').textContent = formatNumber(gameState.expToNext);
             const expBonus = gameState.expBonus || 0;
-            document.getElementById('mobileExpBonus').textContent = expBonus * 15;
+            const vipBonus = getVipExpBonus();
+            document.getElementById('mobileExpBonus').textContent = expBonus * 15 + vipBonus;
             
             // 更新天气信息
             document.getElementById('mobileWeather').textContent = document.getElementById('weatherInfo').textContent;
@@ -5431,15 +5753,17 @@
                     gameState.totalEarnings += rt.earnings;
                     addExp(Math.floor(rt.distance / 5));
                     checkDailyPointsReset();
-                    if (gameState.dailyPointsEarned < 6000) {
+                    const dailyPointsLimit = getDailyPointsLimit();
+                    if (gameState.dailyPointsEarned < dailyPointsLimit) {
                         const points = Math.floor(Math.random() * 5) + 1;
-                        const canEarn = Math.min(points, 6000 - gameState.dailyPointsEarned);
+                        const canEarn = Math.min(points, dailyPointsLimit - gameState.dailyPointsEarned);
                         gameState.points += canEarn;
                         gameState.dailyPointsEarned += canEarn;
                     }
-                    if (gameState.dailyReformStonesEarned < 300 && Math.random() < 0.05) {
+                    const dailyReformStonesLimit = getDailyReformStonesLimit();
+                    if (gameState.dailyReformStonesEarned < dailyReformStonesLimit && Math.random() < 0.05) {
                         const stones = Math.floor(Math.random() * 5) + 1;
-                        const canEarnStones = Math.min(stones, 300 - gameState.dailyReformStonesEarned);
+                        const canEarnStones = Math.min(stones, dailyReformStonesLimit - gameState.dailyReformStonesEarned);
                         // 确保reformStones已初始化
                         if (gameState.reformStones === undefined) gameState.reformStones = 0;
                         gameState.reformStones += canEarnStones;
@@ -5511,6 +5835,8 @@
                 // 改造石系统兼容
                 if (gameState.reformStones === undefined) gameState.reformStones = 0;
                 if (gameState.dailyReformStonesEarned === undefined) gameState.dailyReformStonesEarned = 0;
+                // VIP系统兼容
+                if (gameState.vipExp === undefined) gameState.vipExp = 0;
                 // 闯关系统兼容
                 if (gameState.challengeLevel === undefined) gameState.challengeLevel = 0;
                 if (gameState.challengeProgress === undefined) gameState.challengeProgress = 0;
@@ -5568,7 +5894,9 @@
                             gameState.gold += totalOfflineEarnings;
                             // 计算加成后的经验值
                             const expBonus = gameState.expBonus || 0;
-                            const bonusExp = Math.floor(totalOfflineExp * (1 + expBonus * 0.15));
+                            const vipBonus = getVipExpBonus();
+                            const totalBonus = expBonus * 0.15 + vipBonus * 0.01;
+                            const bonusExp = Math.floor(totalOfflineExp * totalBonus);
                             // 添加离线经验值
                             if (bonusExp > 0) {
                                 addExp(totalOfflineExp); // addExp内部会再次计算加成
@@ -5725,7 +6053,9 @@
                             }
                             // 计算加成后的经验值
                             const expBonus = gameState.expBonus || 0;
-                            const bonusExp = Math.floor(totalExp * (1 + expBonus * 0.15));
+                            const vipBonus = getVipExpBonus();
+                            const totalBonus = expBonus * 0.15 + vipBonus * 0.01;
+                            const bonusExp = Math.floor(totalExp * totalBonus);
                             if (totalExp > 0) {
                                 addExp(totalExp); // addExp内部会再次计算加成
                             }
@@ -5912,6 +6242,5 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>    </div>
-
 </body>
 </html>
