@@ -1119,6 +1119,7 @@
                 <button class="nav-btn" onclick="showPanel('running')">📊 运营状态</button>
                 <button class="nav-btn" onclick="showPanel('map')">🗺️ 地图系统</button>
                 <button class="nav-btn" onclick="showPanel('cities')">🏙️ 城市解锁</button>
+                <button class="nav-btn" onclick="showPanel('joint')">🚃 联运玩法</button>
                 <button class="nav-btn" onclick="showPanel('upgrade')">🔧 点卷强化</button>
                 <button class="nav-btn" onclick="showPanel('redeem')">🎁 兑换码</button>
                 <button class="nav-btn" onclick="showPanel('reform')">💎 火车改造</button>
@@ -1221,6 +1222,26 @@
                         <button class="btn btn-success" onclick="autoAssignEmployees()" style="flex:1;">📤 一键分配</button>
                         <button class="btn btn-warning" onclick="unassignAllEmployees()" style="flex:1;">📥 一键取消分配</button>
                     </div>
+                    <div style="margin-bottom:15px;">
+                        <div style="font-size:12px;color:var(--fg-secondary);margin-bottom:8px;">按类型分配：</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">📤 普通</button>
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">📤 城际</button>
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;">📤 高铁</button>
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">📤 自创</button>
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;">📤 生肖</button>
+                        </div>
+                    </div>
+                    <div style="margin-bottom:15px;">
+                        <div style="font-size:12px;color:var(--fg-secondary);margin-bottom:8px;">按类型取消分配：</div>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">📥 普通</button>
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">📥 城际</button>
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;">📥 高铁</button>
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">📥 自创</button>
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;">📥 生肖</button>
+                        </div>
+                    </div>
                     <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;">
                         <span style="font-size:12px;color:var(--fg-secondary);">一键升级至</span>
                         <input type="number" id="targetLevelInput" min="1" max="40" value="10" style="width:60px;padding:5px;text-align:center;background:var(--bg-secondary);border:1px solid var(--border);color:var(--fg);border-radius:4px;">
@@ -1249,10 +1270,17 @@
 
                 <div id="runningPanel" class="panel" style="display:none;">
                     <div class="panel-title">运营状态</div>
-                    <div style="margin-bottom:15px;">
-                        <button class="btn btn-danger" onclick="stopFilteredTrains()" style="width:100%;">
+                    <div style="margin-bottom:15px;display:flex;gap:8px;">
+                        <button class="btn btn-danger" onclick="stopFilteredTrains()" style="flex:1;">
                             🛑 一键停车（当前筛选）
                         </button>
+                        <button class="btn btn-primary" onclick="toggleJointTrainsView()" id="toggleJointBtn" style="background:linear-gradient(135deg,#ff00ff,#9d4edd);border-color:#ff00ff;">
+                            🚃 联运车次
+                        </button>
+                    </div>
+                    <div id="jointTrainsView" style="display:none;margin-bottom:15px;padding:15px;background:linear-gradient(135deg, rgba(255,0,255,0.05), rgba(157,78,221,0.05));border:1px solid var(--neon-magenta);border-radius:4px;">
+                        <div style="font-size:12px;color:var(--neon-magenta);margin-bottom:10px;font-weight:600;">联运车次列表</div>
+                        <div id="jointTrainsInRunning" style="max-height:400px;overflow-y:auto;"></div>
                     </div>
                     <div class="filter-buttons" style="margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;">
                         <button id="filterRunningAllBtn" class="btn btn-small" onclick="filterRunningTrains('all')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;box-shadow:0 0 15px #00ff88;">全部</button>
@@ -1330,6 +1358,78 @@
                         <button class="btn btn-small" id="filterCityLockedBtn" onclick="filterCities('locked')" style="background:linear-gradient(135deg,#8a5a2a,#6a3a1a);border-color:#ff6b00;color:#fff;font-weight:600;">未解锁</button>
                     </div>
                     <div id="cityUnlockList"></div>
+                </div>
+
+                <div id="jointPanel" class="panel" style="display:none;">
+                    <div class="panel-title">联运玩法</div>
+                    <div id="jointUnlockNotice" style="background:linear-gradient(135deg, rgba(255,51,102,0.1), rgba(255,0,255,0.1));border:1px solid var(--neon-red);padding:20px;text-align:center;border-radius:4px;margin-bottom:20px;">
+                        <div style="font-size:16px;color:var(--neon-red);margin-bottom:10px;">🔒 联运玩法未解锁</div>
+                        <div style="font-size:12px;color:var(--fg-secondary);">需要达到30级才能解锁联运玩法</div>
+                    </div>
+                    <div id="jointContent" style="display:none;">
+                        <div class="section-box">
+                            <div class="section-title">联运规则</div>
+                            <div style="font-size:11px;color:var(--fg-secondary);line-height:1.8;">
+                                • 选择3-5个城市进行联运<br>
+                                • 联运总距离不得小于1000KM<br>
+                                • 距离每多500KM，本次收益多30%<br>
+                                • 城市等级每提升一级，本次收益加5%<br>
+                                • 完成联运获得城市升级碎片<br>
+                                • 1000KM获得1碎片，每增加600KM+1碎片
+                            </div>
+                        </div>
+                        <div class="section-box">
+                            <div class="section-title">选择火车</div>
+                            <select id="jointTrainSelect" onchange="updateJointInfo()" style="width:100%;padding:12px;background:var(--bg-card);border:1px solid var(--border);border-radius:4px;color:var(--fg-primary);font-family:'Share Tech Mono',monospace;font-size:13px;">
+                                <option value="">-- 请选择火车 --</option>
+                            </select>
+                            <div id="jointTrainInfo" style="margin-top:10px;font-size:11px;color:var(--fg-secondary);"></div>
+                        </div>
+                        <div class="section-box">
+                            <div class="section-title">选择城市 (3-5个)</div>
+                            <div id="jointCitySelection" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-height:400px;overflow-y:auto;padding:10px;background:rgba(0,0,0,0.2);border-radius:4px;"></div>
+                        </div>
+                        <div class="section-box">
+                            <div class="section-title">联运信息</div>
+                            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:15px;">
+                                <div>
+                                    <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">已选城市</div>
+                                    <div id="jointSelectedCities" style="font-size:13px;color:var(--neon-cyan);">无</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">总距离</div>
+                                    <div id="jointTotalDistance" style="font-size:18px;font-weight:700;color:var(--neon-green);">0 KM</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">距离加成</div>
+                                    <div id="jointDistanceBonus" style="font-size:14px;color:var(--neon-magenta);">+0%</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">城市等级加成</div>
+                                    <div id="jointCityLevelBonus" style="font-size:14px;color:var(--neon-yellow);">+0%</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">预计收益</div>
+                                    <div id="jointEstimatedEarnings" style="font-size:20px;font-weight:700;color:var(--neon-green);">0</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">预计获得碎片</div>
+                                    <div id="jointEstimatedFragments" style="font-size:16px;font-weight:600;color:var(--neon-magenta);">0</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">预计时间</div>
+                                    <div id="jointEstimatedTime" style="font-size:14px;font-weight:600;color:var(--neon-cyan);">--</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div style="text-align:center;">
+                            <button class="btn btn-primary" id="startJointBtn" onclick="startJointOperation()" disabled style="padding:15px 50px;">开始联运</button>
+                        </div>
+                        <div class="panel-title" style="margin-top:25px;">联运车次</div>
+                        <div id="jointRunningTrains" style="max-height:400px;overflow-y:auto;"></div>
+                        <div class="panel-title" style="margin-top:25px;">城市升级</div>
+                        <div id="jointCityUpgradeList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px;"></div>
+                    </div>
                 </div>
 
                 <div id="upgradePanel" class="panel" style="display:none;">
@@ -1956,7 +2056,11 @@
             challengeLevel: 0,          // 当前关卡
             challengeProgress: 0,       // 当前关卡进度（0-200）
             challengeBonus: 0,          // 闯关收益加成（百分比）
-            trainParts: 0               // 火车零件数量
+            trainParts: 0,              // 火车零件数量
+            // 联运系统
+            cityLevels: {},             // 城市等级 { cityName: level }
+            cityFragments: {},          // 城市碎片 { cityName: fragments }
+            runningJointTrains: []      // 运行中的联运列车
         };
 
         let selectedStartCity = null, selectedEndCity = null, currentCityTab = 'china', currentShopTab = 'normal', pendingUnlockCity = null;
@@ -2000,12 +2104,12 @@
             speed *= (1 + reformLevel * 0.01);
             gameState.employees.filter(e => e.trainId === train.id).forEach(emp => {
                 if (emp.type === 'speed') speed *= (1 + employeeTypes.speed.baseBonus * emp.level / 100);
-                if (emp.type === 'weight') speed *= (1 + employeeTypes.weight.speedBonus * emp.level / 100);  // 减重型速度加成
-                if (emp.type === 'vip') speed *= (1 + employeeTypes.vip.speedBonus * emp.level / 100);  // VIP员工速度加成
+                if (emp.type === 'weight') speed *= (1 + employeeTypes.weight.speedBonus * emp.level / 100);
+                if (emp.type === 'vip') speed *= (1 + employeeTypes.vip.speedBonus * emp.level / 100);
             });
             const weatherSpeedMod = getWeatherSpeedModifier();
             speed *= (1 + weatherSpeedMod);
-            return Math.max(5, Math.round(20 * distance / speed));
+            return Math.max(5, Math.round(30 * distance / speed));
         }
 
         function calculateWeight(train) {
@@ -2264,7 +2368,7 @@
             document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
             // 根据panelName找到对应的移动端按钮并激活
             const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn');
-            const panelIndex = { trains: 0, routes: 1, employees: 2, shop: 3, running: 4, map: 5, cities: 6, upgrade: 7, redeem: 8, reform: 9, challenge: 10, changelog: 11 };
+            const panelIndex = { trains: 0, routes: 1, employees: 2, shop: 3, running: 4, map: 5, cities: 6, joint: 7, upgrade: 8, redeem: 9, reform: 10, challenge: 11, changelog: 12, mobilemore: 13 };
             if (panelIndex[panelName] !== undefined && mobileNavBtns[panelIndex[panelName]]) {
                 mobileNavBtns[panelIndex[panelName]].classList.add('active');
             }
@@ -2272,7 +2376,7 @@
             if (event && event.target && event.target.classList.contains('nav-btn')) {
                 event.target.classList.add('active');
             }
-            const renderFuncs = { trains: renderTrainList, routes: renderRoutePanel, employees: renderEmployeeList, shop: renderShop, running: renderRunningTrains, map: renderMap, cities: renderCityUnlockList, upgrade: renderUpgradePanel, redeem: renderRedeemPanel, reform: renderReformPanel, challenge: renderChallengePanel };
+            const renderFuncs = { trains: renderTrainList, routes: renderRoutePanel, employees: renderEmployeeList, shop: renderShop, running: renderRunningTrains, map: renderMap, cities: renderCityUnlockList, joint: renderJointPanel, upgrade: renderUpgradePanel, redeem: renderRedeemPanel, reform: renderReformPanel, challenge: renderChallengePanel };
             if (renderFuncs[panelName]) renderFuncs[panelName]();
         }
 
@@ -2982,6 +3086,93 @@
         let runningTrainFilter = 'all';
         const runningTrainsPerPage = 10;
 
+        function toggleJointTrainsView() {
+            const view = document.getElementById('jointTrainsView');
+            const btn = document.getElementById('toggleJointBtn');
+            if (view.style.display === 'none') {
+                view.style.display = 'block';
+                btn.style.boxShadow = '0 0 15px #ff00ff';
+                renderJointTrainsInRunning();
+            } else {
+                view.style.display = 'none';
+                btn.style.boxShadow = 'none';
+            }
+        }
+
+        let jointInRunningPage = 1;
+        const jointInRunningPerPage = 10;
+
+        function renderJointTrainsInRunning() {
+            const container = document.getElementById('jointTrainsInRunning');
+            if (!gameState.runningJointTrains || gameState.runningJointTrains.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--fg-secondary);font-size:12px;">暂无联运车次</div>';
+                return;
+            }
+            
+            const totalTrains = gameState.runningJointTrains.length;
+            const totalPages = Math.ceil(totalTrains / jointInRunningPerPage);
+            if (jointInRunningPage < 1) jointInRunningPage = 1;
+            if (jointInRunningPage > totalPages) jointInRunningPage = totalPages;
+            
+            const startIndex = (jointInRunningPage - 1) * jointInRunningPerPage;
+            const displayTrains = gameState.runningJointTrains.slice(startIndex, startIndex + jointInRunningPerPage);
+            
+            let html = '';
+            
+            if (totalPages > 1) {
+                html += `
+                <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <button class="btn btn-secondary btn-small" onclick="changeJointInRunningPage(-1)" ${jointInRunningPage <= 1 ? 'disabled' : ''}>◀ 上一页</button>
+                    <span style="color:var(--fg-primary);font-size:12px;">${jointInRunningPage} / ${totalPages}</span>
+                    <button class="btn btn-secondary btn-small" onclick="changeJointInRunningPage(1)" ${jointInRunningPage >= totalPages ? 'disabled' : ''}>下一页 ▶</button>
+                </div>`;
+            }
+            
+            html += displayTrains.map((jt, index) => {
+                const actualIndex = startIndex + index;
+                const progress = ((jt.totalTime - jt.remainingTime) / jt.totalTime * 100).toFixed(1);
+                return `
+                    <div class="running-train" style="border-left:2px solid var(--neon-magenta);margin-bottom:12px;background:rgba(0,0,0,0.2);padding:12px;border-radius:4px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <div style="font-size:13px;font-weight:600;color:var(--fg-primary);">${jt.trainName}</div>
+                            <span style="font-size:9px;padding:2px 6px;background:linear-gradient(135deg,#ff00ff,#9d4edd);color:#fff;border-radius:3px;">联运</span>
+                        </div>
+                        <div style="font-size:11px;color:var(--fg-secondary);margin-bottom:8px;">
+                            ${jt.cities.join(' → ')}
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;">
+                            <span style="color:var(--fg-secondary);">距离: ${jt.distance} KM</span>
+                            <span style="color:var(--neon-cyan);">剩余: ${Math.round(jt.remainingTime)}s</span>
+                        </div>
+                        <div class="progress-bar" style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
+                            <div class="progress-fill" style="width:${progress}%;background:linear-gradient(90deg,var(--neon-magenta),var(--neon-cyan));height:100%;"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:10px;">
+                            <span style="color:var(--neon-green);">收益: ${formatNumber(jt.earnings)}</span>
+                            <span style="color:var(--neon-magenta);">碎片: ${jt.fragments}</span>
+                            <button class="btn btn-danger btn-small" onclick="cancelJointTrain(${actualIndex})" style="padding:2px 8px;font-size:10px;">取消</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function changeJointInRunningPage(delta) {
+            jointInRunningPage += delta;
+            renderJointTrainsInRunning();
+        }
+
+        function cancelJointTrain(index) {
+            const jt = gameState.runningJointTrains[index];
+            if (!jt) return;
+            gameState.runningJointTrains.splice(index, 1);
+            updateUI();
+            renderJointTrainsInRunning();
+            showNotification(`${jt.trainName} 的联运已取消！`);
+        }
+
         function filterRunningTrains(filter) {
             runningTrainFilter = filter;
             runningTrainPage = 1; // 重置页码
@@ -3028,7 +3219,6 @@
                 return;
             }
 
-            // 根据筛选条件过滤运营中的火车
             let filteredTrains = gameState.runningTrains;
             if (runningTrainFilter !== 'all') {
                 filteredTrains = gameState.runningTrains.filter(rt => {
@@ -3042,7 +3232,6 @@
                 return;
             }
 
-            // 分页处理
             let displayTrains = filteredTrains;
             let totalPages = 1;
             if (filteredTrains.length > runningTrainsPerPage) {
@@ -3055,7 +3244,6 @@
 
             let html = '';
 
-            // 添加分页控件
             if (totalPages > 1) {
                 html += `
                 <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
@@ -3251,6 +3439,344 @@
             document.getElementById('redeemHistory').innerHTML = history.length > 0 
                 ? `<div class="section-title">已使用兑换码</div>${history.map(c => `<div style="color:var(--neon-green);font-size:11px;margin:5px 0;">✓ ${c}</div>`).join('')}` 
                 : '<div style="color:var(--fg-secondary);text-align:center;padding:20px;font-size:12px;">// 暂无使用记录</div>';
+        }
+
+        // ==================== 联运系统 ====================
+        let selectedJointCities = [];
+        let selectedJointTrain = null;
+
+        function renderJointPanel() {
+            if (gameState.level < 30) {
+                document.getElementById('jointUnlockNotice').style.display = 'block';
+                document.getElementById('jointContent').style.display = 'none';
+                return;
+            }
+            document.getElementById('jointUnlockNotice').style.display = 'none';
+            document.getElementById('jointContent').style.display = 'block';
+            
+            renderJointTrainSelect();
+            renderJointCitySelection();
+            renderJointRunningTrains();
+            renderJointCityUpgradeList();
+            updateJointInfo();
+        }
+
+        function renderJointTrainSelect() {
+            const select = document.getElementById('jointTrainSelect');
+            const availableTrains = gameState.ownedTrains.filter(train => 
+                !gameState.runningTrains.some(rt => rt.trainId === train.id) &&
+                !gameState.runningJointTrains.some(rjt => rjt.trainId === train.id)
+            );
+            
+            select.innerHTML = '<option value="">-- 请选择火车 --</option>' +
+                availableTrains.map(train => 
+                    `<option value="${train.id}">${train.name} (${trainTypes[train.type].name})</option>`
+                ).join('');
+        }
+
+        function renderJointCitySelection() {
+            const container = document.getElementById('jointCitySelection');
+            const unlockedCities = gameState.unlockedCities;
+            
+            container.innerHTML = unlockedCities.map(cityName => {
+                const city = getCityByName(cityName);
+                if (!city) return '';
+                const level = gameState.cityLevels[cityName] || 1;
+                const isSelected = selectedJointCities.includes(cityName);
+                return `
+                    <div class="joint-city-item ${isSelected ? 'selected' : ''}" onclick="toggleJointCity('${cityName}')" style="padding:10px;background:${isSelected ? 'linear-gradient(135deg, rgba(255,0,255,0.2), rgba(157,78,221,0.2))' : 'rgba(0,0,0,0.3)'};border:1px solid ${isSelected ? 'var(--neon-magenta)' : 'var(--border)'};border-radius:4px;cursor:pointer;transition:all 0.2s;text-align:center;">
+                        <div style="font-size:12px;color:var(--fg-primary);margin-bottom:4px;">${cityName}</div>
+                        <div style="font-size:10px;color:var(--neon-cyan);">Lv.${level}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleJointCity(cityName) {
+            const index = selectedJointCities.indexOf(cityName);
+            if (index > -1) {
+                selectedJointCities.splice(index, 1);
+            } else {
+                if (selectedJointCities.length < 5) {
+                    selectedJointCities.push(cityName);
+                } else {
+                    showNotification('最多只能选择5个城市！');
+                    return;
+                }
+            }
+            renderJointCitySelection();
+            updateJointInfo();
+        }
+
+        function calculateJointDistance() {
+            if (selectedJointCities.length < 2) return 0;
+            let totalDistance = 0;
+            for (let i = 0; i < selectedJointCities.length - 1; i++) {
+                const city1 = getCityByName(selectedJointCities[i]);
+                const city2 = getCityByName(selectedJointCities[i + 1]);
+                if (city1 && city2) {
+                    totalDistance += calculateDistance(city1, city2);
+                }
+            }
+            return totalDistance;
+        }
+
+        function calculateJointDistanceBonus(distance) {
+            if (distance < 1000) return 0;
+            const extraDistance = distance - 1000;
+            return Math.floor(extraDistance / 500) * 30;
+        }
+
+        function calculateJointCityLevelBonus() {
+            let totalBonus = 0;
+            selectedJointCities.forEach(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                totalBonus += (level - 1) * 5;
+            });
+            return totalBonus;
+        }
+
+        function calculateJointFragments(distance) {
+            if (distance < 1000) return 0;
+            let fragments = 1;
+            const extraDistance = distance - 1000;
+            fragments += Math.floor(extraDistance / 600);
+            return fragments;
+        }
+
+        function calculateCityUpgradeCost(currentLevel) {
+            return 3000 * currentLevel;
+        }
+
+        function updateJointInfo() {
+            const trainId = parseFloat(document.getElementById('jointTrainSelect').value);
+            selectedJointTrain = trainId ? gameState.ownedTrains.find(t => t.id === trainId) : null;
+            
+            const distance = calculateJointDistance();
+            const distanceBonus = calculateJointDistanceBonus(distance);
+            const cityLevelBonus = calculateJointCityLevelBonus();
+            const fragments = calculateJointFragments(distance);
+            
+            let estimatedEarnings = 0;
+            let estimatedTime = '--';
+            
+            if (selectedJointTrain && distance > 0) {
+                estimatedEarnings = calculateEarnings(selectedJointTrain, distance);
+                const totalBonus = (100 + distanceBonus + cityLevelBonus) / 100;
+                estimatedEarnings = Math.round(estimatedEarnings * totalBonus);
+                const timeSeconds = calculateTime(selectedJointTrain, distance);
+                estimatedTime = timeSeconds + 's';
+            }
+            
+            document.getElementById('jointSelectedCities').textContent = 
+                selectedJointCities.length > 0 ? selectedJointCities.join(' → ') : '无';
+            document.getElementById('jointTotalDistance').textContent = `${distance} KM`;
+            document.getElementById('jointDistanceBonus').textContent = `+${distanceBonus}%`;
+            document.getElementById('jointCityLevelBonus').textContent = `+${cityLevelBonus}%`;
+            document.getElementById('jointEstimatedEarnings').textContent = formatNumber(estimatedEarnings);
+            document.getElementById('jointEstimatedFragments').textContent = fragments;
+            document.getElementById('jointEstimatedTime').textContent = estimatedTime;
+            
+            if (selectedJointTrain) {
+                document.getElementById('jointTrainInfo').innerHTML = `
+                    <div>速度: ${selectedJointTrain.speed} km/h | 舒适度: ${selectedJointTrain.comfort || 100}</div>
+                    <div>改造等级: ${selectedJointTrain.reformLevel || 0} | 强化等级: ${selectedJointTrain.upgradeLevel || 0}</div>
+                `;
+            } else {
+                document.getElementById('jointTrainInfo').innerHTML = '';
+            }
+            
+            const startBtn = document.getElementById('startJointBtn');
+            const canStart = selectedJointTrain && selectedJointCities.length >= 3 && distance >= 1000;
+            startBtn.disabled = !canStart;
+            
+            if (!canStart) {
+                if (!selectedJointTrain) {
+                    startBtn.textContent = '请选择火车';
+                } else if (selectedJointCities.length < 3) {
+                    startBtn.textContent = `还需选择${3 - selectedJointCities.length}个城市`;
+                } else if (distance < 1000) {
+                    startBtn.textContent = '距离不足1000KM';
+                }
+            } else {
+                startBtn.textContent = '开始联运';
+            }
+        }
+
+        function startJointOperation() {
+            if (!selectedJointTrain) {
+                showNotification('请选择火车！');
+                return;
+            }
+            
+            if (gameState.runningTrains.some(rt => rt.trainId === selectedJointTrain.id && !rt.paused)) {
+                showNotification('该火车已在普通运营中！');
+                return;
+            }
+            
+            if (gameState.runningJointTrains && gameState.runningJointTrains.some(jt => jt.trainId === selectedJointTrain.id)) {
+                showNotification('该火车已在联运中！');
+                return;
+            }
+            
+            if (selectedJointCities.length < 3 || selectedJointCities.length > 5) {
+                showNotification('请选择3-5个城市！');
+                return;
+            }
+            
+            const distance = calculateJointDistance();
+            if (distance < 1000) {
+                showNotification('联运总距离不得小于1000KM！');
+                return;
+            }
+            
+            const distanceBonus = calculateJointDistanceBonus(distance);
+            const cityLevelBonus = calculateJointCityLevelBonus();
+            const fragments = calculateJointFragments(distance);
+            
+            const baseEarnings = calculateEarnings(selectedJointTrain, distance);
+            const totalBonus = (100 + distanceBonus + cityLevelBonus) / 100;
+            const earnings = Math.round(baseEarnings * totalBonus);
+            const time = calculateTime(selectedJointTrain, distance);
+            
+            const jointTrain = {
+                id: Date.now() + Math.random(),
+                trainId: selectedJointTrain.id,
+                trainName: selectedJointTrain.name,
+                cities: [...selectedJointCities],
+                distance: distance,
+                earnings: earnings,
+                fragments: fragments,
+                totalTime: time,
+                remainingTime: time,
+                startTime: Date.now()
+            };
+            
+            if (!gameState.runningJointTrains) {
+                gameState.runningJointTrains = [];
+            }
+            gameState.runningJointTrains.push(jointTrain);
+            
+            showNotification(`联运列车已发车！预计${time}秒后到达`);
+            
+            selectedJointCities = [];
+            selectedJointTrain = null;
+            renderJointPanel();
+            updateUI();
+        }
+
+        let jointTrainPage = 1;
+        const jointTrainsPerPage = 6;
+
+        function renderJointRunningTrains() {
+            const container = document.getElementById('jointRunningTrains');
+            if (!gameState.runningJointTrains || gameState.runningJointTrains.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--fg-secondary);font-size:12px;">暂无联运车次</div>';
+                return;
+            }
+            
+            const totalTrains = gameState.runningJointTrains.length;
+            const totalPages = Math.ceil(totalTrains / jointTrainsPerPage);
+            if (jointTrainPage < 1) jointTrainPage = 1;
+            if (jointTrainPage > totalPages) jointTrainPage = totalPages;
+            
+            const startIndex = (jointTrainPage - 1) * jointTrainsPerPage;
+            const displayTrains = gameState.runningJointTrains.slice(startIndex, startIndex + jointTrainsPerPage);
+            
+            let html = '';
+            
+            if (totalPages > 1) {
+                html += `
+                <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <button class="btn btn-secondary btn-small" onclick="changeJointTrainPage(-1)" ${jointTrainPage <= 1 ? 'disabled' : ''}>◀ 上一页</button>
+                    <span style="color:var(--fg-primary);font-size:12px;">${jointTrainPage} / ${totalPages}</span>
+                    <button class="btn btn-secondary btn-small" onclick="changeJointTrainPage(1)" ${jointTrainPage >= totalPages ? 'disabled' : ''}>下一页 ▶</button>
+                </div>`;
+            }
+            
+            html += displayTrains.map(jt => {
+                const progress = ((jt.totalTime - jt.remainingTime) / jt.totalTime * 100).toFixed(1);
+                return `
+                    <div class="running-train" style="border-left:2px solid var(--neon-magenta);margin-bottom:12px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                            <div class="train-name" style="font-size:13px;">${jt.trainName}</div>
+                            <span class="train-type type-intercity" style="font-size:9px;padding:2px 6px;">联运</span>
+                        </div>
+                        <div class="train-route" style="font-size:11px;margin-bottom:8px;">
+                            ${jt.cities.join(' → ')}
+                        </div>
+                        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;">
+                            <span style="color:var(--fg-secondary);">距离: ${jt.distance} KM</span>
+                            <span style="color:var(--neon-cyan);">剩余: ${Math.round(jt.remainingTime)}s</span>
+                        </div>
+                        <div class="progress-bar" style="height:6px;">
+                            <div class="progress-fill" style="width:${progress}%;background:linear-gradient(90deg,var(--neon-magenta),var(--neon-cyan));"></div>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;">
+                            <span style="color:var(--neon-green);">收益: ${formatNumber(jt.earnings)}</span>
+                            <span style="color:var(--neon-magenta);">碎片: ${jt.fragments}</span>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function changeJointTrainPage(delta) {
+            jointTrainPage += delta;
+            renderJointRunningTrains();
+        }
+
+        function renderJointCityUpgradeList() {
+            const container = document.getElementById('jointCityUpgradeList');
+            const unlockedCities = gameState.unlockedCities;
+            
+            container.innerHTML = unlockedCities.map(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                const fragments = gameState.cityFragments[cityName] || 0;
+                const upgradeCost = calculateCityUpgradeCost(level);
+                const canUpgrade = fragments >= upgradeCost;
+                
+                return `
+                    <div class="joint-city-upgrade-card" style="background:linear-gradient(135deg, rgba(0,255,136,0.03), rgba(0,212,255,0.03));border:1px solid var(--border);border-radius:4px;padding:15px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                            <div style="font-size:14px;font-weight:600;color:var(--fg-primary);">${cityName}</div>
+                            <div style="font-size:12px;color:var(--neon-cyan);">Lv.${level}</div>
+                        </div>
+                        <div style="font-size:11px;color:var(--fg-secondary);margin-bottom:8px;">
+                            碎片: <span style="color:var(--neon-magenta);">${fragments}</span> / <span style="color:var(--neon-yellow);">${upgradeCost}</span>
+                        </div>
+                        <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:10px;">
+                            收益加成: <span style="color:var(--neon-green);">+${(level - 1) * 5}%</span>
+                        </div>
+                        <button class="btn btn-small ${canUpgrade ? 'btn-primary' : ''}" 
+                            onclick="upgradeCityLevel('${cityName}')" 
+                            ${!canUpgrade ? 'disabled style="background:var(--bg-muted);border-color:var(--border);color:var(--fg-secondary);cursor:not-allowed;"' : ''}
+                            style="width:100%;">
+                            ${canUpgrade ? '升级' : '碎片不足'}
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function upgradeCityLevel(cityName) {
+            const currentLevel = gameState.cityLevels[cityName] || 1;
+            const fragments = gameState.cityFragments[cityName] || 0;
+            const upgradeCost = calculateCityUpgradeCost(currentLevel);
+            
+            if (fragments < upgradeCost) {
+                showNotification('碎片不足！');
+                return;
+            }
+            
+            gameState.cityFragments[cityName] -= upgradeCost;
+            gameState.cityLevels[cityName] = currentLevel + 1;
+            
+            showNotification(`${cityName} 升级到 ${currentLevel + 1} 级！收益加成 +${currentLevel * 5}%`);
+            
+            renderJointPanel();
         }
 
         // ==================== 闯关系统 ====================
@@ -4757,6 +5283,7 @@
                     type, name: trainName, speed, weight,
                     purchasePrice: price,
                     upgradeLevel: 0,
+                    reformLevel: 0,
                     comfort
                 });
             }
@@ -4776,17 +5303,19 @@
             if (!train || !selectedStartCity || !selectedEndCity) return;
             if (!isCityUnlocked(selectedStartCity.name) || !isCityUnlocked(selectedEndCity.name)) { showNotification('请先解锁所选城市！'); return; }
             
-            // 检查火车是否已在运营中
             if (gameState.runningTrains.some(rt => rt.trainId === trainId && !rt.paused)) {
                 showNotification('该火车已在运营中！');
                 return;
             }
             
-            // 检查火车上的员工数量（防止BUG）
+            if (gameState.runningJointTrains && gameState.runningJointTrains.some(jt => jt.trainId === trainId)) {
+                showNotification('该火车正在联运中！');
+                return;
+            }
+            
             const employeesOnTrain = gameState.employees.filter(e => e.trainId === trainId);
             if (employeesOnTrain.length > 1) {
                 showNotification('检测到异常：该火车员工数量超过1人，无法发车！已自动停运。');
-                // 立即停运此火车
                 const runningIndex = gameState.runningTrains.findIndex(rt => rt.trainId === trainId);
                 if (runningIndex > -1) {
                     gameState.runningTrains.splice(runningIndex, 1);
@@ -4821,20 +5350,31 @@
         // 一键停车：停止所有运营中的火车
         function stopAllTrains() {
             const runningCount = gameState.runningTrains.length;
-            if (runningCount === 0) {
+            const jointCount = gameState.runningJointTrains ? gameState.runningJointTrains.length : 0;
+            const totalCount = runningCount + jointCount;
+            
+            if (totalCount === 0) {
                 showNotification('当前没有运营中的火车！');
                 return;
             }
+            
             gameState.runningTrains = [];
+            if (gameState.runningJointTrains) {
+                gameState.runningJointTrains = [];
+            }
+            
             updateUI();
             renderRightPanel();
             renderRunningTrains();
-            showNotification(`已停止所有 ${runningCount} 辆运营中的火车！`);
+            renderJointTrainsInRunning();
+            showNotification(`已停止所有 ${totalCount} 辆运营中的火车！`);
         }
 
-        // 按筛选条件一键停车
         function stopFilteredTrains() {
-            if (gameState.runningTrains.length === 0) {
+            const runningCount = gameState.runningTrains.length;
+            const jointCount = gameState.runningJointTrains ? gameState.runningJointTrains.length : 0;
+            
+            if (runningCount === 0 && jointCount === 0) {
                 showNotification('当前没有运营中的火车！');
                 return;
             }
@@ -4849,15 +5389,17 @@
             };
 
             if (runningTrainFilter === 'all') {
-                // 停止所有火车
-                const runningCount = gameState.runningTrains.length;
+                const totalCount = runningCount + jointCount;
                 gameState.runningTrains = [];
+                if (gameState.runningJointTrains) {
+                    gameState.runningJointTrains = [];
+                }
                 updateUI();
                 renderRightPanel();
                 renderRunningTrains();
-                showNotification(`已停止所有 ${runningCount} 辆运营中的火车！`);
+                renderJointTrainsInRunning();
+                showNotification(`已停止所有 ${totalCount} 辆运营中的火车！`);
             } else {
-                // 停止指定类型的火车
                 const toRemove = [];
                 const toKeep = [];
                 gameState.runningTrains.forEach(rt => {
@@ -4882,7 +5424,6 @@
             }
         }
 
-        // 一键发车：所有未运营的火车发车
         function startAllTrains() {
             if (!selectedStartCity || !selectedEndCity) {
                 showNotification('请先选择出发城市和到达城市！');
@@ -4897,9 +5438,10 @@
             let startedCount = 0;
             let skippedCount = 0;
 
-            // 获取所有未运营的火车
             const stoppedTrains = gameState.ownedTrains.filter(train => {
-                return !gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused);
+                const isRunning = gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused);
+                const isJointRunning = gameState.runningJointTrains && gameState.runningJointTrains.some(jt => jt.trainId === train.id);
+                return !isRunning && !isJointRunning;
             });
 
             stoppedTrains.forEach(train => {
@@ -4936,7 +5478,6 @@
             }
         }
 
-        // 按类型一键发车
         function startTrainsByType(type) {
             if (!selectedStartCity || !selectedEndCity) {
                 showNotification('请先选择出发城市和到达城市！');
@@ -4959,10 +5500,10 @@
                 zodiac: '生肖限定'
             };
 
-            // 获取指定类型且未运营的火车
             const stoppedTrains = gameState.ownedTrains.filter(train => {
                 const isRunning = gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused);
-                return train.type === type && !isRunning;
+                const isJointRunning = gameState.runningJointTrains && gameState.runningJointTrains.some(jt => jt.trainId === train.id);
+                return train.type === type && !isRunning && !isJointRunning;
             });
 
             if (stoppedTrains.length === 0) {
@@ -5181,6 +5722,76 @@
             updateUI();
             renderEmployeeList();
             showNotification(`已取消 ${assignedEmployees.length} 名员工的分配！`);
+        }
+
+        function autoAssignEmployeesByType(type) {
+            const typeNames = {
+                normal: '普通火车',
+                intercity: '城际列车',
+                highspeed: '高铁',
+                anime: '自创火车',
+                zodiac: '生肖限定'
+            };
+
+            const unassignedEmployees = gameState.employees.filter(e => e.trainId === null);
+            if (unassignedEmployees.length === 0) {
+                showNotification('没有未分配的员工！');
+                return;
+            }
+
+            const trainsWithoutEmployee = gameState.ownedTrains.filter(train => {
+                return train.type === type && 
+                       !gameState.employees.some(e => e.trainId === train.id) && 
+                       !isTrainRestricted(train);
+            }).sort((a, b) => b.purchasePrice - a.purchasePrice);
+
+            if (trainsWithoutEmployee.length === 0) {
+                showNotification(`没有可分配的${typeNames[type]}！`);
+                return;
+            }
+
+            let assignedCount = 0;
+            unassignedEmployees.forEach(emp => {
+                if (trainsWithoutEmployee.length > 0) {
+                    const train = trainsWithoutEmployee.shift();
+                    emp.trainId = train.id;
+                    assignedCount++;
+                }
+            });
+
+            updateUI();
+            renderEmployeeList();
+            showNotification(`成功分配 ${assignedCount} 名员工到${typeNames[type]}！`);
+        }
+
+        function unassignEmployeesByType(type) {
+            const typeNames = {
+                normal: '普通火车',
+                intercity: '城际列车',
+                highspeed: '高铁',
+                anime: '自创火车',
+                zodiac: '生肖限定'
+            };
+
+            const trainsOfType = gameState.ownedTrains.filter(train => train.type === type);
+            const trainIdsOfType = trainsOfType.map(t => t.id);
+            
+            const assignedEmployees = gameState.employees.filter(e => 
+                e.trainId !== null && trainIdsOfType.includes(e.trainId)
+            );
+
+            if (assignedEmployees.length === 0) {
+                showNotification(`没有分配到${typeNames[type]}的员工！`);
+                return;
+            }
+
+            assignedEmployees.forEach(emp => {
+                emp.trainId = null;
+            });
+
+            updateUI();
+            renderEmployeeList();
+            showNotification(`已取消 ${assignedEmployees.length} 名员工从${typeNames[type]}的分配！`);
         }
 
         // 一键升级：将所有等级小于目标等级的员工升级至目标等级
@@ -5425,7 +6036,7 @@
                 rewardMsg.push(`${redeemCodes[code].reformStones} 改造石`);
             }
             if (redeemCodes[code].exp > 0) {
-                gameState.exp += redeemCodes[code].exp;
+                addExp(redeemCodes[code].exp);
                 rewardMsg.push(`${formatNumber(redeemCodes[code].exp)} 经验`);
             }
             if (redeemCodes[code].gold > 0) {
@@ -5768,7 +6379,6 @@
                     if (gameState.dailyReformStonesEarned < dailyReformStonesLimit && Math.random() < 0.05) {
                         const stones = Math.floor(Math.random() * 5) + 1;
                         const canEarnStones = Math.min(stones, dailyReformStonesLimit - gameState.dailyReformStonesEarned);
-                        // 确保reformStones已初始化
                         if (gameState.reformStones === undefined) gameState.reformStones = 0;
                         gameState.reformStones += canEarnStones;
                         gameState.dailyReformStonesEarned += canEarnStones;
@@ -5779,11 +6389,9 @@
                         const cost = Math.round(calculateWeight(train) * rt.distance * 0.01);
                         if (gameState.gold >= cost) {
                             gameState.gold -= cost;
-                            // 交换出发和到达城市（往返运营）
                             const tempCity = rt.startCity;
                             rt.startCity = rt.endCity;
                             rt.endCity = tempCity;
-                            // 重新计算时间和收益，使员工和改造加成立即生效
                             rt.totalTime = calculateTime(train, rt.distance);
                             rt.earnings = calculateEarnings(train, rt.distance);
                             rt.remainingTime = rt.totalTime;
@@ -5794,12 +6402,57 @@
                     }
                 }
             });
+
+            if (gameState.runningJointTrains) {
+                gameState.runningJointTrains.forEach(jt => {
+                    jt.remainingTime--;
+                    if (jt.remainingTime <= 0) {
+                        gameState.gold += jt.earnings;
+                        gameState.totalEarnings += jt.earnings;
+                        addExp(Math.floor(jt.distance / 10));
+                        
+                        jt.cities.forEach(cityName => {
+                            if (!gameState.cityFragments) gameState.cityFragments = {};
+                            if (!gameState.cityFragments[cityName]) {
+                                gameState.cityFragments[cityName] = 0;
+                            }
+                            gameState.cityFragments[cityName] += jt.fragments;
+                        });
+                        
+                        showNotification(`联运列车 ${jt.trainName} 已到达！获得 ${formatNumber(jt.earnings)} 金币，每个城市获得 ${jt.fragments} 碎片！`);
+                        
+                        const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
+                        if (train) {
+                            jt.cities = jt.cities.reverse();
+                            jt.totalTime = calculateTime(train, jt.distance);
+                            jt.remainingTime = jt.totalTime;
+                            
+                            const distanceBonus = calculateJointDistanceBonus(jt.distance);
+                            let cityLevelBonus = 0;
+                            jt.cities.forEach(cityName => {
+                                const level = gameState.cityLevels[cityName] || 1;
+                                cityLevelBonus += (level - 1) * 5;
+                            });
+                            const totalBonus = (100 + distanceBonus + cityLevelBonus) / 100;
+                            jt.earnings = Math.round(calculateEarnings(train, jt.distance) * totalBonus);
+                        }
+                    }
+                });
+            }
+
             updateUI();
             renderRightPanel();
-            // 如果运营状态面板可见，实时更新
             const runningPanel = document.getElementById('runningPanel');
             if (runningPanel && runningPanel.style.display !== 'none') {
                 renderRunningTrains();
+                const jointTrainsView = document.getElementById('jointTrainsView');
+                if (jointTrainsView && jointTrainsView.style.display !== 'none') {
+                    renderJointTrainsInRunning();
+                }
+            }
+            const jointPanel = document.getElementById('jointPanel');
+            if (jointPanel && jointPanel.style.display !== 'none') {
+                renderJointRunningTrains();
             }
         }
 
@@ -5846,7 +6499,9 @@
                 if (gameState.challengeProgress === undefined) gameState.challengeProgress = 0;
                 if (gameState.challengeBonus === undefined) gameState.challengeBonus = 0;
                 if (gameState.trainParts === undefined) gameState.trainParts = 0;
-                // 火车上限增加记录兼容
+                if (gameState.cityLevels === undefined) gameState.cityLevels = {};
+                if (gameState.cityFragments === undefined) gameState.cityFragments = {};
+                if (gameState.runningJointTrains === undefined) gameState.runningJointTrains = [];
                 if (gameState.trainLimitIncreases === undefined) {
                     gameState.trainLimitIncreases = { normal: 0, intercity: 0, highspeed: 0, anime: 0, zodiac: 0 };
                 }
@@ -6002,6 +6657,7 @@
             let serverTimeSynced = false; // 是否已同步服务器时间
             let timeCheatDetected = false; // 是否检测到时间作弊
             let cheatWarningGiven = false; // 是否已给出作弊警告
+            let warningConfirmedTime = 0; // 警告确认时间戳
             
             // 从多个时间服务器获取时间
             async function fetchServerTime() {
@@ -6084,12 +6740,18 @@
             function checkTimeCheat() {
                 if (!serverTimeSynced || timeCheatDetected) return false;
                 
+                // 如果警告已确认且未超过30秒，不检测作弊
+                if (warningConfirmedTime > 0 && (Date.now() - warningConfirmedTime) < 30000) {
+                    return false;
+                }
+                
                 const localTime = Date.now();
                 const calibratedTime = getCalibratedTime();
                 const diff = Math.abs(localTime - calibratedTime);
                 
-                // 如果本地时间与校准时间相差超过60秒，可能是在作弊
-                if (diff > 60000) {
+                // 如果本地时间与校准时间相差超过300秒（5分钟），可能是在作弊
+                // 增加阈值以避免网络延迟导致的误报
+                if (diff > 300000) {
                     timeCheatDetected = true;
                     console.warn(`时间差异过大: ${diff}ms，本地时间可能被修改`);
                     
@@ -6111,6 +6773,9 @@
             
             // 显示作弊警告弹窗
             function showCheatWarningModal() {
+                // 如果弹窗已存在，不重复创建
+                if (document.getElementById('cheatWarningModal')) return;
+                
                 // 创建警告弹窗
                 const modalHtml = `
                     <div id="cheatWarningModal" class="modal show" style="z-index:10001;">
@@ -6130,6 +6795,11 @@
             function closeCheatWarningModal() {
                 const modal = document.getElementById('cheatWarningModal');
                 if (modal) modal.remove();
+                
+                // 记录确认时间，30秒后才会再次检测作弊
+                warningConfirmedTime = Date.now();
+                timeCheatDetected = false;
+                console.log('作弊警告已确认，30秒后才会再次检测作弊行为');
             }
             
             // 定期同步服务器时间
@@ -6141,8 +6811,14 @@
                     const oldOffset = serverTimeOffset;
                     await fetchServerTime();
                     
+                    // 如果警告已确认且未超过30秒，不检测作弊
+                    if (warningConfirmedTime > 0 && (Date.now() - warningConfirmedTime) < 30000) {
+                        return;
+                    }
+                    
                     // 检测时间偏移量是否突然变化（可能修改了系统时间）
-                    if (serverTimeSynced && Math.abs(serverTimeOffset - oldOffset) > 30000) {
+                    // 增加阈值到120秒以避免网络波动导致的误报
+                    if (serverTimeSynced && Math.abs(serverTimeOffset - oldOffset) > 120000) {
                         timeCheatDetected = true;
                         console.warn('检测到时间偏移量异常变化');
                         
@@ -6168,13 +6844,13 @@
             // 时间加速检测变量
             let loopCount = 0;
             let loopCheckTime = Date.now();
-            let speedViolationCount = 0; // 速度违规计数
-            const MAX_VIOLATIONS = 3; // 最大违规次数
-            let gameLocked = false; // 游戏是否被锁定
-            let speedCheckEnabled = false; // 速度检测是否启用（延迟启用避免刷新误报）
+            let speedViolationCount = 0;
+            const MAX_VIOLATIONS = 5;
+            let gameLocked = false;
+            let speedCheckEnabled = false;
             
-            // 延迟10秒后启用速度检测，避免页面加载/刷新时的误报
-            setTimeout(() => { speedCheckEnabled = true; }, 10000);
+            // 延迟30秒后启用速度检测，避免页面加载/刷新时的误报
+            setTimeout(() => { speedCheckEnabled = true; }, 30000);
             
             function gameLoopWithBackground() {
                 if (gameLocked) return;
@@ -6193,11 +6869,11 @@
                 const delta = now - lastTime;
 
                 // 时间加速检测：每秒检查循环次数（仅在启用后检测）
-                // 正常情况每秒1次，允许轻微波动，超过4次才算加速
+                // 正常情况每秒1次，允许较大波动，超过10次才算加速（提高阈值避免误报）
                 loopCount++;
                 if (speedCheckEnabled && now - loopCheckTime >= 1000) {
-                    // 每秒执行超过4次循环才判定为加速（提高阈值避免误报）
-                    if (loopCount > 4) {
+                    // 每秒执行超过10次循环才判定为加速（大幅提高阈值避免误报）
+                    if (loopCount > 10) {
                         speedViolationCount++;
                         console.warn(`检测到异常游戏速度！循环次数: ${loopCount}/秒, 违规次数: ${speedViolationCount}/${MAX_VIOLATIONS}`);
                         if (speedViolationCount >= MAX_VIOLATIONS) {
@@ -6416,6 +7092,10 @@
         <button class="mobile-nav-btn" onclick="showPanel('cities')">
             <span class="nav-icon">🏙️</span>
             <span>城市</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('joint')">
+            <span class="nav-icon">🚃</span>
+            <span>联运</span>
         </button>
         <button class="mobile-nav-btn" onclick="showPanel('upgrade')">
             <span class="nav-icon">🔧</span>
