@@ -5133,7 +5133,7 @@
             showNotification(`${emp.name} 已辞退，返还 ${refundPoints} 点卷！`);
         }
 
-        // 一键分配：将未分配的员工分配至无员工的火车
+        // 一键分配：将未分配的员工分配至无员工的火车（优先分配给售价高的火车）
         function autoAssignEmployees() {
             // 获取未分配的员工
             const unassignedEmployees = gameState.employees.filter(e => e.trainId === null);
@@ -5142,10 +5142,10 @@
                 return;
             }
 
-            // 获取没有员工且不受限制的火车
+            // 获取没有员工且不受限制的火车，并按售价从高到低排序
             const trainsWithoutEmployee = gameState.ownedTrains.filter(train => {
                 return !gameState.employees.some(e => e.trainId === train.id) && !isTrainRestricted(train);
-            });
+            }).sort((a, b) => b.purchasePrice - a.purchasePrice); // 按售价降序排序
 
             if (trainsWithoutEmployee.length === 0) {
                 showNotification('所有火车都已有员工！');
@@ -5423,6 +5423,10 @@
             if (redeemCodes[code].reformStones > 0) {
                 gameState.reformStones += redeemCodes[code].reformStones;
                 rewardMsg.push(`${redeemCodes[code].reformStones} 改造石`);
+            }
+            if (redeemCodes[code].exp > 0) {
+                gameState.exp += redeemCodes[code].exp;
+                rewardMsg.push(`${formatNumber(redeemCodes[code].exp)} 经验`);
             }
             if (redeemCodes[code].gold > 0) {
                 gameState.gold += redeemCodes[code].gold;
@@ -6167,6 +6171,10 @@
             let speedViolationCount = 0; // 速度违规计数
             const MAX_VIOLATIONS = 3; // 最大违规次数
             let gameLocked = false; // 游戏是否被锁定
+            let speedCheckEnabled = false; // 速度检测是否启用（延迟启用避免刷新误报）
+            
+            // 延迟10秒后启用速度检测，避免页面加载/刷新时的误报
+            setTimeout(() => { speedCheckEnabled = true; }, 10000);
             
             function gameLoopWithBackground() {
                 if (gameLocked) return;
@@ -6184,12 +6192,14 @@
                 const now = getCalibratedTime();
                 const delta = now - lastTime;
 
-                // 时间加速检测：每秒检查循环次数
+                // 时间加速检测：每秒检查循环次数（仅在启用后检测）
+                // 正常情况每秒1次，允许轻微波动，超过4次才算加速
                 loopCount++;
-                if (now - loopCheckTime >= 1000) {
-                    if (loopCount > 2) {
+                if (speedCheckEnabled && now - loopCheckTime >= 1000) {
+                    // 每秒执行超过4次循环才判定为加速（提高阈值避免误报）
+                    if (loopCount > 4) {
                         speedViolationCount++;
-                        console.warn(`检测到异常游戏速度！违规次数: ${speedViolationCount}/${MAX_VIOLATIONS}`);
+                        console.warn(`检测到异常游戏速度！循环次数: ${loopCount}/秒, 违规次数: ${speedViolationCount}/${MAX_VIOLATIONS}`);
                         if (speedViolationCount >= MAX_VIOLATIONS) {
                             lockGame();
                             return;
