@@ -1375,7 +1375,20 @@
                                 • 距离每多500KM，本次收益多30%<br>
                                 • 城市等级每提升一级，本次收益加5%<br>
                                 • 完成联运获得城市升级碎片<br>
-                                • 1000KM获得1碎片，每增加600KM+1碎片
+                                • 1000KM获得1碎片，每增加600KM+1碎片<br>
+                                • 旅游季节影响联运收益（每5分钟刷新）
+                            </div>
+                        </div>
+                        <div class="section-box" style="background:linear-gradient(135deg, rgba(255,107,0,0.05), rgba(255,215,0,0.05));border-color:var(--neon-orange);">
+                            <div class="section-title" style="color:var(--neon-orange);">🌴 旅游季节</div>
+                            <div style="display:grid;gap:8px;font-size:12px;">
+                                <div style="display:flex;justify-content:space-between;align-items:center;">
+                                    <span style="color:var(--fg-secondary);">刷新时间:</span>
+                                    <span id="tourismTimer" style="color:var(--neon-orange);font-weight:600;">-</span>
+                                </div>
+                            </div>
+                            <div style="margin-top:10px;font-size:10px;color:var(--fg-secondary);text-align:center;">
+                                ⚠️ 旅游季节仅对联运收益生效，每30分钟刷新一次，效果显示在城市卡片上
                             </div>
                         </div>
                         <div class="section-box">
@@ -1384,6 +1397,16 @@
                                 <option value="">-- 请选择火车 --</option>
                             </select>
                             <div id="jointTrainInfo" style="margin-top:10px;font-size:11px;color:var(--fg-secondary);"></div>
+                            <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;">
+                                <button class="btn btn-success btn-small" onclick="startAllJointTrains()" style="flex:1;min-width:80px;">📤 全部发车</button>
+                            </div>
+                            <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
+                                <button class="btn btn-small" onclick="startJointTrainsByType('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;flex:1;min-width:60px;">📤 普通</button>
+                                <button class="btn btn-small" onclick="startJointTrainsByType('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;flex:1;min-width:60px;">📤 城际</button>
+                                <button class="btn btn-small" onclick="startJointTrainsByType('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;flex:1;min-width:60px;">📤 高铁</button>
+                                <button class="btn btn-small" onclick="startJointTrainsByType('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;flex:1;min-width:60px;">📤 自创</button>
+                                <button class="btn btn-small" onclick="startJointTrainsByType('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;flex:1;min-width:60px;">📤 生肖</button>
+                            </div>
                         </div>
                         <div class="section-box">
                             <div class="section-title">选择城市 (3-5个)</div>
@@ -1407,6 +1430,14 @@
                                 <div>
                                     <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">城市等级加成</div>
                                     <div id="jointCityLevelBonus" style="font-size:14px;color:var(--neon-yellow);">+0%</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">旅游季节加成</div>
+                                    <div id="jointTourismBonus" style="font-size:14px;color:var(--neon-orange);">+0%</div>
+                                </div>
+                                <div>
+                                    <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">天气影响</div>
+                                    <div id="jointWeatherEffect" style="font-size:14px;color:var(--neon-cyan);">--</div>
                                 </div>
                                 <div>
                                     <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:5px;">预计收益</div>
@@ -1634,6 +1665,27 @@
                                 <li>新增存档导入、导出功能</li>
                                 <li>新增闯关功能</li>
                                 <li>游戏QQ群：806903918</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-version">
+                            <div class="changelog-date">3.9-3.10 铁轨帝国更新内容</div>
+                            <ul class="changelog-list">
+                                <li>优化反作弊系统，防止误判</li>
+                                <li>修复退役后重新购买改造等级还在的bug</li>
+                                <li>新增城市联运功能</li>
+                                <li>推出联运城市升级功能</li>
+                                <li>修复VIP功能相关BUG</li>
+                                <li>员工一键分配可按普通、城际、高铁、自创、生肖限定分类分配</li>
+                                <li>联运玩法移动端适配</li>
+                                <li>适度调整距离时间计算公式</li>
+                                <li>优化联运收益、经验计算公式</li>
+                                <li>优化移动端显示效果</li>
+                                <li>联运车辆支持一键分类发车</li>
+                                <li>取消兑换码兑换的火车分配司机、改造、强化限制要求</li>
+                                <li>新增联运玩法-旅游系统</li>
+                                <li>联运系统内玩法仅对联运车辆有效，不影响正常发车</li>
+                                <li>新增联运玩法最多只能发车50辆</li>
+                                <li>新增兑换码：806903918</li>
                             </ul>
                         </div>
                         <div class="changelog-version">
@@ -2020,6 +2072,25 @@
             sunny: 25, hot: 12, extremeHot: 5, fog: 8, heavySnow: 5, sandstorm: 2, carnival: 3
         };
 
+        const tourismSeasons = {
+            springFestival: { name: "春节", icon: "🧧", incomeMod: 0.50, color: "#ff0000", desc: "收益+50%" },
+            laborDay: { name: "劳动节", icon: "👷", incomeMod: 0.20, color: "#ff8c00", desc: "收益+20%" },
+            nationalDay: { name: "国庆节", icon: "🇨🇳", incomeMod: 0.35, color: "#ffcc00", desc: "收益+35%" },
+            springOffSeason: { name: "春季淡季", icon: "🌸", incomeMod: -0.20, color: "#90ee90", desc: "收益-20%" },
+            winterOffSeason: { name: "冬季淡季", icon: "❄️", incomeMod: -0.35, color: "#add8e6", desc: "收益-35%" },
+            summerVacation: { name: "暑假", icon: "☀️", incomeMod: 0.25, color: "#ff6347", desc: "收益+25%" },
+            winterVacation: { name: "寒假", icon: "🎿", incomeMod: 0.10, color: "#87ceeb", desc: "收益+10%" },
+            extremeCold: { name: "极寒", icon: "🥶", incomeMod: -0.40, color: "#00bfff", desc: "收益-40%" },
+            extremeHeat: { name: "酷暑", icon: "🔥", incomeMod: -0.25, color: "#ff4500", desc: "收益-25%" }
+        };
+
+        const tourismWeights = {
+            springFestival: 2, laborDay: 3, nationalDay: 3,
+            springOffSeason: 10, winterOffSeason: 10,
+            summerVacation: 8, winterVacation: 8,
+            extremeCold: 5, extremeHeat: 5
+        };
+
         const employeeNames = ["张伟", "王芳", "李明", "刘洋", "陈静", "杨帆", "赵磊", "黄丽", "周杰", "吴敏", "徐强", "孙婷", "马超", "朱红", "胡军", "郭燕", "林峰", "何雪", "高远", "罗琳", "梁涛", "宋雨", "郑华", "谢鹏", "韩冰", "唐亮", "冯娜", "董强", "萧然", "程静"];
 
         const redeemCodes = {
@@ -2033,7 +2104,9 @@
             "gityx": { train: "马年纪念号", used: false },
             "2026元宵快乐": { train: "2026元宵号", used: false },
             "妇女节快乐": { train: "影舞号", used: false },
-            "3月7日补偿": { points: 3888, reformStones: 600, used: false }
+            "3月7日补偿": { points: 3888, reformStones: 600, used: false },
+            "806903918": { points: 3000, reformStones: 300, used: false },
+            "3月10日更新补偿": { points: 1500, reformStones: 150, used: false }
         };
 
         // ==================== 游戏状态 ====================
@@ -2060,7 +2133,10 @@
             // 联运系统
             cityLevels: {},             // 城市等级 { cityName: level }
             cityFragments: {},          // 城市碎片 { cityName: fragments }
-            runningJointTrains: []      // 运行中的联运列车
+            runningJointTrains: [],     // 运行中的联运列车
+            // 旅游季节系统（每个城市独立）
+            cityTourismSeasons: {},    // 城市旅游季节 { cityName: seasonKey }
+            lastTourismUpdate: null    // 上次旅游季节更新时间
         };
 
         let selectedStartCity = null, selectedEndCity = null, currentCityTab = 'china', currentShopTab = 'normal', pendingUnlockCity = null;
@@ -2325,6 +2401,90 @@
             return `${hours}时${minutes}分${seconds}秒`;
         }
 
+        const TOURISM_INTERVAL = 30 * 60 * 1000;
+
+        function getRandomTourismSeason() {
+            const totalWeight = Object.values(tourismWeights).reduce((a, b) => a + b, 0);
+            let random = Math.random() * totalWeight;
+            for (const [season, weight] of Object.entries(tourismWeights)) {
+                random -= weight;
+                if (random <= 0) return season;
+            }
+            return 'springOffSeason';
+        }
+
+        function updateTourismSeason() {
+            const now = Date.now();
+            if (!gameState.lastTourismUpdate) {
+                gameState.lastTourismUpdate = now;
+                gameState.cityTourismSeasons = {};
+                gameState.unlockedCities.forEach(city => {
+                    gameState.cityTourismSeasons[city] = getRandomTourismSeason();
+                });
+            }
+            const timeSinceLastUpdate = now - gameState.lastTourismUpdate;
+            if (timeSinceLastUpdate >= TOURISM_INTERVAL) {
+                gameState.cityTourismSeasons = {};
+                gameState.unlockedCities.forEach(city => {
+                    gameState.cityTourismSeasons[city] = getRandomTourismSeason();
+                });
+                gameState.lastTourismUpdate = now;
+                showNotification(`旅游季节已刷新！各城市季节效果已更新`);
+                updateTourismSeasonUI();
+                updateRunningJointTrainsEarnings();
+            }
+        }
+
+        function updateRunningJointTrainsEarnings() {
+            if (!gameState.runningJointTrains) return;
+            gameState.runningJointTrains.forEach(jt => {
+                const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
+                if (train) {
+                    const distanceBonus = calculateJointDistanceBonus(jt.distance);
+                    let cityLevelBonus = 0;
+                    jt.cities.forEach(cityName => {
+                        const level = gameState.cityLevels[cityName] || 1;
+                        cityLevelBonus += (level - 1) * 5;
+                    });
+                    let tourismBonus = 0;
+                    jt.cities.forEach(cityName => {
+                        tourismBonus += getTourismIncomeModifier(cityName) * 100;
+                    });
+                    const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
+                    jt.earnings = Math.round(calculateEarnings(train, jt.distance) * totalBonus);
+                }
+            });
+        }
+
+        function getTourismIncomeModifier(cityName) {
+            if (!cityName || !gameState.cityTourismSeasons[cityName]) {
+                return 0;
+            }
+            return tourismSeasons[gameState.cityTourismSeasons[cityName]].incomeMod;
+        }
+
+        function getCityTourismSeason(cityName) {
+            if (!gameState.cityTourismSeasons || !gameState.cityTourismSeasons[cityName]) {
+                return 'springOffSeason';
+            }
+            return gameState.cityTourismSeasons[cityName];
+        }
+
+        function updateTourismSeasonUI() {
+            const tourismTimerEl = document.getElementById('tourismTimer');
+            if (tourismTimerEl) {
+                const remaining = getTourismRemainingTime();
+                tourismTimerEl.textContent = `下次刷新: ${formatWeatherTime(remaining)}`;
+            }
+            renderJointCitySelection();
+        }
+
+        function getTourismRemainingTime() {
+            if (!gameState.lastTourismUpdate) return 0;
+            const elapsed = Date.now() - gameState.lastTourismUpdate;
+            return Math.max(0, TOURISM_INTERVAL - elapsed);
+        }
+
         // ==================== 界面渲染 ====================
         function updateUI() {
             document.getElementById('gold').textContent = formatNumber(gameState.gold);
@@ -2336,8 +2496,9 @@
             checkDailyPointsReset();
             // VIP信息显示
             const vipLevel = getVipLevel();
+            const vipOfflineBonus = getVipOfflineBonus();
             if (vipLevel > 0) {
-                document.getElementById('vipInfo').textContent = `👑 VIP ${vipLevel} | 经验+${vipBonus}% | 点卷上限+${getVipDailyPointsBonus()} | 改造石上限+${getVipDailyReformStonesBonus()}`;
+                document.getElementById('vipInfo').textContent = `👑 VIP ${vipLevel} | 经验+${vipBonus}% | 离线+${vipOfflineBonus}% | 点卷上限+${getVipDailyPointsBonus()} | 改造石上限+${getVipDailyReformStonesBonus()}`;
             } else {
                 document.getElementById('vipInfo').textContent = `👑 VIP 0`;
             }
@@ -2345,6 +2506,7 @@
             document.getElementById('dailyPointsInfo').textContent = `今日点卷: ${gameState.dailyPointsEarned}/${dailyLimit}`;
             updateWeather();
             updateWeatherUI();
+            updateTourismSeasonUI();
         }
 
         function updateLevelUI() {
@@ -2564,13 +2726,13 @@
                 return;
             }
             
-            // 获取选中的火车，排除受限火车
+            // 获取选中的火车，排除受限火车和顶级萌新号
             const trainsToRetire = selectedTrainIds.map(id => 
                 gameState.ownedTrains.find(t => Math.abs(t.id - id) < 0.0001)
-            ).filter(t => t && !isTrainRestricted(t));
+            ).filter(t => t && !isTrainRestricted(t) && !t.isTopNewbie);
             
             if (trainsToRetire.length === 0) {
-                showNotification('没有可以退役的火车！（兑换码火车需54级后才能退役）');
+                showNotification('没有可以退役的火车！（顶级萌新号无法退役）');
                 return;
             }
             
@@ -2734,9 +2896,38 @@
                 const isSelected = selectedTrainIds.some(id => Math.abs(id - train.id) < 0.0001);
                 // 检查是否配备司机
                 const assignedDriver = gameState.employees.find(emp => emp.trainId === train.id);
-                const driverInfo = assignedDriver 
-                    ? `<span style="color:var(--neon-green);font-size:10px;">👤 ${assignedDriver.name}</span>` 
-                    : `<span style="color:var(--fg-secondary);font-size:10px;">👤 未配备</span>`;
+                let driverInfo = '';
+                if (assignedDriver) {
+                    const empType = employeeTypes[assignedDriver.type];
+                    const level = assignedDriver.level;
+                    let bonusText = [];
+                    
+                    if (assignedDriver.type === 'income') {
+                        const incomeBonus = (empType.baseBonus * level).toFixed(1);
+                        bonusText.push(`收益+${incomeBonus}%`);
+                    } else if (assignedDriver.type === 'speed') {
+                        const speedBonus = (empType.baseBonus * level).toFixed(1);
+                        bonusText.push(`速度+${speedBonus}%`);
+                    } else if (assignedDriver.type === 'weight') {
+                        const weightBonus = (empType.baseBonus * level).toFixed(1);
+                        const incomeBonus = (empType.incomeBonus * level).toFixed(1);
+                        const speedBonus = (empType.speedBonus * level).toFixed(1);
+                        bonusText.push(`减重${weightBonus}%`);
+                        if (level >= 20) bonusText.push(`收益+${incomeBonus}%`);
+                        if (level >= 30) bonusText.push(`速度+${speedBonus}%`);
+                    } else if (assignedDriver.type === 'vip') {
+                        const weightBonus = (empType.baseBonus * level).toFixed(1);
+                        const incomeBonus = (empType.incomeBonus * level).toFixed(1);
+                        const speedBonus = (empType.speedBonus * level).toFixed(1);
+                        bonusText.push(`减重${weightBonus}%`);
+                        bonusText.push(`收益+${incomeBonus}%`);
+                        bonusText.push(`速度+${speedBonus}%`);
+                    }
+                    
+                    driverInfo = `<span style="color:var(--neon-green);font-size:10px;">👤 ${assignedDriver.name} Lv.${level}</span><br><span style="color:${empType.color};font-size:9px;">${bonusText.join(' | ')}</span>`;
+                } else {
+                    driverInfo = `<span style="color:var(--fg-secondary);font-size:10px;">👤 未配备</span>`;
+                }
                 return `<div class="train-card ${isSelected ? 'selected' : ''}">
                     <div class="train-name" style="display:flex;justify-content:space-between;align-items:center;">
                         <span style="display:flex;align-items:center;gap:8px;">
@@ -2776,6 +2967,10 @@
         function retireTrain(trainId) {
             const train = gameState.ownedTrains.find(t => t.id === trainId);
             if (!train) return;
+            if (train.isTopNewbie) {
+                showNotification('顶级萌新号无法退役！');
+                return;
+            }
             if (isTrainRestricted(train)) {
                 showNotification(`该火车需要达到${getTrainRestrictLevel(train)}级才能退役！`);
                 return;
@@ -3459,6 +3654,7 @@
             renderJointRunningTrains();
             renderJointCityUpgradeList();
             updateJointInfo();
+            updateTourismSeasonUI();
         }
 
         function renderJointTrainSelect() {
@@ -3483,10 +3679,20 @@
                 if (!city) return '';
                 const level = gameState.cityLevels[cityName] || 1;
                 const isSelected = selectedJointCities.includes(cityName);
+                
+                const seasonKey = getCityTourismSeason(cityName);
+                const season = tourismSeasons[seasonKey];
+                const tourismMod = season.incomeMod;
+                const tourismColor = tourismMod >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+                
                 return `
                     <div class="joint-city-item ${isSelected ? 'selected' : ''}" onclick="toggleJointCity('${cityName}')" style="padding:10px;background:${isSelected ? 'linear-gradient(135deg, rgba(255,0,255,0.2), rgba(157,78,221,0.2))' : 'rgba(0,0,0,0.3)'};border:1px solid ${isSelected ? 'var(--neon-magenta)' : 'var(--border)'};border-radius:4px;cursor:pointer;transition:all 0.2s;text-align:center;">
                         <div style="font-size:12px;color:var(--fg-primary);margin-bottom:4px;">${cityName}</div>
                         <div style="font-size:10px;color:var(--neon-cyan);">Lv.${level}</div>
+                        <div style="font-size:9px;margin-top:4px;padding:4px;background:rgba(0,0,0,0.2);border-radius:4px;">
+                            <span style="color:${season.color};">${season.icon}</span>
+                            <span style="color:${tourismColor};font-weight:600;">${tourismMod >= 0 ? '+' : ''}${(tourismMod * 100).toFixed(0)}%</span>
+                        </div>
                     </div>
                 `;
             }).join('');
@@ -3548,6 +3754,12 @@
             return 3000 * currentLevel;
         }
 
+        function calculateCityUpgradeGoldCost(currentLevel) {
+            if (currentLevel < 10) return 0;
+            const levelAbove10 = currentLevel - 9;
+            return 1000000000 + (levelAbove10 - 1) * 2000000000;
+        }
+
         function updateJointInfo() {
             const trainId = parseFloat(document.getElementById('jointTrainSelect').value);
             selectedJointTrain = trainId ? gameState.ownedTrains.find(t => t.id === trainId) : null;
@@ -3555,6 +3767,11 @@
             const distance = calculateJointDistance();
             const distanceBonus = calculateJointDistanceBonus(distance);
             const cityLevelBonus = calculateJointCityLevelBonus();
+            let tourismBonus = 0;
+            selectedJointCities.forEach(cityName => {
+                tourismBonus += getTourismIncomeModifier(cityName) * 100;
+            });
+            const weatherEffect = getWeatherIncomeModifier() * 100;
             const fragments = calculateJointFragments(distance);
             
             let estimatedEarnings = 0;
@@ -3562,7 +3779,7 @@
             
             if (selectedJointTrain && distance > 0) {
                 estimatedEarnings = calculateEarnings(selectedJointTrain, distance);
-                const totalBonus = (100 + distanceBonus + cityLevelBonus) / 100;
+                const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + weatherEffect) / 100;
                 estimatedEarnings = Math.round(estimatedEarnings * totalBonus);
                 const timeSeconds = calculateTime(selectedJointTrain, distance);
                 estimatedTime = timeSeconds + 's';
@@ -3573,6 +3790,10 @@
             document.getElementById('jointTotalDistance').textContent = `${distance} KM`;
             document.getElementById('jointDistanceBonus').textContent = `+${distanceBonus}%`;
             document.getElementById('jointCityLevelBonus').textContent = `+${cityLevelBonus}%`;
+            document.getElementById('jointTourismBonus').textContent = `${tourismBonus >= 0 ? '+' : ''}${tourismBonus.toFixed(0)}%`;
+            document.getElementById('jointTourismBonus').style.color = tourismBonus >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
+            document.getElementById('jointWeatherEffect').textContent = `${weatherEffect >= 0 ? '+' : ''}${weatherEffect.toFixed(0)}%`;
+            document.getElementById('jointWeatherEffect').style.color = weatherEffect >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
             document.getElementById('jointEstimatedEarnings').textContent = formatNumber(estimatedEarnings);
             document.getElementById('jointEstimatedFragments').textContent = fragments;
             document.getElementById('jointEstimatedTime').textContent = estimatedTime;
@@ -3609,6 +3830,11 @@
                 return;
             }
             
+            if (gameState.runningJointTrains && gameState.runningJointTrains.length >= 50) {
+                showNotification('联运车辆已达到上限（50辆），无法继续发车！');
+                return;
+            }
+            
             if (gameState.runningTrains.some(rt => rt.trainId === selectedJointTrain.id && !rt.paused)) {
                 showNotification('该火车已在普通运营中！');
                 return;
@@ -3632,10 +3858,14 @@
             
             const distanceBonus = calculateJointDistanceBonus(distance);
             const cityLevelBonus = calculateJointCityLevelBonus();
+            let tourismBonus = 0;
+            selectedJointCities.forEach(cityName => {
+                tourismBonus += getTourismIncomeModifier(cityName) * 100;
+            });
             const fragments = calculateJointFragments(distance);
             
             const baseEarnings = calculateEarnings(selectedJointTrain, distance);
-            const totalBonus = (100 + distanceBonus + cityLevelBonus) / 100;
+            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
             const earnings = Math.round(baseEarnings * totalBonus);
             const time = calculateTime(selectedJointTrain, distance);
             
@@ -3661,6 +3891,198 @@
             
             selectedJointCities = [];
             selectedJointTrain = null;
+            renderJointPanel();
+            updateUI();
+        }
+
+        let isStartingAllJointTrains = false;
+
+        function startAllJointTrains() {
+            if (isStartingAllJointTrains) {
+                showNotification('正在发车中，请稍候...');
+                return;
+            }
+            
+            if (selectedJointCities.length < 3 || selectedJointCities.length > 5) {
+                showNotification('请先选择3-5个城市！');
+                return;
+            }
+            
+            const distance = calculateJointDistance();
+            if (distance < 1000) {
+                showNotification('联运总距离不得小于1000KM！');
+                return;
+            }
+
+            isStartingAllJointTrains = true;
+            
+            if (gameState.runningJointTrains && gameState.runningJointTrains.length >= 50) {
+                isStartingAllJointTrains = false;
+                showNotification('联运车辆已达到上限（50辆），无法继续发车！');
+                return;
+            }
+            
+            const availableTrains = gameState.ownedTrains.filter(train => {
+                const isRunning = gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused);
+                const isJointRunning = gameState.runningJointTrains && gameState.runningJointTrains.some(jt => jt.trainId === train.id);
+                return !isRunning && !isJointRunning;
+            });
+
+            if (availableTrains.length === 0) {
+                isStartingAllJointTrains = false;
+                showNotification('没有可用的火车！');
+                return;
+            }
+
+            const distanceBonus = calculateJointDistanceBonus(distance);
+            let cityLevelBonus = 0;
+            selectedJointCities.forEach(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                cityLevelBonus += (level - 1) * 5;
+            });
+            let tourismBonus = 0;
+            selectedJointCities.forEach(cityName => {
+                tourismBonus += getTourismIncomeModifier(cityName) * 100;
+            });
+            const fragments = calculateJointFragments(distance);
+            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
+            const time = calculateTime(availableTrains[0], distance);
+
+            let startedCount = 0;
+            const currentCount = gameState.runningJointTrains ? gameState.runningJointTrains.length : 0;
+            const maxToAdd = 50 - currentCount;
+            
+            availableTrains.slice(0, maxToAdd).forEach(train => {
+                const baseEarnings = calculateEarnings(train, distance);
+                const earnings = Math.round(baseEarnings * totalBonus);
+                
+                const jointTrain = {
+                    id: Date.now() + Math.random() + startedCount,
+                    trainId: train.id,
+                    trainName: train.name,
+                    cities: [...selectedJointCities],
+                    distance: distance,
+                    earnings: earnings,
+                    fragments: fragments,
+                    totalTime: time,
+                    remainingTime: time,
+                    startTime: Date.now()
+                };
+                
+                if (!gameState.runningJointTrains) {
+                    gameState.runningJointTrains = [];
+                }
+                gameState.runningJointTrains.push(jointTrain);
+                startedCount++;
+            });
+
+            isStartingAllJointTrains = false;
+            
+            if (startedCount < availableTrains.length) {
+                showNotification(`成功发车 ${startedCount} 辆联运列车！（已达上限50辆）`);
+            } else {
+                showNotification(`成功发车 ${startedCount} 辆联运列车！`);
+            }
+            renderJointPanel();
+            updateUI();
+        }
+
+        let isStartingJointTrainsByType = false;
+
+        function startJointTrainsByType(type) {
+            if (isStartingJointTrainsByType) {
+                showNotification('正在发车中，请稍候...');
+                return;
+            }
+            
+            if (selectedJointCities.length < 3 || selectedJointCities.length > 5) {
+                showNotification('请先选择3-5个城市！');
+                return;
+            }
+            
+            const distance = calculateJointDistance();
+            if (distance < 1000) {
+                showNotification('联运总距离不得小于1000KM！');
+                return;
+            }
+
+            isStartingJointTrainsByType = true;
+            
+            if (gameState.runningJointTrains && gameState.runningJointTrains.length >= 50) {
+                isStartingJointTrainsByType = false;
+                showNotification('联运车辆已达到上限（50辆），无法继续发车！');
+                return;
+            }
+            
+            const typeNames = {
+                normal: '普通火车',
+                intercity: '城际列车',
+                highspeed: '高铁',
+                anime: '自创火车',
+                zodiac: '生肖限定'
+            };
+
+            const availableTrains = gameState.ownedTrains.filter(train => {
+                const isRunning = gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused);
+                const isJointRunning = gameState.runningJointTrains && gameState.runningJointTrains.some(jt => jt.trainId === train.id);
+                return train.type === type && !isRunning && !isJointRunning;
+            });
+
+            if (availableTrains.length === 0) {
+                isStartingJointTrainsByType = false;
+                showNotification(`没有可用的${typeNames[type]}！`);
+                return;
+            }
+
+            const distanceBonus = calculateJointDistanceBonus(distance);
+            let cityLevelBonus = 0;
+            selectedJointCities.forEach(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                cityLevelBonus += (level - 1) * 5;
+            });
+            let tourismBonus = 0;
+            selectedJointCities.forEach(cityName => {
+                tourismBonus += getTourismIncomeModifier(cityName) * 100;
+            });
+            const fragments = calculateJointFragments(distance);
+            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
+            const time = calculateTime(availableTrains[0], distance);
+
+            let startedCount = 0;
+            const currentCount = gameState.runningJointTrains ? gameState.runningJointTrains.length : 0;
+            const maxToAdd = 50 - currentCount;
+            
+            availableTrains.slice(0, maxToAdd).forEach(train => {
+                const baseEarnings = calculateEarnings(train, distance);
+                const earnings = Math.round(baseEarnings * totalBonus);
+                
+                const jointTrain = {
+                    id: Date.now() + Math.random() + startedCount,
+                    trainId: train.id,
+                    trainName: train.name,
+                    cities: [...selectedJointCities],
+                    distance: distance,
+                    earnings: earnings,
+                    fragments: fragments,
+                    totalTime: time,
+                    remainingTime: time,
+                    startTime: Date.now()
+                };
+                
+                if (!gameState.runningJointTrains) {
+                    gameState.runningJointTrains = [];
+                }
+                gameState.runningJointTrains.push(jointTrain);
+                startedCount++;
+            });
+
+            isStartingJointTrainsByType = false;
+            
+            if (startedCount < availableTrains.length) {
+                showNotification(`成功发车 ${startedCount} 辆${typeNames[type]}联运列车！（已达上限50辆）`);
+            } else {
+                showNotification(`成功发车 ${startedCount} 辆${typeNames[type]}联运列车！`);
+            }
             renderJointPanel();
             updateUI();
         }
@@ -3728,15 +4150,54 @@
             renderJointRunningTrains();
         }
 
+        let jointCityPage = 1;
+        const jointCitiesPerPage = 10;
+
         function renderJointCityUpgradeList() {
             const container = document.getElementById('jointCityUpgradeList');
             const unlockedCities = gameState.unlockedCities;
             
-            container.innerHTML = unlockedCities.map(cityName => {
+            if (unlockedCities.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--fg-secondary);font-size:12px;">暂无城市</div>';
+                return;
+            }
+            
+            const totalCities = unlockedCities.length;
+            const totalPages = Math.ceil(totalCities / jointCitiesPerPage);
+            if (jointCityPage < 1) jointCityPage = 1;
+            if (jointCityPage > totalPages) jointCityPage = totalPages;
+            
+            const startIndex = (jointCityPage - 1) * jointCitiesPerPage;
+            const displayCities = unlockedCities.slice(startIndex, startIndex + jointCitiesPerPage);
+            
+            let html = '';
+            
+            if (totalPages > 1) {
+                html += `
+                <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                    <button class="btn btn-secondary btn-small" onclick="changeJointCityPage(-1)" ${jointCityPage <= 1 ? 'disabled' : ''}>◀ 上一页</button>
+                    <span style="color:var(--fg-primary);font-size:12px;">${jointCityPage} / ${totalPages}</span>
+                    <button class="btn btn-secondary btn-small" onclick="changeJointCityPage(1)" ${jointCityPage >= totalPages ? 'disabled' : ''}>下一页 ▶</button>
+                </div>`;
+            }
+            
+            html += displayCities.map(cityName => {
                 const level = gameState.cityLevels[cityName] || 1;
                 const fragments = gameState.cityFragments[cityName] || 0;
                 const upgradeCost = calculateCityUpgradeCost(level);
-                const canUpgrade = fragments >= upgradeCost;
+                const goldCost = calculateCityUpgradeGoldCost(level);
+                const canUpgradeFragments = fragments >= upgradeCost;
+                const canUpgradeGold = gameState.gold >= goldCost;
+                const canUpgrade = canUpgradeFragments && canUpgradeGold;
+                
+                let costText = `碎片: <span style="color:var(--neon-magenta);">${fragments}</span> / <span style="color:var(--neon-yellow);">${upgradeCost}</span>`;
+                if (level >= 10) {
+                    costText += `<br>金币: <span style="color:var(--neon-green);">${formatNumber(gameState.gold)}</span> / <span style="color:var(--neon-yellow);">${formatNumber(goldCost)}</span>`;
+                }
+                
+                let btnText = '升级';
+                if (!canUpgradeFragments) btnText = '碎片不足';
+                else if (!canUpgradeGold) btnText = '金币不足';
                 
                 return `
                     <div class="joint-city-upgrade-card" style="background:linear-gradient(135deg, rgba(0,255,136,0.03), rgba(0,212,255,0.03));border:1px solid var(--border);border-radius:4px;padding:15px;">
@@ -3745,7 +4206,7 @@
                             <div style="font-size:12px;color:var(--neon-cyan);">Lv.${level}</div>
                         </div>
                         <div style="font-size:11px;color:var(--fg-secondary);margin-bottom:8px;">
-                            碎片: <span style="color:var(--neon-magenta);">${fragments}</span> / <span style="color:var(--neon-yellow);">${upgradeCost}</span>
+                            ${costText}
                         </div>
                         <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:10px;">
                             收益加成: <span style="color:var(--neon-green);">+${(level - 1) * 5}%</span>
@@ -3754,24 +4215,38 @@
                             onclick="upgradeCityLevel('${cityName}')" 
                             ${!canUpgrade ? 'disabled style="background:var(--bg-muted);border-color:var(--border);color:var(--fg-secondary);cursor:not-allowed;"' : ''}
                             style="width:100%;">
-                            ${canUpgrade ? '升级' : '碎片不足'}
+                            ${btnText}
                         </button>
                     </div>
                 `;
             }).join('');
+            
+            container.innerHTML = html;
+        }
+
+        function changeJointCityPage(delta) {
+            jointCityPage += delta;
+            renderJointCityUpgradeList();
         }
 
         function upgradeCityLevel(cityName) {
             const currentLevel = gameState.cityLevels[cityName] || 1;
             const fragments = gameState.cityFragments[cityName] || 0;
             const upgradeCost = calculateCityUpgradeCost(currentLevel);
+            const goldCost = calculateCityUpgradeGoldCost(currentLevel);
             
             if (fragments < upgradeCost) {
                 showNotification('碎片不足！');
                 return;
             }
             
+            if (gameState.gold < goldCost) {
+                showNotification('金币不足！');
+                return;
+            }
+            
             gameState.cityFragments[cityName] -= upgradeCost;
+            gameState.gold -= goldCost;
             gameState.cityLevels[cityName] = currentLevel + 1;
             
             showNotification(`${cityName} 升级到 ${currentLevel + 1} 级！收益加成 +${currentLevel * 5}%`);
@@ -5424,7 +5899,14 @@
             }
         }
 
+        let isStartingAllTrains = false;
+        
         function startAllTrains() {
+            if (isStartingAllTrains) {
+                showNotification('正在发车中，请稍候...');
+                return;
+            }
+            
             if (!selectedStartCity || !selectedEndCity) {
                 showNotification('请先选择出发城市和到达城市！');
                 return;
@@ -5434,6 +5916,8 @@
                 return;
             }
 
+            isStartingAllTrains = true;
+            
             const distance = calculateDistance(selectedStartCity, selectedEndCity);
             let startedCount = 0;
             let skippedCount = 0;
@@ -5467,6 +5951,8 @@
                 }
             });
 
+            isStartingAllTrains = false;
+            
             updateUI();
             renderRoutePanel();
             if (startedCount > 0) {
@@ -5478,7 +5964,14 @@
             }
         }
 
+        let isStartingTrainsByType = false;
+
         function startTrainsByType(type) {
+            if (isStartingTrainsByType) {
+                showNotification('正在发车中，请稍候...');
+                return;
+            }
+            
             if (!selectedStartCity || !selectedEndCity) {
                 showNotification('请先选择出发城市和到达城市！');
                 return;
@@ -5488,6 +5981,8 @@
                 return;
             }
 
+            isStartingTrainsByType = true;
+            
             const distance = calculateDistance(selectedStartCity, selectedEndCity);
             let startedCount = 0;
             let skippedCount = 0;
@@ -5507,6 +6002,7 @@
             });
 
             if (stoppedTrains.length === 0) {
+                isStartingTrainsByType = false;
                 showNotification(`没有可发车的${typeNames[type]}！`);
                 return;
             }
@@ -5534,6 +6030,8 @@
                 }
             });
 
+            isStartingTrainsByType = false;
+            
             updateUI();
             renderRoutePanel();
             if (startedCount > 0) {
@@ -5562,6 +6060,12 @@
         // 获取VIP每日改造石获取上限加成（+(n-1)）
         function getVipDailyReformStonesBonus() {
             return Math.max(0, getVipLevel() - 1);
+        }
+
+        // 获取VIP离线收益加成（每10级加成1%，最高50%）
+        function getVipOfflineBonus() {
+            const level = getVipLevel();
+            return Math.min(50, Math.floor(level / 10));
         }
 
         // 获取基础每日点卷上限
@@ -5991,32 +6495,15 @@
         }
 
         function isTrainRestricted(train) {
-            // 兑换码获得的火车在54级前无法操作
-            // 影舞号特殊处理：50级前无法操作
-            // 顶级萌新号无等级限制
-            if (train.name === '顶级萌新号' && train.fromRedeemCode) {
-                return false;
-            }
-            if (train.name === '影舞号' && train.fromRedeemCode && gameState.level < 50) {
-                return true;
-            }
-            if (train.fromRedeemCode && gameState.level < 54) {
+            // 只检查是否在运营中，不检查等级限制
+            if (gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused)) {
                 return true;
             }
             return false;
         }
 
         function getTrainRestrictLevel(train) {
-            // 获取火车限制等级
-            if (train.name === '顶级萌新号' && train.fromRedeemCode) {
-                return 0; // 无限制
-            }
-            if (train.name === '影舞号' && train.fromRedeemCode) {
-                return 50;
-            }
-            if (train.fromRedeemCode) {
-                return 54;
-            }
+            // 获取火车限制等级（已取消兑换码火车的等级限制）
             return 0;
         }
 
@@ -6059,7 +6546,7 @@
                 if (trainDataItem) {
                     // 添加指定数量的火车
                     for (let i = 0; i < trainCount; i++) {
-                        gameState.ownedTrains.push({
+                        const trainObj = {
                             id: Date.now() + Math.random() + i,
                             type: trainType,
                             name: trainName,
@@ -6068,7 +6555,12 @@
                             purchasePrice: trainDataItem.price,
                             comfort: trainDataItem.comfort || 100,
                             fromRedeemCode: true
-                        });
+                        };
+                        // 顶级萌新号特殊标记，改名后仍保持无限制
+                        if (trainName === '顶级萌新号') {
+                            trainObj.isTopNewbie = true;
+                        }
+                        gameState.ownedTrains.push(trainObj);
                     }
                     rewardMsg.push(`${trainName} 火车×${trainCount}`);
                 }
@@ -6209,6 +6701,14 @@
         }
 
         function showMobileMoreModal() {
+            // 更新VIP信息
+            const vipLevel = getVipLevel();
+            document.getElementById('mobileVipLevel').textContent = vipLevel;
+            document.getElementById('mobileVipExpBonus').textContent = vipLevel;
+            document.getElementById('mobileVipOfflineBonus').textContent = getVipOfflineBonus();
+            document.getElementById('mobileVipPointsBonus').textContent = getVipDailyPointsBonus();
+            document.getElementById('mobileVipStonesBonus').textContent = getVipDailyReformStonesBonus();
+            
             // 更新游戏信息
             document.getElementById('mobileLevel').textContent = gameState.level;
             document.getElementById('mobileExp').textContent = formatNumber(gameState.exp);
@@ -6222,8 +6722,10 @@
             document.getElementById('mobileWeatherEffect').textContent = document.getElementById('weatherEffect').textContent || '-';
             document.getElementById('mobileWeatherTimer').textContent = document.getElementById('weatherTimer').textContent || '-';
             
-            // 更新今日点卷
+            // 更新今日点卷（含VIP上限）
+            const dailyLimit = getDailyPointsLimit();
             document.getElementById('mobileDailyPoints').textContent = formatNumber(gameState.dailyPointsEarned || 0);
+            document.getElementById('mobileDailyLimit').textContent = dailyLimit;
             
             document.getElementById('mobileMoreModal').classList.add('show');
         }
@@ -6338,9 +6840,42 @@
             setTimeout(() => notification.remove(), 2000);
         }
 
+        // 奖励汇总系统
+        let rewardQueue = { gold: 0, exp: 0, fragments: 0, jointCount: 0, stones: 0 };
+        let rewardTimer = null;
+
+        function addRewardToQueue(gold, exp, fragments, stones) {
+            rewardQueue.gold += gold || 0;
+            rewardQueue.exp += exp || 0;
+            rewardQueue.fragments += fragments || 0;
+            rewardQueue.stones += stones || 0;
+            if (fragments > 0) rewardQueue.jointCount++;
+            
+            // 延迟显示，合并同一秒内的所有奖励
+            if (rewardTimer) clearTimeout(rewardTimer);
+            rewardTimer = setTimeout(() => {
+                showRewardSummary();
+            }, 500);
+        }
+
+        function showRewardSummary() {
+            const r = rewardQueue;
+            if (r.gold > 0 || r.exp > 0 || r.fragments > 0 || r.stones > 0) {
+                let msg = '';
+                if (r.gold > 0) msg += `💰${formatNumber(r.gold)} `;
+                if (r.exp > 0) msg += `⭐${formatNumber(r.exp)} `;
+                if (r.fragments > 0) msg += `💎${r.fragments}碎片(${r.jointCount}车) `;
+                if (r.stones > 0) msg += `🔧${r.stones}改造石 `;
+                showNotification(msg.trim());
+            }
+            // 重置队列
+            rewardQueue = { gold: 0, exp: 0, fragments: 0, jointCount: 0, stones: 0 };
+        }
+
         // ==================== 游戏循环 ====================
         function gameLoop() {
             updateWeather();
+            updateTourismSeason();
 
             // 检查所有运行中的火车员工数量（防止BUG）
             const trainsToStop = [];
@@ -6364,9 +6899,15 @@
             gameState.runningTrains.forEach(rt => {
                 rt.remainingTime--;
                 if (rt.remainingTime <= 0) {
-                    gameState.gold += rt.earnings;
-                    gameState.totalEarnings += rt.earnings;
-                    addExp(Math.floor(rt.distance / 5));
+                    const earnings = rt.earnings;
+                    const exp = Math.floor(rt.distance / 5);
+                    gameState.gold += earnings;
+                    gameState.totalEarnings += earnings;
+                    addExp(exp);
+                    
+                    // 添加到奖励队列
+                    addRewardToQueue(earnings, exp, 0, 0);
+                    
                     checkDailyPointsReset();
                     const dailyPointsLimit = getDailyPointsLimit();
                     if (gameState.dailyPointsEarned < dailyPointsLimit) {
@@ -6382,7 +6923,8 @@
                         if (gameState.reformStones === undefined) gameState.reformStones = 0;
                         gameState.reformStones += canEarnStones;
                         gameState.dailyReformStonesEarned += canEarnStones;
-                        showNotification('获得 ' + canEarnStones + ' 个改造石！');
+                        // 添加到奖励队列
+                        addRewardToQueue(0, 0, 0, canEarnStones);
                     }
                     const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
                     if (train) {
@@ -6407,19 +6949,24 @@
                 gameState.runningJointTrains.forEach(jt => {
                     jt.remainingTime--;
                     if (jt.remainingTime <= 0) {
-                        gameState.gold += jt.earnings;
-                        gameState.totalEarnings += jt.earnings;
-                        addExp(Math.floor(jt.distance / 10));
+                        const earnings = jt.earnings;
+                        const exp = Math.floor(jt.distance / 10);
+                        gameState.gold += earnings;
+                        gameState.totalEarnings += earnings;
+                        addExp(exp);
                         
+                        let totalFragments = 0;
                         jt.cities.forEach(cityName => {
                             if (!gameState.cityFragments) gameState.cityFragments = {};
                             if (!gameState.cityFragments[cityName]) {
                                 gameState.cityFragments[cityName] = 0;
                             }
                             gameState.cityFragments[cityName] += jt.fragments;
+                            totalFragments += jt.fragments;
                         });
                         
-                        showNotification(`联运列车 ${jt.trainName} 已到达！获得 ${formatNumber(jt.earnings)} 金币，每个城市获得 ${jt.fragments} 碎片！`);
+                        // 添加到奖励队列
+                        addRewardToQueue(earnings, exp, totalFragments, 0);
                         
                         const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
                         if (train) {
@@ -6433,7 +6980,11 @@
                                 const level = gameState.cityLevels[cityName] || 1;
                                 cityLevelBonus += (level - 1) * 5;
                             });
-                            const totalBonus = (100 + distanceBonus + cityLevelBonus) / 100;
+                            let tourismBonus = 0;
+                            jt.cities.forEach(cityName => {
+                                tourismBonus += getTourismIncomeModifier(cityName) * 100;
+                            });
+                            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
                             jt.earnings = Math.round(calculateEarnings(train, jt.distance) * totalBonus);
                         }
                     }
@@ -6515,13 +7066,16 @@
 
                 // 计算离线期间的火车运营
                 if (gameState.lastOnlineTime && gameState.runningTrains.length > 0) {
-                    // 使用校准后的时间计算离线时间，防止修改系统时间作弊
-                    const calibratedNow = typeof getCalibratedTime === 'function' ? getCalibratedTime() : Date.now();
-                    const offlineTime = (calibratedNow - new Date(gameState.lastOnlineTime).getTime()) / 1000;
+                    // 优先使用本地时间，避免服务器时间同步问题
+                    const now = Date.now();
+                    const lastTime = new Date(gameState.lastOnlineTime).getTime();
+                    const offlineTime = (now - lastTime) / 1000;
                     
-                    // 防作弊：检测时间是否被修改
-                    if (offlineTime < 0) {
-                        // 系统时间被调后，不计算离线收益
+                    console.log(`离线时间检测: ${offlineTime}秒, 上次在线: ${gameState.lastOnlineTime}`);
+                    
+                    // 防作弊：检测时间是否被修改（允许一定误差）
+                    if (offlineTime < -60) {
+                        // 系统时间被调后超过60秒，不计算离线收益
                         console.warn('检测到系统时间异常，跳过离线收益计算');
                         gameState.lastOnlineTime = new Date().toISOString();
                     } else if (offlineTime > 10) {
@@ -6530,12 +7084,14 @@
 
                         // 防作弊：限制最大离线时间为12小时
                         const maxOfflineTime = 43200;
-                        const maxOfflineSeconds = Math.min(Math.floor(offlineTime), maxOfflineTime);
+                        const maxOfflineSeconds = Math.min(Math.floor(Math.max(0, offlineTime)), maxOfflineTime);
                         
                         // 检测异常离线时间
                         if (offlineTime > maxOfflineTime * 10) {
                             console.warn('检测到异常离线时间，已限制为12小时');
                         }
+                        
+                        console.log(`计算离线收益: ${maxOfflineSeconds}秒`);
                         
                         for (let i = 0; i < maxOfflineSeconds; i++) {
                             gameState.runningTrains.forEach(rt => {
@@ -6564,17 +7120,36 @@
 
                         // 显示离线收益
                         if (totalOfflineEarnings > 0 || totalOfflineExp > 0) {
+                            // 离线收益改为在线的50%
+                            totalOfflineEarnings = Math.floor(totalOfflineEarnings * 0.5);
+                            totalOfflineExp = Math.floor(totalOfflineExp * 0.5);
+                            
+                            // 应用VIP离线收益加成（收益和经验都加成）
+                            const vipOfflineBonus = getVipOfflineBonus();
+                            const bonusEarnings = Math.floor(totalOfflineEarnings * vipOfflineBonus / 100);
+                            const bonusExp = Math.floor(totalOfflineExp * vipOfflineBonus / 100);
+                            totalOfflineEarnings += bonusEarnings;
+                            totalOfflineExp += bonusExp;
+                            
                             gameState.gold += totalOfflineEarnings;
                             // 计算加成后的经验值
                             const expBonus = gameState.expBonus || 0;
                             const vipBonus = getVipExpBonus();
                             const totalBonus = expBonus * 0.15 + vipBonus * 0.01;
-                            const bonusExp = Math.floor(totalOfflineExp * totalBonus);
+                            const extraExp = Math.floor(totalOfflineExp * totalBonus);
+                            totalOfflineExp += extraExp;
                             // 添加离线经验值
-                            if (bonusExp > 0) {
-                                addExp(totalOfflineExp); // addExp内部会再次计算加成
+                            if (totalOfflineExp > 0) {
+                                addExp(totalOfflineExp);
                             }
-                            document.getElementById('offlineEarnings').textContent = formatNumber(totalOfflineEarnings) + (bonusExp > 0 ? ' + ' + bonusExp + ' 经验' : '');
+                            let earningsText = formatNumber(totalOfflineEarnings);
+                            if (vipOfflineBonus > 0) {
+                                earningsText += ` (VIP+${vipOfflineBonus}%)`;
+                            }
+                            if (totalOfflineExp > 0) {
+                                earningsText += ' + ' + formatNumber(totalOfflineExp) + ' 经验';
+                            }
+                            document.getElementById('offlineEarnings').textContent = earningsText;
                             document.getElementById('offlineModal').classList.add('show');
                         }
                     }
@@ -6659,70 +7234,37 @@
             let cheatWarningGiven = false; // 是否已给出作弊警告
             let warningConfirmedTime = 0; // 警告确认时间戳
             
-            // 从多个时间服务器获取时间
+            // 从单个时间服务器获取北京时间
             async function fetchServerTime() {
-                const timeApis = [
-                    // 使用世界时间API
-                    'https://worldtimeapi.org/api/ip',
-                    // 备用：使用淘宝时间接口
-                    'https://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp'
-                ];
-                
-                for (const api of timeApis) {
-                    try {
-                        const controller = new AbortController();
-                        const timeoutId = setTimeout(() => controller.abort(), 3000);
-                        
-                        const response = await fetch(api, { 
-                            method: 'GET',
-                            signal: controller.signal,
-                            cache: 'no-cache'
-                        });
-                        
-                        clearTimeout(timeoutId);
-                        
-                        if (response.ok) {
-                            const data = await response.json();
-                            let serverTime;
-                            
-                            if (api.includes('worldtimeapi')) {
-                                serverTime = new Date(data.datetime).getTime();
-                            } else if (api.includes('taobao')) {
-                                serverTime = parseInt(data.data.t);
-                            }
-                            
-                            if (serverTime) {
-                                const localTime = Date.now();
-                                serverTimeOffset = serverTime - localTime;
-                                lastServerTimeSync = localTime;
-                                serverTimeSynced = true;
-                                console.log(`服务器时间同步成功，偏移量: ${serverTimeOffset}ms`);
-                                return serverTimeOffset;
-                            }
-                        }
-                    } catch (e) {
-                        console.warn(`时间API ${api} 请求失败:`, e.message);
-                    }
-                }
-                
-                // 如果所有API都失败，使用备用方案：通过HTTP响应头获取时间
                 try {
-                    const response = await fetch(window.location.href, { 
-                        method: 'HEAD',
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 5000);
+                    
+                    // 使用淘宝时间接口获取北京时间
+                    const response = await fetch('https://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp', { 
+                        method: 'GET',
+                        signal: controller.signal,
                         cache: 'no-cache'
                     });
-                    const serverDate = response.headers.get('Date');
-                    if (serverDate) {
-                        const serverTime = new Date(serverDate).getTime();
-                        const localTime = Date.now();
-                        serverTimeOffset = serverTime - localTime;
-                        lastServerTimeSync = localTime;
-                        serverTimeSynced = true;
-                        console.log(`通过HTTP头同步时间成功，偏移量: ${serverTimeOffset}ms`);
-                        return serverTimeOffset;
+                    
+                    clearTimeout(timeoutId);
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        const serverTime = parseInt(data.data.t);
+                        
+                        if (serverTime) {
+                            const localTime = Date.now();
+                            serverTimeOffset = serverTime - localTime;
+                            lastServerTimeSync = localTime;
+                            serverTimeSynced = true;
+                            console.log(`北京时间同步成功，偏移量: ${serverTimeOffset}ms`);
+                            return serverTimeOffset;
+                        }
                     }
                 } catch (e) {
-                    console.warn('HTTP头时间获取失败:', e.message);
+                    console.warn('北京时间获取失败:', e.message);
+                    serverTimeSynced = false;
                 }
                 
                 return null;
@@ -6749,9 +7291,9 @@
                 const calibratedTime = getCalibratedTime();
                 const diff = Math.abs(localTime - calibratedTime);
                 
-                // 如果本地时间与校准时间相差超过300秒（5分钟），可能是在作弊
-                // 增加阈值以避免网络延迟导致的误报
-                if (diff > 300000) {
+                // 如果本地时间与校准时间相差超过600秒（10分钟），可能是在作弊
+                // 增加阈值以避免网络延迟或系统时间同步导致的误报
+                if (diff > 600000) {
                     timeCheatDetected = true;
                     console.warn(`时间差异过大: ${diff}ms，本地时间可能被修改`);
                     
@@ -6817,8 +7359,8 @@
                     }
                     
                     // 检测时间偏移量是否突然变化（可能修改了系统时间）
-                    // 增加阈值到120秒以避免网络波动导致的误报
-                    if (serverTimeSynced && Math.abs(serverTimeOffset - oldOffset) > 120000) {
+                    // 增加阈值到300秒以避免网络波动或系统时间同步导致的误报
+                    if (serverTimeSynced && Math.abs(serverTimeOffset - oldOffset) > 300000) {
                         timeCheatDetected = true;
                         console.warn('检测到时间偏移量异常变化');
                         
@@ -6845,12 +7387,12 @@
             let loopCount = 0;
             let loopCheckTime = Date.now();
             let speedViolationCount = 0;
-            const MAX_VIOLATIONS = 5;
+            const MAX_VIOLATIONS = 10;
             let gameLocked = false;
             let speedCheckEnabled = false;
             
-            // 延迟30秒后启用速度检测，避免页面加载/刷新时的误报
-            setTimeout(() => { speedCheckEnabled = true; }, 30000);
+            // 延迟60秒后启用速度检测，避免页面加载/刷新时的误报
+            setTimeout(() => { speedCheckEnabled = true; }, 60000);
             
             function gameLoopWithBackground() {
                 if (gameLocked) return;
@@ -6869,11 +7411,11 @@
                 const delta = now - lastTime;
 
                 // 时间加速检测：每秒检查循环次数（仅在启用后检测）
-                // 正常情况每秒1次，允许较大波动，超过10次才算加速（提高阈值避免误报）
+                // 正常情况每秒1次，允许较大波动，超过20次才算加速（大幅提高阈值避免误报）
                 loopCount++;
                 if (speedCheckEnabled && now - loopCheckTime >= 1000) {
-                    // 每秒执行超过10次循环才判定为加速（大幅提高阈值避免误报）
-                    if (loopCount > 10) {
+                    // 每秒执行超过20次循环才判定为加速（大幅提高阈值避免误报）
+                    if (loopCount > 20) {
                         speedViolationCount++;
                         console.warn(`检测到异常游戏速度！循环次数: ${loopCount}/秒, 违规次数: ${speedViolationCount}/${MAX_VIOLATIONS}`);
                         if (speedViolationCount >= MAX_VIOLATIONS) {
@@ -7029,29 +7571,37 @@
             });
             
             // 多重保存机制，确保关闭游戏时lastOnlineTime被保存
-            window.addEventListener('beforeunload', (e) => { 
-                gameState.lastOnlineTime = new Date().toISOString(); 
-                localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
-                // 对于某些浏览器，需要设置returnValue
-                e.preventDefault();
-                e.returnValue = '';
+            function saveLastOnlineTime() {
+                gameState.lastOnlineTime = new Date().toISOString();
+                try {
+                    localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
+                } catch (e) {
+                    console.error('保存失败:', e);
+                }
+            }
+            
+            window.addEventListener('beforeunload', () => { 
+                saveLastOnlineTime();
             });
             
             window.addEventListener('pagehide', () => { 
-                gameState.lastOnlineTime = new Date().toISOString(); 
-                localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
+                saveLastOnlineTime();
             });
             
-            // 添加unload事件作为备用
             window.addEventListener('unload', () => { 
-                gameState.lastOnlineTime = new Date().toISOString(); 
-                localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
+                saveLastOnlineTime();
             });
             
-            // 添加freeze事件（移动端）
+            // 移动端冻结事件
             document.addEventListener('freeze', () => {
-                gameState.lastOnlineTime = new Date().toISOString(); 
-                localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
+                saveLastOnlineTime();
+            });
+            
+            // 移动端页面隐藏事件
+            document.addEventListener('visibilitychange', () => {
+                if (document.visibilityState === 'hidden') {
+                    saveLastOnlineTime();
+                }
             });
         }
 
@@ -7131,6 +7681,32 @@
                 <button class="modal-close" onclick="closeMobileMoreModal()">&times;</button>
             </div>
             <div style="padding:15px;">
+                <!-- VIP信息 -->
+                <div style="margin-bottom:15px;padding:12px;background:rgba(255,215,0,0.1);border-radius:8px;border:1px solid rgba(255,215,0,0.3);">
+                    <div style="font-size:12px;color:var(--neon-yellow);margin-bottom:10px;font-weight:600;">👑 VIP信息</div>
+                    <div style="display:grid;gap:8px;font-size:12px;">
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">VIP等级:</span>
+                            <span style="color:var(--neon-yellow);font-weight:600;">VIP <span id="mobileVipLevel">0</span></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">经验加成:</span>
+                            <span style="color:var(--neon-green);">+<span id="mobileVipExpBonus">0</span>%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">离线加成:</span>
+                            <span style="color:var(--neon-orange);">+<span id="mobileVipOfflineBonus">0</span>%</span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">点卷上限:</span>
+                            <span style="color:var(--neon-cyan);">+<span id="mobileVipPointsBonus">0</span></span>
+                        </div>
+                        <div style="display:flex;justify-content:space-between;">
+                            <span style="color:var(--fg-secondary);">改造石上限:</span>
+                            <span style="color:var(--neon-magenta);">+<span id="mobileVipStonesBonus">0</span></span>
+                        </div>
+                    </div>
+                </div>
                 <!-- 游戏信息 -->
                 <div style="margin-bottom:15px;padding:12px;background:rgba(0,0,0,0.08);border-radius:8px;">
                     <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📊 游戏信息</div>
@@ -7172,7 +7748,7 @@
                     <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">🎫 今日点卷</div>
                     <div style="display:flex;justify-content:space-between;font-size:12px;">
                         <span style="color:var(--fg-secondary);">已获取:</span>
-                        <span style="color:var(--neon-cyan);"><span id="mobileDailyPoints">0</span> / 6000</span>
+                        <span style="color:var(--neon-cyan);"><span id="mobileDailyPoints">0</span> / <span id="mobileDailyLimit">6000</span></span>
                     </div>
                 </div>
                 <!-- 功能按钮 -->
