@@ -1042,6 +1042,37 @@
                 font-size: 18px;
                 margin-bottom: 2px;
             }
+            
+            /* 移动端车次分组适配 */
+            .route-group {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+            
+            .route-detail {
+                max-height: 300px;
+                overflow-y: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            
+            .running-train {
+                padding: 10px;
+            }
+            
+            .train-route {
+                font-size: 12px;
+                word-break: break-all;
+            }
+            
+            .pagination {
+                flex-wrap: wrap;
+                gap: 8px !important;
+            }
+            
+            .pagination button {
+                flex: 1;
+                min-width: 80px;
+            }
         }
 
         /* Scrollbar */
@@ -1120,6 +1151,7 @@
                 <button class="nav-btn" onclick="showPanel('map')">🗺️ 地图系统</button>
                 <button class="nav-btn" onclick="showPanel('cities')">🏙️ 城市解锁</button>
                 <button class="nav-btn" onclick="showPanel('joint')">🚃 联运玩法</button>
+                <button class="nav-btn" onclick="showPanel('specialty')">🎁 特产玩法</button>
                 <button class="nav-btn" onclick="showPanel('upgrade')">🔧 点卷强化</button>
                 <button class="nav-btn" onclick="showPanel('redeem')">🎁 兑换码</button>
                 <button class="nav-btn" onclick="showPanel('reform')">💎 火车改造</button>
@@ -1410,7 +1442,14 @@
                             </div>
                         </div>
                         <div class="section-box">
-                            <div class="section-title">选择城市 (3-5个)</div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                                <div class="section-title" style="margin:0;">选择城市 (3-5个)</div>
+                                <div style="display:flex;align-items:center;gap:10px;">
+                                    <span style="font-size:11px;color:var(--fg-secondary);">乘客刷新:</span>
+                                    <span id="passengerRefreshTimer" style="font-size:12px;font-weight:600;color:var(--neon-cyan);">60秒</span>
+                                    <button class="btn btn-small" id="manualRefreshBtn" onclick="manualRefreshPassengers()" style="background:linear-gradient(135deg,var(--neon-cyan),var(--neon-green));border-color:var(--neon-cyan);color:#000;font-weight:600;padding:4px 10px;font-size:10px;">🔄 刷新(1000万)</button>
+                                </div>
+                            </div>
                             <div id="jointCitySelection" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-height:400px;overflow-y:auto;padding:10px;background:rgba(0,0,0,0.2);border-radius:4px;"></div>
                         </div>
                         <div class="section-box">
@@ -1461,6 +1500,20 @@
                         <div id="jointRunningTrains" style="max-height:400px;overflow-y:auto;"></div>
                         <div class="panel-title" style="margin-top:25px;">城市升级</div>
                         <div id="jointCityUpgradeList" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:15px;"></div>
+                    </div>
+                </div>
+
+                <!-- 特产面板 -->
+                <div id="specialtyPanel" class="panel" style="display:none;">
+                    <div class="panel-title">🎁 特产玩法</div>
+                    <div style="background:linear-gradient(135deg, rgba(255,107,0,0.1), rgba(255,215,0,0.1));border:1px solid var(--neon-orange);padding:40px;text-align:center;border-radius:8px;margin:20px 0;">
+                        <div style="font-size:48px;margin-bottom:20px;">🔧</div>
+                        <div style="font-size:20px;color:var(--neon-orange);margin-bottom:15px;font-weight:600;">特产玩法维护中</div>
+                        <div style="font-size:13px;color:var(--fg-secondary);line-height:1.8;">
+                            特产玩法正在进行系统升级和维护<br>
+                            请关注后续更新公告<br>
+                            感谢您的理解与支持！
+                        </div>
                     </div>
                 </div>
 
@@ -1968,11 +2021,11 @@
 
         // ==================== 火车数据 ====================
         const trainTypes = {
-            normal: { name: "普通火车", color: "#00d4ff" },
-            intercity: { name: "城际列车", color: "#00ff88" },
-            highspeed: { name: "高铁", color: "#ff3366" },
-            anime: { name: "自创火车", color: "#ff00ff" },
-            zodiac: { name: "生肖限定", color: "#ff6b00" }
+            normal: { name: "普通火车", color: "#00d4ff", capacity: 100 },
+            intercity: { name: "城际列车", color: "#00ff88", capacity: 200 },
+            highspeed: { name: "高铁", color: "#ff3366", capacity: 300 },
+            anime: { name: "自创火车", color: "#ff00ff", capacity: 500 },
+            zodiac: { name: "生肖限定", color: "#ff6b00", capacity: 1000 }
         };
 
         const trainData = {
@@ -2152,6 +2205,14 @@
             }
         };
 
+        // 特产列表
+        const specialtyList = [
+            "茶叶", "丝绸", "瓷器", "玉石", "药材",
+            "水果", "海鲜", "大米", "小麦", "棉花",
+            "煤炭", "铁矿", "木材", "石材", "盐",
+            "酒类", "糖", "香料", "珠宝", "皮革"
+        ];
+
         // ==================== 游戏状态 ====================
         let gameState = {
             gold: 20000, points: 0, level: 1, exp: 0, expToNext: 500,
@@ -2176,14 +2237,21 @@
             // 联运系统
             cityLevels: {},             // 城市等级 { cityName: level }
             cityFragments: {},          // 城市碎片 { cityName: fragments }
+            cityPassengers: {},         // 城市乘客 { cityName: passengers }
             runningJointTrains: [],     // 运行中的联运列车
+            // 特产系统
+            citySpecialties: {},        // 城市特产 { cityName: { product: '特产名', demand: '需求特产名' } }
+            runningSpecialTrains: [],   // 运行中的特产列车
+            goldBonusLevel: 0,          // 金币加成等级
+            goldBonusFragments: 0,      // 金币加成碎片
             // 称号系统
             titleFragments: 0,          // 称号碎片数量
             ownedTitles: [],            // 已拥有称号
             equippedTitle: null,        // 当前佩戴的称号
             // 旅游季节系统（每个城市独立）
             cityTourismSeasons: {},    // 城市旅游季节 { cityName: seasonKey }
-            lastTourismUpdate: null    // 上次旅游季节更新时间
+            lastTourismUpdate: null,    // 上次旅游季节更新时间
+            lastPassengerRefresh: null   // 上次乘客刷新时间
         };
 
         let selectedStartCity = null, selectedEndCity = null, currentCityTab = 'china', currentShopTab = 'normal', pendingUnlockCity = null;
@@ -2202,6 +2270,103 @@
         }
 
         function isCityUnlocked(cityName) { return gameState.unlockedCities.includes(cityName); }
+
+        function getCityPassengers(cityName) {
+            if (!gameState.cityPassengers) gameState.cityPassengers = {};
+            const level = gameState.cityLevels[cityName] || 1;
+            if (gameState.cityPassengers[cityName] === undefined) {
+                gameState.cityPassengers[cityName] = 100 + (level - 1) * 200;
+            }
+            return gameState.cityPassengers[cityName];
+        }
+
+        function getMaxCityPassengers(cityName) {
+            const level = gameState.cityLevels[cityName] || 1;
+            return 100 + (level - 1) * 200;
+        }
+
+        function consumeCityPassengers(cityName, amount) {
+            if (!gameState.cityPassengers) gameState.cityPassengers = {};
+            const current = getCityPassengers(cityName);
+            gameState.cityPassengers[cityName] = Math.max(0, current - amount);
+        }
+
+        function refreshCityPassengers() {
+            if (!gameState.cityPassengers) gameState.cityPassengers = {};
+            gameState.unlockedCities.forEach(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                gameState.cityPassengers[cityName] = 100 + (level - 1) * 200;
+            });
+            gameState.lastPassengerRefresh = Date.now();
+            showNotification('乘客已刷新！');
+        }
+        
+        function getManualRefreshCost() {
+            const citiesOver40 = gameState.unlockedCities.filter(cityName => (gameState.cityLevels[cityName] || 1) >= 40).length;
+            const citiesOver20 = gameState.unlockedCities.filter(cityName => (gameState.cityLevels[cityName] || 1) >= 20).length;
+            
+            if (citiesOver40 >= 5) {
+                return 200000000; // 2亿金币
+            } else if (citiesOver20 >= 10) {
+                return 100000000; // 1亿金币
+            } else {
+                return 10000000; // 1000万金币
+            }
+        }
+        
+        function manualRefreshPassengers() {
+            const cost = getManualRefreshCost();
+            
+            if (gameState.gold < cost) {
+                showNotification(`金币不足！需要 ${formatNumber(cost)} 金币才能刷新乘客`);
+                return;
+            }
+            
+            gameState.gold -= cost;
+            refreshCityPassengers();
+            renderJointCitySelection();
+            showNotification(`乘客已刷新！消耗 ${formatNumber(cost)} 金币`);
+        }
+        
+        function updatePassengerRefreshTimer() {
+            const timerEl = document.getElementById('passengerRefreshTimer');
+            if (!timerEl) return;
+            
+            const now = Date.now();
+            const lastRefresh = gameState.lastPassengerRefresh || now;
+            const elapsed = now - lastRefresh;
+            const remaining = Math.max(0, 60 - Math.floor(elapsed / 1000));
+            
+            timerEl.textContent = `${remaining}秒`;
+        }
+        
+        function updateManualRefreshButton() {
+            const btn = document.getElementById('manualRefreshBtn');
+            if (!btn) return;
+            
+            const cost = getManualRefreshCost();
+            const costText = cost >= 100000000 ? `${cost / 100000000}亿` : `${cost / 10000}万`;
+            btn.textContent = `🔄 刷新(${costText})`;
+            
+            // 如果金币不足，按钮变灰
+            if (gameState.gold < cost) {
+                btn.style.opacity = '0.5';
+                btn.style.cursor = 'not-allowed';
+            } else {
+                btn.style.opacity = '1';
+                btn.style.cursor = 'pointer';
+            }
+        }
+
+        function getTrainCapacity(train) {
+            const baseCapacity = trainTypes[train.type]?.capacity || 100;
+            const vipBonus = getVipCapacityBonus();
+            return baseCapacity + vipBonus;
+        }
+
+        function calculatePassengerBonus(totalPassengers) {
+            return Math.floor(totalPassengers / 300) * 3;
+        }
 
         function calculateEarnings(train, distance) {
             let earnings = distance * 10 * (1 - train.weight / 10000);
@@ -2268,7 +2433,7 @@
             return total;
         }
         function calculateExpToNext(level) {
-            // 1-10级：1.8倍，11-20级：1.55倍，21-25级：1.35倍，26-30级：1.3倍，31-35级：1.15倍，36-40级：1.1倍，41-50级：1.05倍，51级及以后：1.055倍
+            // 1-10级：1.8倍，11-20级：1.55倍，21-25级：1.35倍，26-30级：1.3倍，31-35级：1.15倍，36-40级：1.1倍，41-50级：1.05倍，51-64级：1.055倍，65级及以后：1.1倍
             if (level <= 10) {
                 return Math.floor(500 * Math.pow(1.8, level - 1));
             } else if (level <= 20) {
@@ -2310,7 +2475,7 @@
                 const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5));
                 const baseExp40 = Math.floor(baseExp35 * Math.pow(1.1, 5)); // 40级升41级的基础
                 return Math.floor(baseExp40 * Math.pow(1.05, level - 40));
-            } else {
+            } else if (level <= 64) {
                 // 50级升51级所需经验作为基础，之后按1.055倍增长
                 const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
                 const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
@@ -2320,6 +2485,17 @@
                 const baseExp40 = Math.floor(baseExp35 * Math.pow(1.1, 5));
                 const baseExp50 = Math.floor(baseExp40 * Math.pow(1.05, 10)); // 50级升51级的基础
                 return Math.floor(baseExp50 * Math.pow(1.055, level - 50));
+            } else {
+                // 64级升65级所需经验作为基础，之后按1.1倍增长
+                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
+                const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
+                const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
+                const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5));
+                const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5));
+                const baseExp40 = Math.floor(baseExp35 * Math.pow(1.1, 5));
+                const baseExp50 = Math.floor(baseExp40 * Math.pow(1.05, 10));
+                const baseExp64 = Math.floor(baseExp50 * Math.pow(1.055, 14)); // 64级升65级的基础
+                return Math.floor(baseExp64 * Math.pow(1.1, level - 64));
             }
         }
 
@@ -2449,6 +2625,19 @@
             return `${hours}时${minutes}分${seconds}秒`;
         }
 
+        function formatTime(seconds) {
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = Math.floor(seconds % 60);
+            if (hours > 0) {
+                return `${hours}时${minutes}分${secs}秒`;
+            } else if (minutes > 0) {
+                return `${minutes}分${secs}秒`;
+            } else {
+                return `${secs}秒`;
+            }
+        }
+
         const TOURISM_INTERVAL = 30 * 60 * 1000;
 
         function getRandomTourismSeason() {
@@ -2480,6 +2669,8 @@
                 showNotification(`旅游季节已刷新！各城市季节效果已更新`);
                 updateTourismSeasonUI();
                 updateRunningJointTrainsEarnings();
+                // 同步刷新特产
+                refreshCitySpecialties();
             }
         }
 
@@ -2578,7 +2769,7 @@
             document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
             // 根据panelName找到对应的移动端按钮并激活
             const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn');
-            const panelIndex = { trains: 0, routes: 1, employees: 2, shop: 3, running: 4, map: 5, cities: 6, joint: 7, upgrade: 8, redeem: 9, reform: 10, challenge: 11, title: 12, changelog: 13, mobilemore: 14 };
+            const panelIndex = { trains: 0, routes: 1, employees: 2, shop: 3, running: 4, map: 5, cities: 6, joint: 7, specialty: 8, upgrade: 9, redeem: 10, reform: 11, challenge: 12, title: 13, changelog: 14, mobilemore: 15 };
             if (panelIndex[panelName] !== undefined && mobileNavBtns[panelIndex[panelName]]) {
                 mobileNavBtns[panelIndex[panelName]].classList.add('active');
             }
@@ -2586,7 +2777,7 @@
             if (event && event.target && event.target.classList.contains('nav-btn')) {
                 event.target.classList.add('active');
             }
-            const renderFuncs = { trains: renderTrainList, routes: renderRoutePanel, employees: renderEmployeeList, shop: renderShop, running: renderRunningTrains, map: renderMap, cities: renderCityUnlockList, joint: renderJointPanel, upgrade: renderUpgradePanel, redeem: renderRedeemPanel, reform: renderReformPanel, challenge: renderChallengePanel, title: renderTitlePanel };
+            const renderFuncs = { trains: renderTrainList, routes: renderRoutePanel, employees: renderEmployeeList, shop: renderShop, running: renderRunningTrains, map: renderMap, cities: renderCityUnlockList, joint: renderJointPanel, specialty: renderSpecialtyPanel, upgrade: renderUpgradePanel, redeem: renderRedeemPanel, reform: renderReformPanel, challenge: renderChallengePanel, title: renderTitlePanel };
             if (renderFuncs[panelName]) renderFuncs[panelName]();
         }
 
@@ -3475,14 +3666,32 @@
                 return;
             }
 
-            let displayTrains = filteredTrains;
+            // 按路线分组
+            const routeGroups = {};
+            filteredTrains.forEach((rt, idx) => {
+                const routeKey = `${rt.startCity}→${rt.endCity}`;
+                if (!routeGroups[routeKey]) {
+                    routeGroups[routeKey] = {
+                        startCity: rt.startCity,
+                        endCity: rt.endCity,
+                        trains: [],
+                        totalEarnings: 0,
+                        minRemainingTime: Infinity
+                    };
+                }
+                routeGroups[routeKey].trains.push({ ...rt, originalIndex: gameState.runningTrains.indexOf(rt) });
+                routeGroups[routeKey].totalEarnings += rt.earnings;
+                if (rt.remainingTime < routeGroups[routeKey].minRemainingTime) {
+                    routeGroups[routeKey].minRemainingTime = rt.remainingTime;
+                }
+            });
+
+            const routeKeys = Object.keys(routeGroups);
             let totalPages = 1;
-            if (filteredTrains.length > runningTrainsPerPage) {
-                totalPages = Math.ceil(filteredTrains.length / runningTrainsPerPage);
+            if (routeKeys.length > runningTrainsPerPage) {
+                totalPages = Math.ceil(routeKeys.length / runningTrainsPerPage);
                 if (runningTrainPage < 1) runningTrainPage = 1;
                 if (runningTrainPage > totalPages) runningTrainPage = totalPages;
-                const startIndex = (runningTrainPage - 1) * runningTrainsPerPage;
-                displayTrains = filteredTrains.slice(startIndex, startIndex + runningTrainsPerPage);
             }
 
             let html = '';
@@ -3496,26 +3705,90 @@
                 </div>`;
             }
 
-            html += displayTrains.map(rt => {
-                const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
-                const progress = ((rt.totalTime - rt.remainingTime) / rt.totalTime * 100).toFixed(1);
-                const rtIndex = gameState.runningTrains.indexOf(rt);
-                const comfort = train.comfort || 100;
-                const comfortBonus = (comfort / 100).toFixed(1);
-                const displayTime = Math.max(0, Math.round(rt.remainingTime));
-                return `<div class="running-train">
-                    <div class="train-route"><strong style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${train.name}</strong><span style="color:var(--neon-cyan);">${rt.startCity}</span><span style="color:var(--fg-secondary);">→</span><span style="color:var(--neon-magenta);">${rt.endCity}</span></div>
-                    <div style="font-size:10px;color:var(--neon-yellow);margin:4px 0;">🛋️${comfort} (+${comfortBonus}%)</div>
-                    <div class="progress-bar"><div class="progress-fill" style="width:${progress}%"></div></div>
-                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--fg-secondary);">
-                        <span>剩余: ${displayTime}s</span>
-                        <span style="color:var(--neon-green);">+${formatNumber(rt.earnings)}</span>
-                        <button class="btn btn-danger btn-small" onclick="cancelRoute(${rtIndex})" style="padding:2px 8px;font-size:10px;">取消</button>
+            const startIndex = (runningTrainPage - 1) * runningTrainsPerPage;
+            const displayRouteKeys = routeKeys.slice(startIndex, startIndex + runningTrainsPerPage);
+
+            displayRouteKeys.forEach(routeKey => {
+                const group = routeGroups[routeKey];
+                const groupId = `route-${routeKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                
+                html += `
+                <div class="running-train route-group" onclick="toggleRouteGroup('${groupId}', event)" style="cursor:pointer;position:relative;">
+                    <div class="train-route">
+                        <span style="color:var(--neon-cyan);">${group.startCity}</span>
+                        <span style="color:var(--fg-secondary);">→</span>
+                        <span style="color:var(--neon-magenta);">${group.endCity}</span>
+                        <span style="background:linear-gradient(135deg,var(--neon-cyan),var(--neon-green));color:#000;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;margin-left:8px;">${group.trains.length}辆</span>
                     </div>
+                    <div style="display:flex;justify-content:space-between;align-items:center;font-size:11px;color:var(--fg-secondary);margin-top:5px;">
+                        <span>最快到达: ${Math.max(0, Math.round(group.minRemainingTime))}s</span>
+                        <span style="color:var(--neon-green);">总收益: +${formatNumber(group.totalEarnings)}</span>
+                        <span style="color:var(--neon-yellow);font-size:10px;">点击展开 ▼</span>
+                    </div>
+                </div>
+                <div id="${groupId}" class="route-detail" style="display:none;padding-left:15px;border-left:2px solid var(--neon-cyan);margin-bottom:10px;">
+                    ${group.trains.map(rt => {
+                        const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
+                        const progress = ((rt.totalTime - rt.remainingTime) / rt.totalTime * 100).toFixed(1);
+                        const comfort = train.comfort || 100;
+                        const comfortBonus = (comfort / 100).toFixed(1);
+                        const displayTime = Math.max(0, Math.round(rt.remainingTime));
+                        return `
+                        <div class="running-train" style="margin:5px 0;">
+                            <div class="train-route" style="font-size:11px;">
+                                <strong style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${train.name}</strong>
+                                <span style="color:var(--neon-yellow);font-size:10px;">🛋️${comfort} (+${comfortBonus}%)</span>
+                            </div>
+                            <div class="progress-bar" style="height:4px;"><div class="progress-fill" style="width:${progress}%"></div></div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--fg-secondary);">
+                                <span>剩余: ${displayTime}s</span>
+                                <span style="color:var(--neon-green);">+${formatNumber(rt.earnings)}</span>
+                                <button class="btn btn-danger btn-small" onclick="event.stopPropagation();cancelRoute(${rt.originalIndex})" style="padding:2px 6px;font-size:9px;">取消</button>
+                            </div>
+                        </div>`;
+                    }).join('')}
                 </div>`;
-            }).join('');
+            });
 
             container.innerHTML = html;
+            
+            // 恢复展开状态
+            Object.keys(routeGroupStates).forEach(groupId => {
+                if (routeGroupStates[groupId].isOpen) {
+                    const detail = document.getElementById(groupId);
+                    if (detail) {
+                        detail.style.display = 'block';
+                    }
+                }
+            });
+        }
+
+        // 车次分组展开状态记录
+        const routeGroupStates = {};
+        
+        function toggleRouteGroup(groupId, event) {
+            if (event) {
+                event.stopPropagation();
+                event.preventDefault();
+            }
+            
+            // 防抖：如果500ms内已经处理过，则忽略
+            const now = Date.now();
+            if (routeGroupStates[groupId] && routeGroupStates[groupId].lastToggle && (now - routeGroupStates[groupId].lastToggle) < 500) {
+                return;
+            }
+            
+            const detail = document.getElementById(groupId);
+            if (detail) {
+                const isCurrentlyOpen = detail.style.display === 'block';
+                detail.style.display = isCurrentlyOpen ? 'none' : 'block';
+                
+                // 记录状态和时间
+                routeGroupStates[groupId] = {
+                    isOpen: !isCurrentlyOpen,
+                    lastToggle: now
+                };
+            }
         }
 
         // 城市筛选状态
@@ -3704,7 +3977,7 @@
             updateJointInfo();
             updateTourismSeasonUI();
         }
-
+        
         function renderJointTrainSelect() {
             const select = document.getElementById('jointTrainSelect');
             const availableTrains = gameState.ownedTrains.filter(train => 
@@ -3727,6 +4000,9 @@
                 if (!city) return '';
                 const level = gameState.cityLevels[cityName] || 1;
                 const isSelected = selectedJointCities.includes(cityName);
+                const passengers = getCityPassengers(cityName);
+                const maxPassengers = getMaxCityPassengers(cityName);
+                const hasNoPassengers = passengers <= 0;
                 
                 const seasonKey = getCityTourismSeason(cityName);
                 const season = tourismSeasons[seasonKey];
@@ -3734,9 +4010,10 @@
                 const tourismColor = tourismMod >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
                 
                 return `
-                    <div class="joint-city-item ${isSelected ? 'selected' : ''}" onclick="toggleJointCity('${cityName}')" style="padding:10px;background:${isSelected ? 'linear-gradient(135deg, rgba(255,0,255,0.2), rgba(157,78,221,0.2))' : 'rgba(0,0,0,0.3)'};border:1px solid ${isSelected ? 'var(--neon-magenta)' : 'var(--border)'};border-radius:4px;cursor:pointer;transition:all 0.2s;text-align:center;">
+                    <div class="joint-city-item ${isSelected ? 'selected' : ''} ${hasNoPassengers ? 'no-passengers' : ''}" onclick="${hasNoPassengers ? '' : `toggleJointCity('${cityName}')`}" style="padding:10px;background:${hasNoPassengers ? 'rgba(100,100,100,0.3)' : isSelected ? 'linear-gradient(135deg, rgba(255,0,255,0.2), rgba(157,78,221,0.2))' : 'rgba(0,0,0,0.3)'};border:1px solid ${hasNoPassengers ? 'var(--border)' : isSelected ? 'var(--neon-magenta)' : 'var(--border)'};border-radius:4px;cursor:${hasNoPassengers ? 'not-allowed' : 'pointer'};transition:all 0.2s;text-align:center;${hasNoPassengers ? 'opacity:0.6;' : ''}">
                         <div style="font-size:12px;color:var(--fg-primary);margin-bottom:4px;">${cityName}</div>
                         <div style="font-size:10px;color:var(--neon-cyan);">Lv.${level}</div>
+                        <div style="font-size:9px;color:${hasNoPassengers ? 'var(--neon-red)' : 'var(--neon-yellow)'};margin-top:2px;">👥 ${passengers}/${maxPassengers}</div>
                         <div style="font-size:9px;margin-top:4px;padding:4px;background:rgba(0,0,0,0.2);border-radius:4px;">
                             <span style="color:${season.color};">${season.icon}</span>
                             <span style="color:${tourismColor};font-weight:600;">${tourismMod >= 0 ? '+' : ''}${(tourismMod * 100).toFixed(0)}%</span>
@@ -3747,6 +4024,13 @@
         }
 
         function toggleJointCity(cityName) {
+            // 检查城市是否有乘客
+            const passengers = getCityPassengers(cityName);
+            if (passengers <= 0) {
+                showNotification(`${cityName}没有乘客，无法选择！`);
+                return;
+            }
+            
             const index = selectedJointCities.indexOf(cityName);
             if (index > -1) {
                 selectedJointCities.splice(index, 1);
@@ -3798,6 +4082,152 @@
             return fragments;
         }
 
+        // ==================== 特产系统 ====================
+        function initCitySpecialties() {
+            if (!gameState.citySpecialties) gameState.citySpecialties = {};
+            gameState.unlockedCities.forEach(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                if (level >= 50 && !gameState.citySpecialties[cityName]) {
+                    gameState.citySpecialties[cityName] = {
+                        product: specialtyList[Math.floor(Math.random() * specialtyList.length)],
+                        demand: specialtyList[Math.floor(Math.random() * specialtyList.length)]
+                    };
+                    while (gameState.citySpecialties[cityName].product === gameState.citySpecialties[cityName].demand) {
+                        gameState.citySpecialties[cityName].demand = specialtyList[Math.floor(Math.random() * specialtyList.length)];
+                    }
+                }
+            });
+        }
+
+        function refreshCitySpecialties() {
+            gameState.unlockedCities.forEach(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                if (level >= 50) {
+                    gameState.citySpecialties[cityName] = {
+                        product: specialtyList[Math.floor(Math.random() * specialtyList.length)],
+                        demand: specialtyList[Math.floor(Math.random() * specialtyList.length)]
+                    };
+                    while (gameState.citySpecialties[cityName].product === gameState.citySpecialties[cityName].demand) {
+                        gameState.citySpecialties[cityName].demand = specialtyList[Math.floor(Math.random() * specialtyList.length)];
+                    }
+                }
+            });
+            saveGame();
+        }
+
+        function getSpecialtyTrainLimit() {
+            return 50;
+        }
+
+        function getGoldBonusCost(level) {
+            if (level === 0) return 100000;
+            return 100000 * level * 3;
+        }
+
+        function getGoldBonusEffect(level) {
+            if (level === 0) return 0;
+            return 20 + (level - 1) * 15;
+        }
+
+        function upgradeGoldBonus() {
+            const nextLevel = gameState.goldBonusLevel + 1;
+            const cost = getGoldBonusCost(nextLevel);
+            if (gameState.goldBonusFragments >= cost) {
+                gameState.goldBonusFragments -= cost;
+                gameState.goldBonusLevel = nextLevel;
+                showNotification(`金币加成升级至 ${nextLevel} 级！收益加成 +${getGoldBonusEffect(nextLevel)}%`);
+                saveGame();
+                renderTitlePanel();
+            } else {
+                showNotification('金币加成碎片不足！');
+            }
+        }
+
+        function startSpecialTrain(trainId, startCity, endCities, specialty) {
+            if (gameState.runningSpecialTrains.length >= getSpecialtyTrainLimit()) {
+                showNotification('特产列车已达上限！');
+                return;
+            }
+            const train = gameState.ownedTrains.find(t => t.id === trainId);
+            if (!train) return;
+            
+            let totalDistance = 0;
+            let prevCity = startCity;
+            endCities.forEach(cityName => {
+                const city1 = getCityByName(prevCity);
+                const city2 = getCityByName(cityName);
+                if (city1 && city2) totalDistance += calculateDistance(city1, city2);
+                prevCity = cityName;
+            });
+            
+            const totalTime = calculateTime(train, totalDistance);
+            const baseEarnings = calculateEarnings(train, totalDistance);
+            const goldBonus = getGoldBonusEffect(gameState.goldBonusLevel);
+            const earnings = Math.floor(baseEarnings * (1 + goldBonus / 100));
+            
+            gameState.runningSpecialTrains.push({
+                trainId: train.id,
+                trainName: train.name,
+                trainType: train.type,
+                startCity: startCity,
+                endCities: endCities,
+                specialty: specialty,
+                distance: totalDistance,
+                totalTime: totalTime,
+                remainingTime: totalTime,
+                earnings: earnings,
+                startTime: Date.now()
+            });
+            
+            saveGame();
+            showNotification(`特产列车 ${train.name} 已发车！`);
+        }
+
+        function stopAllSpecialTrains() {
+            const count = gameState.runningSpecialTrains.length;
+            gameState.runningSpecialTrains = [];
+            saveGame();
+            renderSpecialtyRunningTrains();
+            showNotification(`已停运 ${count} 辆特产列车`);
+        }
+
+        function startSpecialTrainsByType(type) {
+            const availableTrains = gameState.ownedTrains.filter(t => 
+                t.type === type && 
+                !gameState.runningSpecialTrains.some(st => st.trainId === t.id) &&
+                !gameState.runningTrains.some(rt => rt.trainId === t.id) &&
+                !gameState.runningJointTrains.some(jt => jt.trainId === t.id)
+            );
+            let started = 0;
+            availableTrains.forEach(train => {
+                if (gameState.runningSpecialTrains.length < getSpecialtyTrainLimit()) {
+                    // 找一个有特产的城市作为起点
+                    const citiesWithSpecialty = gameState.unlockedCities.filter(cityName => {
+                        const level = gameState.cityLevels[cityName] || 1;
+                        return level >= 50 && gameState.citySpecialties[cityName];
+                    });
+                    if (citiesWithSpecialty.length > 0) {
+                        const startCity = citiesWithSpecialty[Math.floor(Math.random() * citiesWithSpecialty.length)];
+                        const specialty = gameState.citySpecialties[startCity].product;
+                        // 找需要这个特产的城市
+                        const demandCities = gameState.unlockedCities.filter(cityName => {
+                            const level = gameState.cityLevels[cityName] || 1;
+                            return level >= 50 && 
+                                gameState.citySpecialties[cityName] && 
+                                gameState.citySpecialties[cityName].demand === specialty &&
+                                cityName !== startCity;
+                        });
+                        if (demandCities.length > 0) {
+                            const endCity = demandCities[Math.floor(Math.random() * demandCities.length)];
+                            startSpecialTrain(train.id, startCity, [endCity], specialty);
+                            started++;
+                        }
+                    }
+                }
+            });
+            showNotification(`已发车 ${started} 辆特产列车`);
+        }
+
         function calculateCityUpgradeCost(currentLevel) {
             if (currentLevel < 11) {
                 return 500 * currentLevel;      // 1-10级
@@ -3836,12 +4266,26 @@
             const weatherEffect = getWeatherIncomeModifier() * 100;
             const fragments = calculateJointFragments(distance);
             
+            // 计算乘客增益（整个行程总共只能装载trainCapacity数量的乘客）
+            let totalPassengers = 0;
+            let passengerBonus = 0;
+            if (selectedJointTrain) {
+                const trainCapacity = getTrainCapacity(selectedJointTrain);
+                let remainingCapacity = trainCapacity;
+                selectedJointCities.forEach(cityName => {
+                    if (remainingCapacity <= 0) return;
+                    totalPassengers += Math.min(getCityPassengers(cityName), remainingCapacity);
+                    remainingCapacity -= Math.min(getCityPassengers(cityName), remainingCapacity);
+                });
+                passengerBonus = calculatePassengerBonus(totalPassengers);
+            }
+            
             let estimatedEarnings = 0;
             let estimatedTime = '--';
             
             if (selectedJointTrain && distance > 0) {
                 estimatedEarnings = calculateEarnings(selectedJointTrain, distance);
-                const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + weatherEffect) / 100;
+                const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + weatherEffect + passengerBonus) / 100;
                 estimatedEarnings = Math.round(estimatedEarnings * totalBonus);
                 const timeSeconds = calculateTime(selectedJointTrain, distance);
                 estimatedTime = timeSeconds + 's';
@@ -3861,9 +4305,11 @@
             document.getElementById('jointEstimatedTime').textContent = estimatedTime;
             
             if (selectedJointTrain) {
+                const trainCapacity = getTrainCapacity(selectedJointTrain);
                 document.getElementById('jointTrainInfo').innerHTML = `
-                    <div>速度: ${selectedJointTrain.speed} km/h | 舒适度: ${selectedJointTrain.comfort || 100}</div>
+                    <div>速度: ${selectedJointTrain.speed} km/h | 舒适度: ${selectedJointTrain.comfort || 100} | 客座: ${trainCapacity}</div>
                     <div>改造等级: ${selectedJointTrain.reformLevel || 0} | 强化等级: ${selectedJointTrain.upgradeLevel || 0}</div>
+                    <div style="color:var(--neon-yellow);">预计乘客: ${totalPassengers}人 (+${passengerBonus}%收益)</div>
                 `;
             } else {
                 document.getElementById('jointTrainInfo').innerHTML = '';
@@ -3912,11 +4358,36 @@
                 return;
             }
             
+            // 检查每个城市是否有乘客
+            for (const cityName of selectedJointCities) {
+                const passengers = getCityPassengers(cityName);
+                if (passengers <= 0) {
+                    showNotification(`${cityName}没有乘客，无法发车！`);
+                    return;
+                }
+            }
+            
             const distance = calculateJointDistance();
             if (distance < 1000) {
                 showNotification('联运总距离不得小于1000KM！');
                 return;
             }
+            
+            // 计算乘客数量和增益（整个行程总共只能装载trainCapacity数量的乘客）
+            const trainCapacity = getTrainCapacity(selectedJointTrain);
+            let totalPassengers = 0;
+            let remainingCapacity = trainCapacity;
+            const passengersPerCity = [];
+            selectedJointCities.forEach(cityName => {
+                if (remainingCapacity <= 0) return;
+                const cityPassengers = getCityPassengers(cityName);
+                const takePassengers = Math.min(cityPassengers, remainingCapacity);
+                passengersPerCity.push({ cityName, takePassengers });
+                totalPassengers += takePassengers;
+                remainingCapacity -= takePassengers;
+            });
+            
+            const passengerBonus = calculatePassengerBonus(totalPassengers);
             
             const distanceBonus = calculateJointDistanceBonus(distance);
             const cityLevelBonus = calculateJointCityLevelBonus();
@@ -3927,9 +4398,14 @@
             const fragments = calculateJointFragments(distance);
             
             const baseEarnings = calculateEarnings(selectedJointTrain, distance);
-            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
+            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + passengerBonus) / 100;
             const earnings = Math.round(baseEarnings * totalBonus);
             const time = calculateTime(selectedJointTrain, distance);
+            
+            // 消耗乘客
+            passengersPerCity.forEach(({ cityName, takePassengers }) => {
+                consumeCityPassengers(cityName, takePassengers);
+            });
             
             const jointTrain = {
                 id: Date.now() + Math.random(),
@@ -3941,7 +4417,8 @@
                 fragments: fragments,
                 totalTime: time,
                 remainingTime: time,
-                startTime: Date.now()
+                startTime: Date.now(),
+                passengers: totalPassengers
             };
             
             if (!gameState.runningJointTrains) {
@@ -3949,7 +4426,7 @@
             }
             gameState.runningJointTrains.push(jointTrain);
             
-            showNotification(`联运列车已发车！预计${time}秒后到达`);
+            showNotification(`联运列车已发车！搭载${totalPassengers}名乘客，预计${time}秒后到达`);
             
             selectedJointCities = [];
             selectedJointTrain = null;
@@ -3968,6 +4445,15 @@
             if (selectedJointCities.length < 3 || selectedJointCities.length > 5) {
                 showNotification('请先选择3-5个城市！');
                 return;
+            }
+            
+            // 检查每个城市是否有乘客
+            for (const cityName of selectedJointCities) {
+                const passengers = getCityPassengers(cityName);
+                if (passengers <= 0) {
+                    showNotification(`${cityName}没有乘客，无法发车！`);
+                    return;
+                }
             }
             
             const distance = calculateJointDistance();
@@ -4007,14 +4493,51 @@
                 tourismBonus += getTourismIncomeModifier(cityName) * 100;
             });
             const fragments = calculateJointFragments(distance);
-            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
             const time = calculateTime(availableTrains[0], distance);
 
             let startedCount = 0;
             const currentCount = gameState.runningJointTrains ? gameState.runningJointTrains.length : 0;
             const maxToAdd = 50 - currentCount;
             
+            // 计算每辆火车在每个城市可搭载的乘客
+            let totalPassengersAll = 0;
+            const passengersPerCity = {};
+            selectedJointCities.forEach(cityName => {
+                passengersPerCity[cityName] = getCityPassengers(cityName);
+            });
+            
+            // 检查是否有足够的乘客
+            let totalAvailablePassengers = 0;
+            Object.values(passengersPerCity).forEach(p => totalAvailablePassengers += p);
+            if (totalAvailablePassengers <= 0) {
+                isStartingAllJointTrains = false;
+                showNotification('所有选中城市都没有乘客，无法发车！');
+                return;
+            }
+            
             availableTrains.slice(0, maxToAdd).forEach(train => {
+                const trainCapacity = getTrainCapacity(train);
+                let trainPassengers = 0;
+                let remainingCapacity = trainCapacity;
+                const cityPassengersTaken = [];
+                
+                selectedJointCities.forEach(cityName => {
+                    if (remainingCapacity <= 0) return;
+                    const available = passengersPerCity[cityName];
+                    const take = Math.min(available, remainingCapacity);
+                    cityPassengersTaken.push({ cityName, take });
+                    passengersPerCity[cityName] -= take;
+                    trainPassengers += take;
+                    remainingCapacity -= take;
+                });
+                
+                // 如果这辆火车没有乘客，跳过不发车
+                if (trainPassengers <= 0) {
+                    return;
+                }
+                
+                const passengerBonus = calculatePassengerBonus(trainPassengers);
+                const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + passengerBonus) / 100;
                 const baseEarnings = calculateEarnings(train, distance);
                 const earnings = Math.round(baseEarnings * totalBonus);
                 
@@ -4028,22 +4551,35 @@
                     fragments: fragments,
                     totalTime: time,
                     remainingTime: time,
-                    startTime: Date.now()
+                    startTime: Date.now(),
+                    passengers: trainPassengers
                 };
                 
                 if (!gameState.runningJointTrains) {
                     gameState.runningJointTrains = [];
                 }
                 gameState.runningJointTrains.push(jointTrain);
+                totalPassengersAll += trainPassengers;
                 startedCount++;
+            });
+            
+            // 消耗乘客
+            selectedJointCities.forEach(cityName => {
+                const originalPassengers = getCityPassengers(cityName);
+                const consumed = originalPassengers - passengersPerCity[cityName];
+                if (consumed > 0) {
+                    consumeCityPassengers(cityName, consumed);
+                }
             });
 
             isStartingAllJointTrains = false;
             
-            if (startedCount < availableTrains.length) {
-                showNotification(`成功发车 ${startedCount} 辆联运列车！（已达上限50辆）`);
+            if (startedCount === 0) {
+                showNotification('乘客数量不足，无法发车任何列车！');
+            } else if (startedCount < availableTrains.length) {
+                showNotification(`成功发车 ${startedCount} 辆联运列车！搭载${totalPassengersAll}名乘客（已达上限50辆）`);
             } else {
-                showNotification(`成功发车 ${startedCount} 辆联运列车！`);
+                showNotification(`成功发车 ${startedCount} 辆联运列车！搭载${totalPassengersAll}名乘客`);
             }
             renderJointPanel();
             updateUI();
@@ -4060,6 +4596,15 @@
             if (selectedJointCities.length < 3 || selectedJointCities.length > 5) {
                 showNotification('请先选择3-5个城市！');
                 return;
+            }
+            
+            // 检查每个城市是否有乘客
+            for (const cityName of selectedJointCities) {
+                const passengers = getCityPassengers(cityName);
+                if (passengers <= 0) {
+                    showNotification(`${cityName}没有乘客，无法发车！`);
+                    return;
+                }
             }
             
             const distance = calculateJointDistance();
@@ -4107,14 +4652,51 @@
                 tourismBonus += getTourismIncomeModifier(cityName) * 100;
             });
             const fragments = calculateJointFragments(distance);
-            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
             const time = calculateTime(availableTrains[0], distance);
 
             let startedCount = 0;
             const currentCount = gameState.runningJointTrains ? gameState.runningJointTrains.length : 0;
             const maxToAdd = 50 - currentCount;
             
+            // 计算每辆火车在每个城市可搭载的乘客
+            let totalPassengersAll = 0;
+            const passengersPerCity = {};
+            selectedJointCities.forEach(cityName => {
+                passengersPerCity[cityName] = getCityPassengers(cityName);
+            });
+            
+            // 检查是否有足够的乘客
+            let totalAvailablePassengers = 0;
+            Object.values(passengersPerCity).forEach(p => totalAvailablePassengers += p);
+            if (totalAvailablePassengers <= 0) {
+                isStartingJointTrainsByType = false;
+                showNotification('所有选中城市都没有乘客，无法发车！');
+                return;
+            }
+            
             availableTrains.slice(0, maxToAdd).forEach(train => {
+                const trainCapacity = getTrainCapacity(train);
+                let trainPassengers = 0;
+                let remainingCapacity = trainCapacity;
+                const cityPassengersTaken = [];
+                
+                selectedJointCities.forEach(cityName => {
+                    if (remainingCapacity <= 0) return;
+                    const available = passengersPerCity[cityName];
+                    const take = Math.min(available, remainingCapacity);
+                    cityPassengersTaken.push({ cityName, take });
+                    passengersPerCity[cityName] -= take;
+                    trainPassengers += take;
+                    remainingCapacity -= take;
+                });
+                
+                // 如果这辆火车没有乘客，跳过不发车
+                if (trainPassengers <= 0) {
+                    return;
+                }
+                
+                const passengerBonus = calculatePassengerBonus(trainPassengers);
+                const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + passengerBonus) / 100;
                 const baseEarnings = calculateEarnings(train, distance);
                 const earnings = Math.round(baseEarnings * totalBonus);
                 
@@ -4128,22 +4710,35 @@
                     fragments: fragments,
                     totalTime: time,
                     remainingTime: time,
-                    startTime: Date.now()
+                    startTime: Date.now(),
+                    passengers: trainPassengers
                 };
                 
                 if (!gameState.runningJointTrains) {
                     gameState.runningJointTrains = [];
                 }
                 gameState.runningJointTrains.push(jointTrain);
+                totalPassengersAll += trainPassengers;
                 startedCount++;
+            });
+            
+            // 消耗乘客
+            selectedJointCities.forEach(cityName => {
+                const originalPassengers = getCityPassengers(cityName);
+                const consumed = originalPassengers - passengersPerCity[cityName];
+                if (consumed > 0) {
+                    consumeCityPassengers(cityName, consumed);
+                }
             });
 
             isStartingJointTrainsByType = false;
             
-            if (startedCount < availableTrains.length) {
-                showNotification(`成功发车 ${startedCount} 辆${typeNames[type]}联运列车！（已达上限50辆）`);
+            if (startedCount === 0) {
+                showNotification('乘客数量不足，无法发车任何列车！');
+            } else if (startedCount < availableTrains.length) {
+                showNotification(`成功发车 ${startedCount} 辆${typeNames[type]}联运列车！搭载${totalPassengersAll}名乘客（已达上限50辆）`);
             } else {
-                showNotification(`成功发车 ${startedCount} 辆${typeNames[type]}联运列车！`);
+                showNotification(`成功发车 ${startedCount} 辆${typeNames[type]}联运列车！搭载${totalPassengersAll}名乘客`);
             }
             renderJointPanel();
             updateUI();
@@ -4159,13 +4754,37 @@
                 return;
             }
             
-            const totalTrains = gameState.runningJointTrains.length;
-            const totalPages = Math.ceil(totalTrains / jointTrainsPerPage);
+            // 按路线分组
+            const routeGroups = {};
+            gameState.runningJointTrains.forEach((jt, idx) => {
+                const routeKey = jt.cities.join('→');
+                if (!routeGroups[routeKey]) {
+                    routeGroups[routeKey] = {
+                        cities: jt.cities,
+                        trains: [],
+                        totalEarnings: 0,
+                        totalPassengers: 0,
+                        totalFragments: 0,
+                        minRemainingTime: Infinity,
+                        totalDistance: jt.distance
+                    };
+                }
+                routeGroups[routeKey].trains.push({ ...jt, originalIndex: idx });
+                routeGroups[routeKey].totalEarnings += jt.earnings;
+                routeGroups[routeKey].totalPassengers += jt.passengers || 0;
+                routeGroups[routeKey].totalFragments += jt.fragments;
+                if (jt.remainingTime < routeGroups[routeKey].minRemainingTime) {
+                    routeGroups[routeKey].minRemainingTime = jt.remainingTime;
+                }
+            });
+            
+            const routeKeys = Object.keys(routeGroups);
+            const totalPages = Math.ceil(routeKeys.length / jointTrainsPerPage);
             if (jointTrainPage < 1) jointTrainPage = 1;
             if (jointTrainPage > totalPages) jointTrainPage = totalPages;
             
             const startIndex = (jointTrainPage - 1) * jointTrainsPerPage;
-            const displayTrains = gameState.runningJointTrains.slice(startIndex, startIndex + jointTrainsPerPage);
+            const displayRouteKeys = routeKeys.slice(startIndex, startIndex + jointTrainsPerPage);
             
             let html = '';
             
@@ -4178,33 +4797,60 @@
                 </div>`;
             }
             
-            html += displayTrains.map(jt => {
-                const progress = ((jt.totalTime - jt.remainingTime) / jt.totalTime * 100).toFixed(1);
-                return `
-                    <div class="running-train" style="border-left:2px solid var(--neon-magenta);margin-bottom:12px;">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                            <div class="train-name" style="font-size:13px;">${jt.trainName}</div>
-                            <span class="train-type type-intercity" style="font-size:9px;padding:2px 6px;">联运</span>
-                        </div>
-                        <div class="train-route" style="font-size:11px;margin-bottom:8px;">
-                            ${jt.cities.join(' → ')}
-                        </div>
-                        <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;">
-                            <span style="color:var(--fg-secondary);">距离: ${jt.distance} KM</span>
-                            <span style="color:var(--neon-cyan);">剩余: ${Math.round(jt.remainingTime)}s</span>
-                        </div>
-                        <div class="progress-bar" style="height:6px;">
-                            <div class="progress-fill" style="width:${progress}%;background:linear-gradient(90deg,var(--neon-magenta),var(--neon-cyan));"></div>
-                        </div>
-                        <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:10px;">
-                            <span style="color:var(--neon-green);">收益: ${formatNumber(jt.earnings)}</span>
-                            <span style="color:var(--neon-magenta);">碎片: ${jt.fragments}</span>
-                        </div>
+            displayRouteKeys.forEach(routeKey => {
+                const group = routeGroups[routeKey];
+                const groupId = `joint-route-${routeKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                
+                html += `
+                <div class="running-train route-group" onclick="toggleRouteGroup('${groupId}', event)" style="cursor:pointer;border-left:2px solid var(--neon-magenta);margin-bottom:12px;">
+                    <div class="train-route" style="font-size:11px;margin-bottom:8px;">
+                        ${group.cities.join(' → ')}
+                        <span style="background:linear-gradient(135deg,var(--neon-magenta),var(--neon-cyan));color:#000;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;margin-left:8px;">${group.trains.length}辆</span>
                     </div>
-                `;
-            }).join('');
+                    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;">
+                        <span style="color:var(--fg-secondary);">距离: ${group.totalDistance} KM</span>
+                        <span style="color:var(--neon-cyan);">最快: ${Math.round(group.minRemainingTime)}s</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:10px;">
+                        <span style="color:var(--neon-green);">总收益: ${formatNumber(group.totalEarnings)}</span>
+                        <span style="color:var(--neon-yellow);">👥 ${group.totalPassengers}</span>
+                        <span style="color:var(--neon-magenta);">碎片: ${group.totalFragments}</span>
+                        <span style="color:var(--neon-cyan);font-size:10px;">展开 ▼</span>
+                    </div>
+                </div>
+                <div id="${groupId}" class="route-detail" style="display:none;padding-left:15px;border-left:2px solid var(--neon-magenta);margin-bottom:10px;">
+                    ${group.trains.map(jt => {
+                        const progress = ((jt.totalTime - jt.remainingTime) / jt.totalTime * 100).toFixed(1);
+                        return `
+                        <div class="running-train" style="margin:5px 0;border-left:2px solid var(--neon-cyan);">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                                <div class="train-name" style="font-size:11px;">${jt.trainName}</div>
+                                <span class="train-type type-intercity" style="font-size:8px;padding:1px 4px;">联运</span>
+                            </div>
+                            <div class="progress-bar" style="height:4px;">
+                                <div class="progress-fill" style="width:${progress}%;background:linear-gradient(90deg,var(--neon-magenta),var(--neon-cyan));"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;">
+                                <span style="color:var(--neon-cyan);">剩余: ${Math.round(jt.remainingTime)}s</span>
+                                <span style="color:var(--neon-green);">+${formatNumber(jt.earnings)}</span>
+                                <span style="color:var(--neon-yellow);">👥 ${jt.passengers || 0}</span>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>`;
+            });
             
             container.innerHTML = html;
+            
+            // 恢复展开状态
+            Object.keys(routeGroupStates).forEach(groupId => {
+                if (routeGroupStates[groupId].isOpen) {
+                    const detail = document.getElementById(groupId);
+                    if (detail) {
+                        detail.style.display = 'block';
+                    }
+                }
+            });
         }
 
         function changeJointTrainPage(delta) {
@@ -4763,6 +5409,428 @@
             if (!gameState.equippedTitle) return 0;
             const titleData = titles[gameState.equippedTitle];
             return titleData ? titleData.effect.expBonus : 0;
+        }
+
+        // ==================== 特产面板渲染 ====================
+        let selectedSpecialtyStartCity = null;
+        let selectedSpecialtyDestCities = [];
+        
+        function renderSpecialtyPanel() {
+            if (!gameState.runningSpecialTrains) gameState.runningSpecialTrains = [];
+            if (!gameState.goldBonusLevel) gameState.goldBonusLevel = 0;
+            if (!gameState.goldBonusFragments) gameState.goldBonusFragments = 0;
+            
+            initCitySpecialties();
+            
+            const hasLevel50City = gameState.unlockedCities.some(cityName => (gameState.cityLevels[cityName] || 1) >= 50);
+            
+            document.getElementById('specialtyUnlockNotice').style.display = hasLevel50City ? 'none' : 'block';
+            document.getElementById('specialtyContent').style.display = hasLevel50City ? 'block' : 'none';
+            
+            if (!hasLevel50City) return;
+            
+            document.getElementById('specialtyTrainCount').textContent = `${gameState.runningSpecialTrains.length}/${getSpecialtyTrainLimit()}`;
+            document.getElementById('goldBonusFragments').textContent = formatNumber(gameState.goldBonusFragments);
+            document.getElementById('goldBonusLevel').textContent = `${gameState.goldBonusLevel}级 (+${getGoldBonusEffect(gameState.goldBonusLevel)}%)`;
+            document.getElementById('currentGoldBonus').textContent = `+${getGoldBonusEffect(gameState.goldBonusLevel)}%`;
+            
+            const nextCost = getGoldBonusCost(gameState.goldBonusLevel + 1);
+            document.getElementById('upgradeGoldBonusBtn').textContent = `升级金币加成 (${formatNumber(nextCost)}碎片)`;
+            document.getElementById('upgradeGoldBonusBtn').disabled = gameState.goldBonusFragments < nextCost;
+            
+            renderSpecialtyTrainSelect();
+            renderSpecialtyStartCityList();
+            renderSpecialtyDestCityList();
+            renderSpecialtyRunningTrains();
+            updateSpecialtyInfo();
+        }
+        
+        function renderSpecialtyTrainSelect() {
+            const select = document.getElementById('specialtyTrainSelect');
+            const availableTrains = gameState.ownedTrains.filter(t => 
+                !(gameState.runningSpecialTrains || []).some(st => st.trainId === t.id) &&
+                !(gameState.runningTrains || []).some(rt => rt.trainId === t.id) &&
+                !(gameState.runningJointTrains || []).some(jt => jt.trainId === t.id)
+            );
+            
+            select.innerHTML = '<option value="">-- 请选择火车 --</option>' +
+                availableTrains.map(t => `<option value="${t.id}">${t.name} (${t.type})</option>`).join('');
+            select.onchange = updateSpecialtyInfo;
+        }
+        
+        function renderSpecialtyStartCityList() {
+            const container = document.getElementById('specialtyStartCityList');
+            const citiesWithSpecialty = gameState.unlockedCities.filter(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                return level >= 50 && gameState.citySpecialties[cityName];
+            });
+            
+            if (citiesWithSpecialty.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--fg-secondary);font-size:12px;">暂无50级以上城市</div>';
+                return;
+            }
+            
+            container.innerHTML = citiesWithSpecialty.map(cityName => {
+                const specialty = gameState.citySpecialties[cityName];
+                const level = gameState.cityLevels[cityName] || 1;
+                const isSelected = selectedSpecialtyStartCity === cityName;
+                const tourismSeason = getCityTourismSeason(cityName);
+                const tourismInfo = tourismSeasons[tourismSeason];
+                return `
+                    <div onclick="selectSpecialtyStartCity('${cityName}')" style="background:${isSelected ? 'linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,212,255,0.2))' : 'rgba(0,0,0,0.2)'};padding:10px;border-radius:6px;border:1px solid ${isSelected ? 'var(--neon-cyan)' : 'var(--border)'};cursor:pointer;transition:all 0.2s;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span style="font-size:12px;font-weight:600;color:var(--fg-primary);">${cityName}</span>
+                            <span style="font-size:10px;color:var(--neon-cyan);">Lv.${level}</span>
+                        </div>
+                        <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:2px;">
+                            产出: <span style="color:var(--neon-green);">${specialty.product}</span>
+                        </div>
+                        <div style="font-size:10px;color:${tourismInfo.incomeMod >= 0 ? 'var(--neon-green)' : 'var(--neon-red)'};">
+                            ${tourismInfo.icon} ${tourismInfo.desc}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function renderSpecialtyDestCityList() {
+            const container = document.getElementById('specialtyDestCityList');
+            
+            if (!selectedSpecialtyStartCity) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--fg-secondary);font-size:12px;">请先选择始发城市</div>';
+                return;
+            }
+            
+            if (!gameState.citySpecialties[selectedSpecialtyStartCity]) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--fg-secondary);font-size:12px;">始发城市特产数据异常</div>';
+                return;
+            }
+            
+            const startSpecialty = gameState.citySpecialties[selectedSpecialtyStartCity].product;
+            const destCities = gameState.unlockedCities.filter(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                return level >= 50 && 
+                    gameState.citySpecialties[cityName] && 
+                    gameState.citySpecialties[cityName].demand === startSpecialty &&
+                    cityName !== selectedSpecialtyStartCity;
+            });
+            
+            if (destCities.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--fg-secondary);font-size:12px;">没有城市需要此特产</div>';
+                return;
+            }
+            
+            container.innerHTML = destCities.map(cityName => {
+                const specialty = gameState.citySpecialties[cityName];
+                const level = gameState.cityLevels[cityName] || 1;
+                const isSelected = selectedSpecialtyDestCities.includes(cityName);
+                const tourismSeason = getCityTourismSeason(cityName);
+                const tourismInfo = tourismSeasons[tourismSeason];
+                return `
+                    <div onclick="toggleSpecialtyDestCity('${cityName}')" style="background:${isSelected ? 'linear-gradient(135deg, rgba(255,107,0,0.2), rgba(255,215,0,0.2))' : 'rgba(0,0,0,0.2)'};padding:10px;border-radius:6px;border:1px solid ${isSelected ? 'var(--neon-orange)' : 'var(--border)'};cursor:pointer;transition:all 0.2s;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span style="font-size:12px;font-weight:600;color:var(--fg-primary);">${cityName}</span>
+                            <span style="font-size:10px;color:var(--neon-cyan);">Lv.${level}</span>
+                        </div>
+                        <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:2px;">
+                            需求: <span style="color:var(--neon-orange);">${specialty.demand}</span>
+                        </div>
+                        <div style="font-size:10px;color:${tourismInfo.incomeMod >= 0 ? 'var(--neon-green)' : 'var(--neon-red)'};">
+                            ${tourismInfo.icon} ${tourismInfo.desc}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function selectSpecialtyStartCity(cityName) {
+            selectedSpecialtyStartCity = cityName;
+            selectedSpecialtyDestCities = [];
+            renderSpecialtyStartCityList();
+            renderSpecialtyDestCityList();
+            updateSpecialtyInfo();
+            
+            const specialty = gameState.citySpecialties[cityName];
+            document.getElementById('specialtyStartCityInfo').innerHTML = 
+                `已选择: <span style="color:var(--neon-cyan);">${cityName}</span> | 产出: <span style="color:var(--neon-green);">${specialty.product}</span>`;
+        }
+        
+        function toggleSpecialtyDestCity(cityName) {
+            const index = selectedSpecialtyDestCities.indexOf(cityName);
+            if (index > -1) {
+                selectedSpecialtyDestCities.splice(index, 1);
+            } else if (selectedSpecialtyDestCities.length < 4) {
+                selectedSpecialtyDestCities.push(cityName);
+            } else {
+                showNotification('最多只能选择4个目的地城市！');
+                return;
+            }
+            renderSpecialtyDestCityList();
+            updateSpecialtyInfo();
+        }
+        
+        function updateSpecialtyInfo() {
+            try {
+                const trainSelect = document.getElementById('specialtyTrainSelect');
+                const trainIdStr = trainSelect.value;
+                const trainId = parseFloat(trainIdStr);
+                // 使用近似比较来查找火车（浮点数精度问题）
+                const train = !isNaN(trainId) && trainIdStr !== '' ? gameState.ownedTrains.find(t => Math.abs(t.id - trainId) < 0.0001) : null;
+                
+                console.log('updateSpecialtyInfo:', { 
+                    trainIdStr, 
+                    trainId, 
+                    isNaN: isNaN(trainId),
+                    train: !!train, 
+                    trainName: train ? train.name : null,
+                    selectedSpecialtyStartCity, 
+                    selectedSpecialtyDestCitiesLength: selectedSpecialtyDestCities.length, 
+                    citySpecialties: selectedSpecialtyStartCity ? !!gameState.citySpecialties[selectedSpecialtyStartCity] : false,
+                    allTrainIds: gameState.ownedTrains.slice(0, 3).map(t => t.id)
+                });
+                
+                if (!train || !selectedSpecialtyStartCity || selectedSpecialtyDestCities.length === 0 || !gameState.citySpecialties[selectedSpecialtyStartCity]) {
+                    document.getElementById('specialtySelectedRoute').textContent = '未选择';
+                    document.getElementById('specialtySelectedProduct').textContent = '未选择';
+                    document.getElementById('specialtyEstimatedEarnings').textContent = '--';
+                    document.getElementById('specialtyEstimatedTime').textContent = '--';
+                    document.getElementById('startSpecialtyBtn').disabled = true;
+                    console.log('Button disabled because:', { 
+                        noTrain: !train, 
+                        noStartCity: !selectedSpecialtyStartCity, 
+                        noDestCities: selectedSpecialtyDestCities.length === 0, 
+                        noCitySpecialties: !gameState.citySpecialties[selectedSpecialtyStartCity] 
+                    });
+                    return;
+                }
+                
+                const specialty = gameState.citySpecialties[selectedSpecialtyStartCity].product;
+                const route = selectedSpecialtyStartCity + ' → ' + selectedSpecialtyDestCities.join(' → ');
+                
+                // 计算距离和时间
+                let totalDistance = 0;
+                let prevCity = selectedSpecialtyStartCity;
+                selectedSpecialtyDestCities.forEach(cityName => {
+                    const city1 = getCityByName(prevCity);
+                    const city2 = getCityByName(cityName);
+                    if (city1 && city2) totalDistance += calculateDistance(city1, city2);
+                    prevCity = cityName;
+                });
+                
+                const totalTime = calculateTime(train, totalDistance);
+                
+                // 计算收益（包含旅游季节和城市等级加成）
+                const baseEarnings = calculateEarnings(train, totalDistance);
+                const goldBonus = getGoldBonusEffect(gameState.goldBonusLevel);
+                
+                // 城市等级加成
+                let cityLevelBonus = 0;
+                [selectedSpecialtyStartCity, ...selectedSpecialtyDestCities].forEach(cityName => {
+                    const level = gameState.cityLevels[cityName] || 1;
+                    cityLevelBonus += (level - 1) * 5;
+                });
+                
+                // 旅游季节加成
+                let tourismBonus = 0;
+                [selectedSpecialtyStartCity, ...selectedSpecialtyDestCities].forEach(cityName => {
+                    tourismBonus += getTourismIncomeModifier(cityName) * 100;
+                });
+                
+                const totalBonus = (100 + goldBonus + cityLevelBonus + tourismBonus) / 100;
+                const earnings = Math.floor(baseEarnings * totalBonus);
+                
+                document.getElementById('specialtySelectedRoute').textContent = route;
+                document.getElementById('specialtySelectedProduct').textContent = specialty;
+                document.getElementById('specialtyEstimatedEarnings').textContent = formatNumber(earnings);
+                document.getElementById('specialtyEstimatedTime').textContent = formatTime(totalTime);
+                document.getElementById('startSpecialtyBtn').disabled = false;
+                console.log('Button enabled!');
+            } catch (e) {
+                console.error('updateSpecialtyInfo error:', e);
+            }
+        }
+        
+        function startSpecialtyOperation() {
+            try {
+                const trainSelect = document.getElementById('specialtyTrainSelect');
+                const trainId = parseFloat(trainSelect.value);
+                // 使用近似比较来查找火车（浮点数精度问题）
+                const train = !isNaN(trainId) ? gameState.ownedTrains.find(t => Math.abs(t.id - trainId) < 0.0001) : null;
+                
+                console.log('startSpecialtyOperation:', { trainId, train: !!train, selectedSpecialtyStartCity, selectedSpecialtyDestCitiesLength: selectedSpecialtyDestCities.length });
+                
+                if (!train) {
+                    showNotification('请选择火车！');
+                    return;
+                }
+                
+                if (!selectedSpecialtyStartCity) {
+                    showNotification('请选择始发城市！');
+                    return;
+                }
+                
+                if (selectedSpecialtyDestCities.length === 0) {
+                    showNotification('请选择目的地城市！');
+                    return;
+                }
+                
+                if (!gameState.citySpecialties[selectedSpecialtyStartCity]) {
+                    showNotification('始发城市特产数据异常！');
+                    return;
+                }
+                
+                if (!gameState.runningSpecialTrains) gameState.runningSpecialTrains = [];
+                if (gameState.runningSpecialTrains.length >= getSpecialtyTrainLimit()) {
+                    showNotification('特产列车已达上限！');
+                    return;
+                }
+                
+                const specialty = gameState.citySpecialties[selectedSpecialtyStartCity].product;
+                
+                // 计算距离和时间
+                let totalDistance = 0;
+                let prevCity = selectedSpecialtyStartCity;
+                selectedSpecialtyDestCities.forEach(cityName => {
+                    const city1 = getCityByName(prevCity);
+                    const city2 = getCityByName(cityName);
+                    if (city1 && city2) totalDistance += calculateDistance(city1, city2);
+                    prevCity = cityName;
+                });
+                
+                const totalTime = calculateTime(train, totalDistance);
+                const baseEarnings = calculateEarnings(train, totalDistance);
+                const goldBonus = getGoldBonusEffect(gameState.goldBonusLevel);
+                
+                // 城市等级加成
+                let cityLevelBonus = 0;
+                [selectedSpecialtyStartCity, ...selectedSpecialtyDestCities].forEach(cityName => {
+                    const level = gameState.cityLevels[cityName] || 1;
+                    cityLevelBonus += (level - 1) * 5;
+                });
+                
+                // 旅游季节加成
+                let tourismBonus = 0;
+                [selectedSpecialtyStartCity, ...selectedSpecialtyDestCities].forEach(cityName => {
+                    tourismBonus += getTourismIncomeModifier(cityName) * 100;
+                });
+                
+                const totalBonus = (100 + goldBonus + cityLevelBonus + tourismBonus) / 100;
+                const earnings = Math.floor(baseEarnings * totalBonus);
+                
+                gameState.runningSpecialTrains.push({
+                    trainId: train.id,
+                    trainName: train.name,
+                    trainType: train.type,
+                    startCity: selectedSpecialtyStartCity,
+                    endCities: [...selectedSpecialtyDestCities],
+                    specialty: specialty,
+                    distance: totalDistance,
+                    totalTime: totalTime,
+                    remainingTime: totalTime,
+                    earnings: earnings,
+                    startTime: Date.now()
+                });
+                
+                saveGame();
+                showNotification(`特产列车 ${train.name} 已发车！`);
+                
+                // 重置选择
+                selectedSpecialtyStartCity = null;
+                selectedSpecialtyDestCities = [];
+                renderSpecialtyPanel();
+            } catch (e) {
+                console.error('startSpecialtyOperation error:', e);
+                showNotification('发车失败：' + e.message);
+            }
+        }
+        
+        function renderSpecialtyRunningTrains() {
+            const container = document.getElementById('specialtyRunningTrains');
+            if (!gameState.runningSpecialTrains || gameState.runningSpecialTrains.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--fg-secondary);font-size:12px;">暂无运行中的特产列车</div>';
+                return;
+            }
+            
+            // 按路线分组
+            const routeGroups = {};
+            gameState.runningSpecialTrains.forEach((st, idx) => {
+                const routeKey = `${st.startCity}→${st.endCities.join('→')}`;
+                if (!routeGroups[routeKey]) {
+                    routeGroups[routeKey] = {
+                        startCity: st.startCity,
+                        endCities: st.endCities,
+                        specialty: st.specialty,
+                        trains: [],
+                        totalEarnings: 0,
+                        totalDistance: st.distance,
+                        minRemainingTime: Infinity
+                    };
+                }
+                routeGroups[routeKey].trains.push({ ...st, originalIndex: idx });
+                routeGroups[routeKey].totalEarnings += st.earnings;
+                if (st.remainingTime < routeGroups[routeKey].minRemainingTime) {
+                    routeGroups[routeKey].minRemainingTime = st.remainingTime;
+                }
+            });
+            
+            const routeKeys = Object.keys(routeGroups);
+            let html = '';
+            
+            routeKeys.forEach(routeKey => {
+                const group = routeGroups[routeKey];
+                const groupId = `specialty-route-${routeKey.replace(/[^a-zA-Z0-9]/g, '-')}`;
+                
+                html += `
+                <div class="running-train route-group" onclick="toggleRouteGroup('${groupId}', event)" style="cursor:pointer;border-left:2px solid var(--neon-orange);margin-bottom:12px;">
+                    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <span style="font-size:12px;font-weight:600;color:var(--fg-primary);">📦 ${group.specialty}</span>
+                        <span style="background:linear-gradient(135deg,var(--neon-orange),var(--neon-yellow));color:#000;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;">${group.trains.length}辆</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--fg-secondary);margin-bottom:8px;">
+                        ${group.startCity} → ${group.endCities.join(' → ')}
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;">
+                        <span style="color:var(--fg-secondary);">距离: ${group.totalDistance} KM</span>
+                        <span style="color:var(--neon-cyan);">最快: ${formatTime(group.minRemainingTime)}</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;font-size:10px;">
+                        <span style="color:var(--neon-green);">总收益: ${formatNumber(group.totalEarnings)}</span>
+                        <span style="color:var(--neon-orange);">碎片: 1-3/辆</span>
+                        <span style="color:var(--neon-cyan);">展开 ▼</span>
+                    </div>
+                </div>
+                <div id="${groupId}" class="route-detail" style="display:none;padding-left:15px;border-left:2px solid var(--neon-orange);margin-bottom:10px;">
+                    ${group.trains.map(st => {
+                        const progress = ((st.totalTime - st.remainingTime) / st.totalTime * 100).toFixed(1);
+                        return `
+                        <div class="running-train" style="margin:5px 0;border-left:2px solid var(--neon-yellow);">
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                                <span style="font-size:11px;font-weight:600;color:var(--fg-primary);">${st.trainName}</span>
+                                <span style="font-size:9px;padding:1px 4px;background:linear-gradient(135deg,var(--neon-orange),var(--neon-yellow));color:#000;border-radius:3px;">特产</span>
+                            </div>
+                            <div class="progress-bar" style="height:4px;">
+                                <div class="progress-fill" style="width:${progress}%;background:linear-gradient(90deg,var(--neon-orange),var(--neon-yellow));"></div>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;margin-top:4px;font-size:9px;">
+                                <span style="color:var(--neon-cyan);">剩余: ${formatTime(st.remainingTime)}</span>
+                                <span style="color:var(--neon-green);">+${formatNumber(st.earnings)}</span>
+                            </div>
+                        </div>`;
+                    }).join('')}
+                </div>`;
+            });
+            
+            container.innerHTML = html;
+            
+            // 恢复展开状态
+            Object.keys(routeGroupStates).forEach(groupId => {
+                if (routeGroupStates[groupId].isOpen) {
+                    const detail = document.getElementById(groupId);
+                    if (detail) {
+                        detail.style.display = 'block';
+                    }
+                }
+            });
         }
 
         // ==================== 地图系统 ====================
@@ -6234,7 +7302,19 @@
             const level = getVipLevel();
             return Math.min(50, Math.floor(level / 10));
         }
-
+        
+        // 获取VIP称号碎片概率加成（每100级增加1%，最大30%）
+        function getVipTitleFragmentBonus() {
+            const level = getVipLevel();
+            return Math.min(30, Math.floor(level / 100));
+        }
+        
+        // 获取VIP乘客容量加成（每1级增加1乘客）
+        function getVipCapacityBonus() {
+            const level = getVipLevel();
+            return level;
+        }
+        
         // 获取基础每日点卷上限
         function getBaseDailyPointsLimit() {
             return 6000;
@@ -6702,6 +7782,16 @@
                 gameState.gold += redeemCodes[code].gold;
                 rewardMsg.push(`${formatNumber(redeemCodes[code].gold)} 金币`);
             }
+            if (redeemCodes[code].cityFragments) {
+                if (!gameState.cityFragments) gameState.cityFragments = {};
+                for (const [cityName, amount] of Object.entries(redeemCodes[code].cityFragments)) {
+                    if (!gameState.cityFragments[cityName]) {
+                        gameState.cityFragments[cityName] = 0;
+                    }
+                    gameState.cityFragments[cityName] += amount;
+                    rewardMsg.push(`${cityName}碎片 ${formatNumber(amount)}`);
+                }
+            }
             if (redeemCodes[code].train) {
                 const trainName = redeemCodes[code].train;
                 const trainCount = redeemCodes[code].trainCount || 1; // 默认1辆，可指定多辆
@@ -7048,6 +8138,13 @@
         function gameLoop() {
             updateWeather();
             updateTourismSeason();
+            
+            // 每分钟刷新乘客
+            const now = Date.now();
+            if (!gameState.lastPassengerRefresh || now - gameState.lastPassengerRefresh >= 60000) {
+                refreshCityPassengers();
+                gameState.lastPassengerRefresh = now;
+            }
 
             // 检查所有运行中的火车员工数量（防止BUG）
             const trainsToStop = [];
@@ -7137,11 +8234,14 @@
                             totalFragments += jt.fragments;
                         });
                         
-                        // 城市20级后有1%概率获得称号碎片
+                        // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
                         let titleFragmentEarned = 0;
+                        const titleFragmentBonus = getVipTitleFragmentBonus();
+                        const baseChance = 0.01;
+                        const finalChance = baseChance + titleFragmentBonus / 100;
                         jt.cities.forEach(cityName => {
                             const cityLevel = gameState.cityLevels[cityName] || 1;
-                            if (cityLevel >= 20 && Math.random() < 0.01) {
+                            if (cityLevel >= 20 && Math.random() < finalChance) {
                                 titleFragmentEarned++;
                             }
                         });
@@ -7153,8 +8253,61 @@
                         // 添加到奖励队列
                         addRewardToQueue(earnings, exp, totalFragments, 0);
                         
+                        // 联运列车完成时计算每日点卷和改造石
+                        checkDailyPointsReset();
+                        const dailyPointsLimit = getDailyPointsLimit();
+                        if (gameState.dailyPointsEarned < dailyPointsLimit) {
+                            const points = Math.floor(Math.random() * 5) + 1;
+                            const canEarn = Math.min(points, dailyPointsLimit - gameState.dailyPointsEarned);
+                            gameState.points += canEarn;
+                            gameState.dailyPointsEarned += canEarn;
+                        }
+                        const dailyReformStonesLimit = getDailyReformStonesLimit();
+                        if (gameState.dailyReformStonesEarned < dailyReformStonesLimit && Math.random() < 0.05) {
+                            const stones = Math.floor(Math.random() * 5) + 1;
+                            const canEarnStones = Math.min(stones, dailyReformStonesLimit - gameState.dailyReformStonesEarned);
+                            if (gameState.reformStones === undefined) gameState.reformStones = 0;
+                            gameState.reformStones += canEarnStones;
+                            gameState.dailyReformStonesEarned += canEarnStones;
+                        }
+                        
                         const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
                         if (train) {
+                            // 检查所有城市是否有乘客
+                            let hasPassengers = true;
+                            for (const cityName of jt.cities) {
+                                if (getCityPassengers(cityName) <= 0) {
+                                    hasPassengers = false;
+                                    break;
+                                }
+                            }
+                            
+                            if (!hasPassengers) {
+                                // 没有乘客，停止该列车
+                                const idx = gameState.runningJointTrains.indexOf(jt);
+                                if (idx > -1) {
+                                    gameState.runningJointTrains.splice(idx, 1);
+                                    showNotification(`${jt.trainName}因部分城市无乘客已自动停运`);
+                                }
+                                return;
+                            }
+                            
+                            // 计算乘客数量和增益（整个行程总共只能装载trainCapacity数量的乘客）
+                            const trainCapacity = getTrainCapacity(train);
+                            let totalPassengers = 0;
+                            let remainingCapacity = trainCapacity;
+                            jt.cities.forEach(cityName => {
+                                if (remainingCapacity <= 0) return;
+                                const cityPassengers = getCityPassengers(cityName);
+                                const takePassengers = Math.min(cityPassengers, remainingCapacity);
+                                consumeCityPassengers(cityName, takePassengers);
+                                totalPassengers += takePassengers;
+                                remainingCapacity -= takePassengers;
+                            });
+                            
+                            const passengerBonus = calculatePassengerBonus(totalPassengers);
+                            jt.passengers = totalPassengers;
+                            
                             jt.cities = jt.cities.reverse();
                             jt.totalTime = calculateTime(train, jt.distance);
                             jt.remainingTime = jt.totalTime;
@@ -7169,12 +8322,83 @@
                             jt.cities.forEach(cityName => {
                                 tourismBonus += getTourismIncomeModifier(cityName) * 100;
                             });
-                            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
+                            const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + passengerBonus) / 100;
                             jt.earnings = Math.round(calculateEarnings(train, jt.distance) * totalBonus);
                         }
                     }
                 });
             }
+
+            // 处理特产列车
+            if (gameState.runningSpecialTrains) {
+                gameState.runningSpecialTrains.forEach((st, index) => {
+                    if (st.paused) return;
+                    
+                    st.remainingTime--;
+                    if (st.remainingTime <= 0) {
+                        const earnings = st.earnings;
+                        const exp = Math.floor(st.distance / 5);
+                        gameState.gold += earnings;
+                        gameState.totalEarnings += earnings;
+                        addExp(exp);
+                        
+                        // 获得金币加成碎片1-3个
+                        const fragments = Math.floor(Math.random() * 3) + 1;
+                        gameState.goldBonusFragments = (gameState.goldBonusFragments || 0) + fragments;
+                        
+                        // 特产列车完成时计算每日点卷和改造石
+                        checkDailyPointsReset();
+                        const spDailyPointsLimit = getDailyPointsLimit();
+                        if (gameState.dailyPointsEarned < spDailyPointsLimit) {
+                            const spPoints = Math.floor(Math.random() * 5) + 1;
+                            const spCanEarn = Math.min(spPoints, spDailyPointsLimit - gameState.dailyPointsEarned);
+                            gameState.points += spCanEarn;
+                            gameState.dailyPointsEarned += spCanEarn;
+                        }
+                        const spDailyReformStonesLimit = getDailyReformStonesLimit();
+                        if (gameState.dailyReformStonesEarned < spDailyReformStonesLimit && Math.random() < 0.05) {
+                            const spStones = Math.floor(Math.random() * 5) + 1;
+                            const spCanEarnStones = Math.min(spStones, spDailyReformStonesLimit - gameState.dailyReformStonesEarned);
+                            if (gameState.reformStones === undefined) gameState.reformStones = 0;
+                            gameState.reformStones += spCanEarnStones;
+                            gameState.dailyReformStonesEarned += spCanEarnStones;
+                        }
+                        
+                        showNotification(`特产列车 ${st.trainName} 完成！获得 ${formatNumber(earnings)} 金币 + ${fragments} 金币加成碎片`);
+                        
+                        // 循环发车（保持原有路线）
+                        const train = gameState.ownedTrains.find(t => t.id === st.trainId);
+                        if (train) {
+                            st.totalTime = calculateTime(train, st.distance);
+                            st.remainingTime = st.totalTime;
+                            
+                            // 重新计算收益（包含旅游季节和城市等级加成）
+                            const baseEarnings = calculateEarnings(train, st.distance);
+                            const goldBonus = getGoldBonusEffect(gameState.goldBonusLevel);
+                            
+                            // 城市等级加成
+                            let cityLevelBonus = 0;
+                            [st.startCity, ...st.endCities].forEach(cityName => {
+                                const level = gameState.cityLevels[cityName] || 1;
+                                cityLevelBonus += (level - 1) * 5;
+                            });
+                            
+                            // 旅游季节加成
+                            let tourismBonus = 0;
+                            [st.startCity, ...st.endCities].forEach(cityName => {
+                                tourismBonus += getTourismIncomeModifier(cityName) * 100;
+                            });
+                            
+                            const totalBonus = (100 + goldBonus + cityLevelBonus + tourismBonus) / 100;
+                            st.earnings = Math.floor(baseEarnings * totalBonus);
+                        }
+                    }
+                });
+            }
+
+            // 更新乘客刷新倒计时
+            updatePassengerRefreshTimer();
+            updateManualRefreshButton();
 
             updateUI();
             renderRightPanel();
@@ -7189,6 +8413,10 @@
             const jointPanel = document.getElementById('jointPanel');
             if (jointPanel && jointPanel.style.display !== 'none') {
                 renderJointRunningTrains();
+            }
+            const specialtyPanel = document.getElementById('specialtyPanel');
+            if (specialtyPanel && specialtyPanel.style.display !== 'none') {
+                renderSpecialtyRunningTrains();
             }
         }
 
@@ -7237,6 +8465,7 @@
                 if (gameState.trainParts === undefined) gameState.trainParts = 0;
                 if (gameState.cityLevels === undefined) gameState.cityLevels = {};
                 if (gameState.cityFragments === undefined) gameState.cityFragments = {};
+                if (gameState.cityPassengers === undefined) gameState.cityPassengers = {};
                 if (gameState.runningJointTrains === undefined) gameState.runningJointTrains = [];
                 if (gameState.trainLimitIncreases === undefined) {
                     gameState.trainLimitIncreases = { normal: 0, intercity: 0, highspeed: 0, anime: 0, zodiac: 0 };
@@ -7245,6 +8474,11 @@
                 if (gameState.titleFragments === undefined) gameState.titleFragments = 0;
                 if (gameState.ownedTitles === undefined) gameState.ownedTitles = [];
                 if (gameState.equippedTitle === undefined) gameState.equippedTitle = null;
+                // 特产系统兼容
+                if (gameState.citySpecialties === undefined) gameState.citySpecialties = {};
+                if (gameState.runningSpecialTrains === undefined) gameState.runningSpecialTrains = [];
+                if (gameState.goldBonusLevel === undefined) gameState.goldBonusLevel = 0;
+                if (gameState.goldBonusFragments === undefined) gameState.goldBonusFragments = 0;
                 gameState.ownedTrains.forEach(train => { 
                     if (train.reformLevel === undefined) train.reformLevel = 0;
                     if (train.goldReformLevel === undefined) train.goldReformLevel = 0;
@@ -7253,6 +8487,15 @@
                 // 恢复运行中的火车数据,而不是清空
                 if (!gameState.runningTrains) gameState.runningTrains = [];
                 if (!gameState.runningJointTrains) gameState.runningJointTrains = [];
+                
+                // 初始化城市乘客数据
+                if (!gameState.cityPassengers) gameState.cityPassengers = {};
+                gameState.unlockedCities.forEach(cityName => {
+                    if (gameState.cityPassengers[cityName] === undefined) {
+                        const level = gameState.cityLevels[cityName] || 1;
+                        gameState.cityPassengers[cityName] = 100 + (level - 1) * 200;
+                    }
+                });
 
                 // 计算离线期间的火车运营（包括普通火车和联运火车）
                 const hasRunningTrains = gameState.runningTrains.length > 0 || gameState.runningJointTrains.length > 0;
@@ -7317,6 +8560,18 @@
                                     gameState.totalEarnings += jt.earnings;
                                     totalOfflineExp += Math.floor(jt.distance / 10);
                                     
+                                    // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
+                                    const titleFragmentBonus = getVipTitleFragmentBonus();
+                                    const baseChance = 0.01;
+                                    const finalChance = baseChance + titleFragmentBonus / 100;
+                                    jt.cities.forEach(cityName => {
+                                        const cityLevel = gameState.cityLevels[cityName] || 1;
+                                        if (cityLevel >= 20 && Math.random() < finalChance) {
+                                            if (gameState.titleFragments === undefined) gameState.titleFragments = 0;
+                                            gameState.titleFragments++;
+                                        }
+                                    });
+                                    
                                     jt.cities.forEach(cityName => {
                                         if (!gameState.cityFragments) gameState.cityFragments = {};
                                         if (!gameState.cityFragments[cityName]) {
@@ -7346,6 +8601,67 @@
                                     }
                                 }
                             });
+                            
+                            // 计算特产列车离线收益
+                            if (gameState.runningSpecialTrains) {
+                                gameState.runningSpecialTrains.forEach(st => {
+                                    if (!st.paused) {
+                                        st.remainingTime--;
+                                        if (st.remainingTime <= 0) {
+                                            totalOfflineEarnings += st.earnings;
+                                            gameState.totalEarnings += st.earnings;
+                                            totalOfflineExp += Math.floor(st.distance / 5);
+                                            
+                                            // 获得金币加成碎片1-3个
+                                            const fragments = Math.floor(Math.random() * 3) + 1;
+                                            gameState.goldBonusFragments = (gameState.goldBonusFragments || 0) + fragments;
+                                            
+                                            // 重新发车
+                                            const train = gameState.ownedTrains.find(t => t.id === st.trainId);
+                                            if (train) {
+                                                const citiesWithSpecialty = gameState.unlockedCities.filter(cityName => {
+                                                    const level = gameState.cityLevels[cityName] || 1;
+                                                    return level >= 50 && gameState.citySpecialties[cityName];
+                                                });
+                                                
+                                                if (citiesWithSpecialty.length > 0) {
+                                                    const startCity = citiesWithSpecialty[Math.floor(Math.random() * citiesWithSpecialty.length)];
+                                                    const specialty = gameState.citySpecialties[startCity].product;
+                                                    const demandCities = gameState.unlockedCities.filter(cityName => {
+                                                        const level = gameState.cityLevels[cityName] || 1;
+                                                        return level >= 50 && 
+                                                            gameState.citySpecialties[cityName] && 
+                                                            gameState.citySpecialties[cityName].demand === specialty &&
+                                                            cityName !== startCity;
+                                                    });
+                                                    
+                                                    if (demandCities.length > 0) {
+                                                        const endCity = demandCities[Math.floor(Math.random() * demandCities.length)];
+                                                        const city1 = getCityByName(startCity);
+                                                        const city2 = getCityByName(endCity);
+                                                        const distance = city1 && city2 ? calculateDistance(city1, city2) : 1000;
+                                                        
+                                                        st.startCity = startCity;
+                                                        st.endCities = [endCity];
+                                                        st.specialty = specialty;
+                                                        st.distance = distance;
+                                                        st.totalTime = calculateTime(train, distance);
+                                                        st.remainingTime = st.totalTime;
+                                                        
+                                                        const baseEarnings = calculateEarnings(train, distance);
+                                                        const goldBonus = getGoldBonusEffect(gameState.goldBonusLevel);
+                                                        st.earnings = Math.floor(baseEarnings * (1 + goldBonus / 100));
+                                                    } else {
+                                                        st.paused = true;
+                                                    }
+                                                } else {
+                                                    st.paused = true;
+                                                }
+                                            }
+                                        }
+                                    }
+                                });
+                            }
                         }
 
                         // 显示离线收益
@@ -7388,7 +8704,42 @@
                 gameState.lastOnlineTime = new Date().toISOString();
                 // 立即保存，确保lastOnlineTime被持久化
                 saveGame();
+                
+                // 每天首次进入游戏弹窗提醒
+                const today = new Date().toDateString();
+                if (gameState.lastLoginDate !== today) {
+                    gameState.lastLoginDate = today;
+                    saveGame();
+                    // 显示欢迎弹窗
+                    setTimeout(() => {
+                        showWelcomeModal();
+                    }, 500);
+                }
             }
+        }
+        
+        function showWelcomeModal() {
+            const modal = document.createElement('div');
+            modal.className = 'modal show';
+            modal.id = 'welcomeModal';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width:400px;">
+                    <div style="text-align:center;margin-bottom:20px;">
+                        <div style="font-size:48px;margin-bottom:15px;">🚂</div>
+                        <div style="font-size:18px;font-weight:600;color:var(--neon-cyan);margin-bottom:10px;">欢迎进入游戏</div>
+                    </div>
+                    <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:20px;font-size:13px;color:var(--fg-secondary);line-height:1.8;">
+                        若离线收益功能异常，请将所有火车停车发车，重新发车后即可正常计算离线收益。
+                    </div>
+                    <button class="btn btn-primary" onclick="closeWelcomeModal()" style="width:100%;">我知道了</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        
+        function closeWelcomeModal() {
+            const modal = document.getElementById('welcomeModal');
+            if (modal) modal.remove();
         }
 
         // ==================== 防作弊机制 ====================
@@ -7796,6 +9147,18 @@
                                     gameState.totalEarnings += jt.earnings;
                                     totalExp += Math.floor(jt.distance / 10);
                                     
+                                    // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
+                                    const titleFragmentBonus = getVipTitleFragmentBonus();
+                                    const baseChance = 0.01;
+                                    const finalChance = baseChance + titleFragmentBonus / 100;
+                                    jt.cities.forEach(cityName => {
+                                        const cityLevel = gameState.cityLevels[cityName] || 1;
+                                        if (cityLevel >= 20 && Math.random() < finalChance) {
+                                            if (gameState.titleFragments === undefined) gameState.titleFragments = 0;
+                                            gameState.titleFragments++;
+                                        }
+                                    });
+                                    
                                     jt.cities.forEach(cityName => {
                                         if (!gameState.cityFragments) gameState.cityFragments = {};
                                         if (!gameState.cityFragments[cityName]) {
@@ -7822,6 +9185,67 @@
                                         });
                                         const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
                                         jt.earnings = Math.round(calculateEarnings(train, jt.distance) * totalBonus);
+                                    }
+                                }
+                            });
+                        }
+                        
+                        // 计算特产列车离线收益
+                        if (gameState.runningSpecialTrains) {
+                            gameState.runningSpecialTrains.forEach(st => {
+                                if (!st.paused) {
+                                    st.remainingTime--;
+                                    if (st.remainingTime <= 0) {
+                                        totalEarnings += st.earnings;
+                                        gameState.totalEarnings += st.earnings;
+                                        totalExp += Math.floor(st.distance / 5);
+                                        
+                                        // 获得金币加成碎片1-3个
+                                        const fragments = Math.floor(Math.random() * 3) + 1;
+                                        gameState.goldBonusFragments = (gameState.goldBonusFragments || 0) + fragments;
+                                        
+                                        // 重新发车
+                                        const train = gameState.ownedTrains.find(t => t.id === st.trainId);
+                                        if (train) {
+                                            const citiesWithSpecialty = gameState.unlockedCities.filter(cityName => {
+                                                const level = gameState.cityLevels[cityName] || 1;
+                                                return level >= 50 && gameState.citySpecialties[cityName];
+                                            });
+                                            
+                                            if (citiesWithSpecialty.length > 0) {
+                                                const startCity = citiesWithSpecialty[Math.floor(Math.random() * citiesWithSpecialty.length)];
+                                                const specialty = gameState.citySpecialties[startCity].product;
+                                                const demandCities = gameState.unlockedCities.filter(cityName => {
+                                                    const level = gameState.cityLevels[cityName] || 1;
+                                                    return level >= 50 && 
+                                                        gameState.citySpecialties[cityName] && 
+                                                        gameState.citySpecialties[cityName].demand === specialty &&
+                                                        cityName !== startCity;
+                                                });
+                                                
+                                                if (demandCities.length > 0) {
+                                                    const endCity = demandCities[Math.floor(Math.random() * demandCities.length)];
+                                                    const city1 = getCityByName(startCity);
+                                                    const city2 = getCityByName(endCity);
+                                                    const distance = city1 && city2 ? calculateDistance(city1, city2) : 1000;
+                                                    
+                                                    st.startCity = startCity;
+                                                    st.endCities = [endCity];
+                                                    st.specialty = specialty;
+                                                    st.distance = distance;
+                                                    st.totalTime = calculateTime(train, distance);
+                                                    st.remainingTime = st.totalTime;
+                                                    
+                                                    const baseEarnings = calculateEarnings(train, distance);
+                                                    const goldBonus = getGoldBonusEffect(gameState.goldBonusLevel);
+                                                    st.earnings = Math.floor(baseEarnings * (1 + goldBonus / 100));
+                                                } else {
+                                                    st.paused = true;
+                                                }
+                                            } else {
+                                                st.paused = true;
+                                            }
+                                        }
                                     }
                                 }
                             });
@@ -7955,6 +9379,10 @@
         <button class="mobile-nav-btn" onclick="showPanel('joint')">
             <span class="nav-icon">🚃</span>
             <span>联运</span>
+        </button>
+        <button class="mobile-nav-btn" onclick="showPanel('specialty')">
+            <span class="nav-icon">🎁</span>
+            <span>特产</span>
         </button>
         <button class="mobile-nav-btn" onclick="showPanel('upgrade')">
             <span class="nav-icon">🔧</span>
