@@ -7,7 +7,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* 简约风格 - 协调配色 */
+            
             --bg-primary: #f8fafc;
             --bg-secondary: #ffffff;
             --bg-tertiary: #f1f5f9;
@@ -37,10 +37,10 @@
             --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.08);
             --radius: 8px;
             --gradient-neon: linear-gradient(135deg, #3b82f6, #8b5cf6);
-            --gradient-rainbow: linear-gradient(90deg, #3b82f6, #8b5cf6);
+            --gradient-rainbow: linear-gradient(90deg, #00ffff, #00ff88, #ffff00, #ff00ff, #00ffff);
         }
 
-        /* 深色主题 */
+        
         [data-theme="dark"] {
             --bg-primary: #0f172a;
             --bg-secondary: #1e293b;
@@ -59,18 +59,27 @@
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
+        html, body { 
+            background-color: var(--bg-primary) !important;
+            height: 100%;
+            min-height: 100%;
+        }
+        
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            background: var(--bg-primary);
-            min-height: 100vh;
             color: var(--fg-primary);
             overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
         }
 
         .game-container {
             max-width: 1600px;
+            width: 100%;
             margin: 0 auto;
             padding: 20px;
+            flex: 1;
+            background: var(--bg-primary);
         }
 
         /* Header */
@@ -174,7 +183,7 @@
             align-items: center;
         }
         
-        /* 按钮在标题中时重置文字效果 */
+        
         .panel-title .btn {
             -webkit-text-fill-color: initial;
             background: transparent;
@@ -491,7 +500,14 @@
 
         .section-title::before {
             content: '// ';
-            background: var(--gradient-rainbow); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 100%; animation: rainbowText 3s linear infinite;
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 300% 100%;
+            animation: rainbowText 3s linear infinite;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.5));
         }
 
         .changelog-content {
@@ -713,7 +729,51 @@
         .type-income { background: var(--accent-primary); color: #fff; }
         .type-speed { background: var(--accent-success); color: #fff; }
         .type-weight { background: var(--accent-danger); color: #fff; }
-        .type-vip { background: linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24); color: #fff; font-weight: bold; }
+        .type-vip { 
+            background: linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24); 
+            color: transparent;
+            -webkit-background-clip: text;
+            background-clip: text;
+            background-size: 200% 100%;
+            animation: vipRainbow 2s linear infinite;
+            font-weight: bold;
+        }
+        @keyframes rainbowText {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .rainbow-text {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 300% 100%;
+            animation: rainbowText 3s linear infinite;
+            text-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+            filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.3));
+        }
+        .vip-rainbow {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 100%;
+            animation: rainbowText 3s linear infinite;
+        }
+        .vip-bonus-rainbow span:last-child {
+            background: var(--gradient-rainbow);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            background-size: 200% 100%;
+            animation: rainbowText 3s linear infinite;
+            font-weight: bold;
+        }
+        @keyframes vipRainbow {
+            0% { background-position: 0% 50%; }
+            100% { background-position: 200% 50%; }
+        }
         @keyframes vipGlow {
             0%, 100% { box-shadow: 0 0 5px #fbbf24; }
             50% { box-shadow: 0 0 10px #fbbf24, 0 0 15px #f59e0b; }
@@ -826,7 +886,7 @@
                 margin-bottom: 2px;
             }
             
-            /* 移动端车次分组适配 */
+            
             .route-group {
                 -webkit-tap-highlight-color: transparent;
                 touch-action: manipulation;
@@ -875,11 +935,9 @@
     </style>
 </head>
 <body>
-    <div class="noise-overlay"></div>
     
     <div class="game-container">
         <div class="header">
-            <div class="header-glow"></div>
             <div class="game-title">
                 <span class="game-title-main">🚂 铁轨帝国</span>
                 <span class="game-title-sub">RAIL EMPIRE v2.0</span>
@@ -1141,7 +1199,7 @@
                     
                     <!-- 图例说明 -->
                     <div id="mapLegend" style="margin-top:20px;padding:20px;background:linear-gradient(135deg, rgba(0,255,136,0.03), rgba(0,212,255,0.02));border:1px solid var(--border);border-radius:4px;box-shadow:0 0 20px rgba(0,255,136,0.05);">
-                        <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:15px;letter-spacing:3px;font-family:'Orbitron',sans-serif;font-weight:600;">// 图例说明</div>
+                        <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:15px;letter-spacing:3px;font-family:'Orbitron',sans-serif;font-weight:600;">LEGEND</div>
                         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px;">
                             <div style="display:flex;align-items:center;gap:10px;padding:10px;background:rgba(0,255,136,0.03);border-radius:3px;border:1px solid rgba(0,255,136,0.1);">
                                 <div style="width:12px;height:12px;border-radius:50%;background:var(--neon-green);box-shadow:0 0 10px var(--neon-green);"></div>
@@ -1164,7 +1222,7 @@
                     
                     <!-- 运营统计 -->
                     <div id="mapStats" style="margin-top:20px;padding:20px;background:linear-gradient(135deg, rgba(0,255,136,0.03), rgba(0,212,255,0.02));border:1px solid var(--border);border-radius:4px;box-shadow:0 0 20px rgba(0,255,136,0.05);">
-                        <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:15px;letter-spacing:3px;font-family:'Orbitron',sans-serif;font-weight:600;">// 运营统计</div>
+                        <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:15px;letter-spacing:3px;font-family:'Orbitron',sans-serif;font-weight:600;">STATS</div>
                         <div id="mapStatsContent" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:15px;"></div>
                     </div>
                 </div>
@@ -1373,7 +1431,7 @@
                 <div style="text-align:center;margin-bottom:12px;">
                     <div style="font-size:12px;color:var(--fg-secondary);margin-bottom:8px;">关卡进度</div>
                     <div style="font-size:24px;font-weight:700;color:var(--accent-primary);">
-                        <span id="challengeProgressDisplay">0</span> / 200
+                        <span id="challengeProgressDisplay">0</span> / 20
                     </div>
                     <div class="progress-bar" style="margin-top:10px;height:12px;">
                         <div id="challengeProgressBar" class="progress-fill" style="width:0%;background:var(--accent-primary);"></div>
@@ -1395,7 +1453,7 @@
             <div style="background:var(--bg-tertiary);padding:15px;border-radius:8px;border:1px solid var(--border);">
                 <div style="font-size:12px;color:var(--accent-primary);margin-bottom:10px;font-weight:600;">📖 闯关规则</div>
                 <div style="font-size:11px;color:var(--fg-secondary);line-height:1.8;">
-                    • 每关需要挑战200次才能通关<br>
+                    • 每关需要挑战20次才能通关<br>
                     • 每次挑战消耗金币，消耗随关卡递增<br>
                     • 通关奖励：收益+0.05%、改造石1-5个、点卷1-5、经验1000-2000<br>
                     • 关卡无上限，挑战永无止境！
@@ -1435,6 +1493,18 @@
         <div id="changelogPanel" class="panel" style="display:none;">
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
+                        <div class="changelog-version">
+                            <div class="changelog-date">3.13 铁轨帝国更新内容</div>
+                            <ul class="changelog-list">
+                                <li>游戏颜色主题优化</li>
+                                <li>联运玩法返程乘客计算逻辑优化</li>
+                                <li>新增舒适度改造碎片系统（城市等级大于40级开启）</li>
+                                <li>联运时每有1个城市大于40级时即可获得12碎片，5个则是60</li>
+                                <li>重构火车改造系统中的舒适度改造系统</li>
+                                <li>闯关系统优化，闯关时间缩短90%</li>
+                                <li>优化反作弊系统</li>
+                            </ul>
+                        </div>
                         <div class="changelog-version">
                             <div class="changelog-date">3.12 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
@@ -1688,7 +1758,7 @@
     </div>
 
     <script>
-        // ==================== 城市数据 ====================
+        // ==================== 
         const cities = {
             china: [
                 { name: "广州", lat: 23.1291, lng: 113.2644, displayLat: 22, displayLng: 114, unlockLevel: 1, unlockCost: 0 },
@@ -1714,7 +1784,7 @@
                 { name: "南昌", lat: 28.6820, lng: 115.8579, displayLat: 33, displayLng: 118, unlockLevel: 11, unlockCost: 1000000 },
                 { name: "福州", lat: 26.0745, lng: 119.2965, displayLat: 29, displayLng: 124, unlockLevel: 11, unlockCost: 1000000 },
                 { name: "厦门", lat: 24.4798, lng: 118.0894, displayLat: 27, displayLng: 122, unlockLevel: 12, unlockCost: 1200000 },
-                // 台湾省城市
+                // 
                 { name: "台北", lat: 25.0330, lng: 121.5654, displayLat: 28, displayLng: 128, unlockLevel: 12, unlockCost: 1200000 },
                 { name: "新北", lat: 25.0122, lng: 121.4654, displayLat: 27, displayLng: 127, unlockLevel: 13, unlockCost: 1500000 },
                 { name: "基隆", lat: 25.1276, lng: 121.7392, displayLat: 29, displayLng: 129, unlockLevel: 13, unlockCost: 1500000 },
@@ -1767,7 +1837,7 @@
                 { name: "拉萨", lat: 29.6500, lng: 91.1000, displayLat: 32, displayLng: 78, unlockLevel: 50, unlockCost: 80000000 }
             ],
             world: [
-                // 中国城市
+                // 
                 { name: "广州", lat: 23.1291, lng: 113.2644, unlockLevel: 1, unlockCost: 0 },
                 { name: "深圳", lat: 22.5431, lng: 114.0579, unlockLevel: 1, unlockCost: 0 },
                 { name: "东莞", lat: 23.0207, lng: 113.7518, unlockLevel: 3, unlockCost: 100000 },
@@ -1783,12 +1853,12 @@
                 { name: "西安", lat: 34.3416, lng: 108.9398, unlockLevel: 32, unlockCost: 15000000 },
                 { name: "乌鲁木齐", lat: 43.8256, lng: 87.6168, unlockLevel: 45, unlockCost: 50000000 },
                 { name: "拉萨", lat: 29.6500, lng: 91.1000, unlockLevel: 50, unlockCost: 80000000 },
-                // 台湾省城市
+                // 
                 { name: "台北", lat: 25.0330, lng: 121.5654, unlockLevel: 18, unlockCost: 3500000 },
                 { name: "高雄", lat: 22.6273, lng: 120.3014, unlockLevel: 20, unlockCost: 5000000 },
                 { name: "台中", lat: 24.1477, lng: 120.6736, unlockLevel: 22, unlockCost: 6000000 },
                 { name: "台南", lat: 22.9999, lng: 120.2269, unlockLevel: 25, unlockCost: 8000000 },
-                // 亚洲其他城市
+                // 
                 { name: "东京", lat: 35.6762, lng: 139.6503, unlockLevel: 20, unlockCost: 5000000 },
                 { name: "首尔", lat: 37.5665, lng: 126.9780, unlockLevel: 22, unlockCost: 6000000 },
                 { name: "新加坡", lat: 1.3521, lng: 103.8198, unlockLevel: 25, unlockCost: 8000000 },
@@ -1805,12 +1875,12 @@
                 { name: "孟买", lat: 19.0760, lng: 72.8777, unlockLevel: 38, unlockCost: 25000000 },
                 { name: "加尔各答", lat: 22.5726, lng: 88.3639, unlockLevel: 40, unlockCost: 30000000 },
                 { name: "班加罗尔", lat: 12.9716, lng: 77.5946, unlockLevel: 40, unlockCost: 30000000 },
-                // 中东
+                // 
                 { name: "迪拜", lat: 25.2048, lng: 55.2708, unlockLevel: 42, unlockCost: 35000000 },
                 { name: "阿布扎比", lat: 24.4539, lng: 54.3773, unlockLevel: 42, unlockCost: 35000000 },
                 { name: "利雅得", lat: 24.7136, lng: 46.6753, unlockLevel: 45, unlockCost: 50000000 },
                 { name: "多哈", lat: 25.2854, lng: 51.5310, unlockLevel: 45, unlockCost: 50000000 },
-                // 欧洲
+                // 
                 { name: "伊斯坦布尔", lat: 41.0082, lng: 28.9784, unlockLevel: 48, unlockCost: 60000000 },
                 { name: "开罗", lat: 30.0444, lng: 31.2357, unlockLevel: 50, unlockCost: 80000000 },
                 { name: "伦敦", lat: 51.5074, lng: -0.1278, unlockLevel: 55, unlockCost: 100000000 },
@@ -1818,14 +1888,14 @@
                 { name: "柏林", lat: 52.5200, lng: 13.4050, unlockLevel: 58, unlockCost: 120000000 },
                 { name: "罗马", lat: 41.9028, lng: 12.4964, unlockLevel: 58, unlockCost: 120000000 },
                 { name: "马德里", lat: 40.4168, lng: -3.7038, unlockLevel: 60, unlockCost: 150000000 },
-                // 美洲和大洋洲
+                // 
                 { name: "纽约", lat: 40.7128, lng: -74.0060, unlockLevel: 65, unlockCost: 200000000 },
                 { name: "洛杉矶", lat: 34.0522, lng: -118.2437, unlockLevel: 65, unlockCost: 200000000 },
                 { name: "悉尼", lat: -33.8688, lng: 151.2093, unlockLevel: 70, unlockCost: 300000000 }
             ]
         };
 
-        // ==================== 火车数据 ====================
+        // ==================== 
         const trainTypes = {
             normal: { name: "普通火车", color: "#00d4ff", capacity: 100 },
             intercity: { name: "城际列车", color: "#00ff88", capacity: 200 },
@@ -1938,10 +2008,10 @@
         };
 
         const employeeTypes = {
-            income: { name: "收益型", color: "#00ff88", effect: "增加收益", baseBonus: 12.5 },  // 满级500%
+            income: { name: "收益型", color: "#00ff88", effect: "增加收益", baseBonus: 12.5 },  // 
             speed: { name: "速度型", color: "#00d4ff", effect: "提高速度", baseBonus: 5 },
-            weight: { name: "减重型", color: "#ff3366", effect: "减重/增收益/提速", baseBonus: 2.475, incomeBonus: 2.5, speedBonus: 1.25 },  // 满级：减重99%，收益+100%，速度+50%
-            vip: { name: "VIP员工", color: "#ffd700", effect: "全能型", baseBonus: 2.475, incomeBonus: 12.5, speedBonus: 5, isVip: true }  // 满级：减重99%，收益+500%，速度+200%
+            weight: { name: "减重型", color: "#ff3366", effect: "减重/增收益/提速", baseBonus: 2.475, incomeBonus: 2.5, speedBonus: 1.25 },  // 
+            vip: { name: "VIP员工", color: "#ffd700", effect: "全能型", baseBonus: 2.475, incomeBonus: 12.5, speedBonus: 5, isVip: true }  // 
         };
 
         const weatherTypes = {
@@ -1997,10 +2067,10 @@
             "妇女节快乐": { train: "影舞号", used: false },
             "3月7日补偿": { points: 3888, reformStones: 600, used: false },
             "806903918": { points: 3000, reformStones: 300, used: false },
-            "3月10日更新补偿": { points: 1500, reformStones: 150, used: false },
+            "3月10日更新补偿": { points: 1500, reformStones: 150, used: false }
         };
 
-        // 称号系统数据
+        // 
         const titles = {
             "初入游戏": {
                 name: "初入游戏",
@@ -2011,7 +2081,7 @@
             }
         };
 
-        // 特产列表
+        // 
         const specialtyList = [
             "茶叶", "丝绸", "瓷器", "玉石", "药材",
             "水果", "海鲜", "大米", "小麦", "棉花",
@@ -2019,7 +2089,7 @@
             "酒类", "糖", "香料", "珠宝", "皮革"
         ];
 
-        // ==================== 游戏状态 ====================
+        // ==================== 
         let gameState = {
             gold: 20000, points: 0, level: 1, exp: 0, expToNext: 500,
             employees: [], runningTrains: [], ownedTrains: [],
@@ -2027,42 +2097,42 @@
             lastDailyReset: null, lastSaveTime: null, lastOnlineTime: null,
             totalEarnings: 0, expBonus: 0, consumedPoints: 0,
             usedRedeemCodes: [],
-            // 改造石系统
-            reformStones: 0,           // 当前改造石数量
-            dailyReformStonesEarned: 0, // 今日已获取的改造石数量
-            // VIP系统
-            vipExp: 0,                  // VIP经验（1经验=1级）
-            // 天气系统
-            currentWeather: 'sunny',    // 当前天气
-            lastWeatherUpdate: null,    // 上次天气更新时间
-            // 闯关系统
-            challengeLevel: 0,          // 当前关卡
-            challengeProgress: 0,       // 当前关卡进度（0-200）
-            challengeBonus: 0,          // 闯关收益加成（百分比）
-            trainParts: 0,              // 火车零件数量
-            // 联运系统
-            cityLevels: {},             // 城市等级 { cityName: level }
-            cityFragments: {},          // 城市碎片 { cityName: fragments }
-            cityPassengers: {},         // 城市乘客 { cityName: passengers }
-            runningJointTrains: [],     // 运行中的联运列车
-            // 特产系统
-            citySpecialties: {},        // 城市特产 { cityName: { product: '特产名', demand: '需求特产名' } }
-            runningSpecialTrains: [],   // 运行中的特产列车
-            goldBonusLevel: 0,          // 金币加成等级
-            goldBonusFragments: 0,      // 金币加成碎片
-            // 称号系统
-            titleFragments: 0,          // 称号碎片数量
-            ownedTitles: [],            // 已拥有称号
-            equippedTitle: null,        // 当前佩戴的称号
-            // 旅游季节系统（每个城市独立）
-            cityTourismSeasons: {},    // 城市旅游季节 { cityName: seasonKey }
-            lastTourismUpdate: null,    // 上次旅游季节更新时间
-            lastPassengerRefresh: null   // 上次乘客刷新时间
+            // 
+            reformStones: 0,           // 
+            dailyReformStonesEarned: 0, // 
+            // VIP
+            vipExp: 0,                  // VIP
+            // 
+            currentWeather: 'sunny',    // 
+            lastWeatherUpdate: null,    // 
+            // 
+            challengeLevel: 0,          // 
+            challengeProgress: 0,       // 
+            challengeBonus: 0,          // 
+            trainParts: 0,              // 
+            // 
+            cityLevels: {},             // 
+            cityFragments: {},          // 
+            cityPassengers: {},         // 
+            runningJointTrains: [],     // 
+            // 
+            citySpecialties: {},        // 
+            runningSpecialTrains: [],   // 
+            goldBonusLevel: 0,          // 
+            goldBonusFragments: 0,      // 
+            // 
+            titleFragments: 0,          // 
+            ownedTitles: [],            // 
+            equippedTitle: null,        // 
+            // 
+            cityTourismSeasons: {},    // 
+            lastTourismUpdate: null,    // 
+            lastPassengerRefresh: null   // 
         };
 
         let selectedStartCity = null, selectedEndCity = null, currentCityTab = 'china', currentShopTab = 'normal', pendingUnlockCity = null;
 
-        // ==================== 工具函数 ====================
+        // ==================== 
         function calculateDistance(city1, city2) {
             const R = 6371;
             const dLat = (city2.lat - city1.lat) * Math.PI / 180;
@@ -2118,11 +2188,11 @@
             const citiesOver20 = gameState.unlockedCities.filter(cityName => (gameState.cityLevels[cityName] || 1) >= 20).length;
             
             if (citiesOver40 >= 5) {
-                return 200000000; // 2亿金币
+                return 200000000; // 2
             } else if (citiesOver20 >= 10) {
-                return 100000000; // 1亿金币
+                return 100000000; // 1
             } else {
-                return 10000000; // 1000万金币
+                return 10000000; // 1000
             }
         }
         
@@ -2154,7 +2224,7 @@
             
             timerEl.textContent = `${remaining}秒`;
             
-            // 自动刷新：当时间到了且已经过了刷新时间
+            // 
             if (elapsed >= totalRefreshTime * 1000) {
                 refreshCityPassengers();
                 renderJointCitySelection();
@@ -2174,7 +2244,7 @@
             const costText = cost >= 100000000 ? `${cost / 100000000}亿` : `${cost / 10000}万`;
             btn.textContent = `🔄 刷新(${costText})`;
             
-            // 如果金币不足，按钮变灰
+            // 
             if (gameState.gold < cost) {
                 btn.style.opacity = '0.5';
                 btn.style.cursor = 'not-allowed';
@@ -2198,10 +2268,10 @@
             let earnings = distance * 10 * (1 - train.weight / 10000);
             gameState.employees.filter(e => e.trainId === train.id).forEach(emp => {
                 if (emp.type === 'income') earnings *= (1 + employeeTypes.income.baseBonus * emp.level / 100);
-                if (emp.type === 'weight') earnings *= (1 + employeeTypes.weight.incomeBonus * emp.level / 100);  // 减重型收益加成
-                if (emp.type === 'vip') earnings *= (1 + employeeTypes.vip.incomeBonus * emp.level / 100);  // VIP员工收益加成
+                if (emp.type === 'weight') earnings *= (1 + employeeTypes.weight.incomeBonus * emp.level / 100);  // 
+                if (emp.type === 'vip') earnings *= (1 + employeeTypes.vip.incomeBonus * emp.level / 100);  // VIP
             });
-            // 闯关收益加成
+            // 
             if (gameState.challengeBonus) earnings *= (1 + gameState.challengeBonus / 100);
             if (train.upgradeLevel) earnings *= (1 + train.upgradeLevel * 0.5 / 100);
             const comfort = train.comfort || 100;
@@ -2230,7 +2300,7 @@
             let weight = train.weight;
             gameState.employees.filter(e => e.trainId === train.id).forEach(emp => {
                 if (emp.type === 'weight') weight *= (1 - employeeTypes.weight.baseBonus * emp.level / 100);
-                if (emp.type === 'vip') weight *= (1 - employeeTypes.vip.baseBonus * emp.level / 100);  // VIP员工减重
+                if (emp.type === 'vip') weight *= (1 - employeeTypes.vip.baseBonus * emp.level / 100);  // VIP
             });
             return Math.round(weight);
         }
@@ -2259,60 +2329,60 @@
             return total;
         }
         function calculateExpToNext(level) {
-            // 1-10级：1.8倍，11-20级：1.55倍，21-25级：1.35倍，26-30级：1.3倍，31-35级：1.15倍，36-40级：1.1倍，41-50级：1.05倍，51-64级：1.055倍，65级及以后：1.1倍
+            // 1-10
             if (level <= 10) {
                 return Math.floor(500 * Math.pow(1.8, level - 1));
             } else if (level <= 20) {
-                // 10级升11级所需经验作为基础，之后按1.55倍增长
-                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9)); // 10级升11级的基础
+                // 10
+                const baseExp10 = Math.floor(500 * Math.pow(1.8, 9)); // 10
                 return Math.floor(baseExp10 * Math.pow(1.55, level - 10));
             } else if (level <= 25) {
-                // 20级升21级所需经验作为基础，之后按1.35倍增长
+                // 20
                 const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
-                const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10)); // 20级升21级的基础
+                const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10)); // 20
                 return Math.floor(baseExp20 * Math.pow(1.35, level - 20));
             } else if (level <= 30) {
-                // 25级升26级所需经验作为基础，之后按1.3倍增长
+                // 25
                 const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
                 const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
-                const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5)); // 25级升26级的基础
+                const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5)); // 25
                 return Math.floor(baseExp25 * Math.pow(1.3, level - 25));
             } else if (level <= 35) {
-                // 30级升31级所需经验作为基础，之后按1.15倍增长
+                // 30
                 const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
                 const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
                 const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
-                const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5)); // 30级升31级的基础
+                const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5)); // 30
                 return Math.floor(baseExp30 * Math.pow(1.15, level - 30));
             } else if (level <= 40) {
-                // 35级升36级所需经验作为基础，之后按1.1倍增长
+                // 35
                 const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
                 const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
                 const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
                 const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5));
-                const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5)); // 35级升36级的基础
+                const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5)); // 35
                 return Math.floor(baseExp35 * Math.pow(1.1, level - 35));
             } else if (level <= 50) {
-                // 40级升41级所需经验作为基础，之后按1.05倍增长
+                // 40
                 const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
                 const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
                 const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
                 const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5));
                 const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5));
-                const baseExp40 = Math.floor(baseExp35 * Math.pow(1.1, 5)); // 40级升41级的基础
+                const baseExp40 = Math.floor(baseExp35 * Math.pow(1.1, 5)); // 40
                 return Math.floor(baseExp40 * Math.pow(1.05, level - 40));
             } else if (level <= 64) {
-                // 50级升51级所需经验作为基础，之后按1.055倍增长
+                // 50
                 const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
                 const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
                 const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
                 const baseExp30 = Math.floor(baseExp25 * Math.pow(1.3, 5));
                 const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5));
                 const baseExp40 = Math.floor(baseExp35 * Math.pow(1.1, 5));
-                const baseExp50 = Math.floor(baseExp40 * Math.pow(1.05, 10)); // 50级升51级的基础
+                const baseExp50 = Math.floor(baseExp40 * Math.pow(1.05, 10)); // 50
                 return Math.floor(baseExp50 * Math.pow(1.055, level - 50));
             } else {
-                // 64级升65级所需经验作为基础，之后按1.1倍增长
+                // 64
                 const baseExp10 = Math.floor(500 * Math.pow(1.8, 9));
                 const baseExp20 = Math.floor(baseExp10 * Math.pow(1.55, 10));
                 const baseExp25 = Math.floor(baseExp20 * Math.pow(1.35, 5));
@@ -2320,13 +2390,13 @@
                 const baseExp35 = Math.floor(baseExp30 * Math.pow(1.15, 5));
                 const baseExp40 = Math.floor(baseExp35 * Math.pow(1.1, 5));
                 const baseExp50 = Math.floor(baseExp40 * Math.pow(1.05, 10));
-                const baseExp64 = Math.floor(baseExp50 * Math.pow(1.055, 14)); // 64级升65级的基础
+                const baseExp64 = Math.floor(baseExp50 * Math.pow(1.055, 14)); // 64
                 return Math.floor(baseExp64 * Math.pow(1.1, level - 64));
             }
         }
 
         function addExp(amount) {
-            // 应用经验加成（闯关加成 + VIP加成 + 称号加成）
+            // 
             const expBonus = gameState.expBonus || 0;
             const vipBonus = getVipExpBonus();
             const titleBonus = getTitleExpBonus();
@@ -2353,14 +2423,14 @@
             if (!gameState.lastDailyReset || new Date(gameState.lastDailyReset) < today8AM) {
                 if (beijingTime >= today8AM) {
                     gameState.dailyPointsEarned = 0;
-                    gameState.dailyReformStonesEarned = 0; // 改造石每日上限重置
+                    gameState.dailyReformStonesEarned = 0; // 
                     gameState.lastDailyReset = beijingTime.toISOString();
                 }
             }
         }
 
-        // ==================== 天气系统 ====================
-        const WEATHER_INTERVAL = 4 * 60 * 60 * 1000; // 4小时（毫秒）
+        // ==================== 
+        const WEATHER_INTERVAL = 4 * 60 * 60 * 1000; // 4
 
         function getRandomWeather() {
             const totalWeight = Object.values(weatherWeights).reduce((a, b) => a + b, 0);
@@ -2495,7 +2565,7 @@
                 showNotification(`旅游季节已刷新！各城市季节效果已更新`);
                 updateTourismSeasonUI();
                 updateRunningJointTrainsEarnings();
-                // 同步刷新特产
+                // 
                 refreshCitySpecialties();
             }
         }
@@ -2550,7 +2620,7 @@
             return Math.max(0, TOURISM_INTERVAL - elapsed);
         }
 
-        // ==================== 主题切换 ====================
+        // ==================== 
         function toggleTheme() {
             const html = document.documentElement;
             const btn = document.getElementById('themeToggleBtn');
@@ -2577,7 +2647,7 @@
             }
         }
 
-        // ==================== 界面渲染 ====================
+        // ==================== 
         function updateUI() {
             document.getElementById('gold').textContent = formatNumber(gameState.gold);
             document.getElementById('points').textContent = formatNumber(gameState.points);
@@ -2586,13 +2656,13 @@
             const vipBonus = getVipExpBonus();
             document.getElementById('incomeBonus').textContent = `+${expBonus * 15 + vipBonus}%`;
             checkDailyPointsReset();
-            // VIP信息显示
+            // VIP
             const vipLevel = getVipLevel();
             const vipOfflineBonus = getVipOfflineBonus();
             if (vipLevel > 0) {
-                document.getElementById('vipInfo').textContent = `👑 VIP ${vipLevel} | 经验+${vipBonus}% | 离线+${vipOfflineBonus}% | 点卷上限+${getVipDailyPointsBonus()} | 改造石上限+${getVipDailyReformStonesBonus()}`;
+                document.getElementById('vipInfo').innerHTML = `<span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;font-weight:bold;">👑 VIP ${vipLevel}</span> <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">| 经验+${vipBonus}% | 离线+${vipOfflineBonus}% | 点卷上限+${getVipDailyPointsBonus()} | 改造石上限+${getVipDailyReformStonesBonus()}</span>`;
             } else {
-                document.getElementById('vipInfo').textContent = `👑 VIP 0`;
+                document.getElementById('vipInfo').innerHTML = `<span style="color:var(--fg-secondary);">👑 VIP 0</span>`;
             }
             const dailyLimit = getDailyPointsLimit();
             document.getElementById('dailyPointsInfo').textContent = `今日点卷: ${gameState.dailyPointsEarned}/${dailyLimit}`;
@@ -2618,15 +2688,15 @@
             document.querySelectorAll('.panel').forEach(p => p.style.display = 'none');
             document.getElementById(panelName + 'Panel').style.display = 'block';
             document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-            // 更新移动端导航栏状态
+            // 
             document.querySelectorAll('.mobile-nav-btn').forEach(b => b.classList.remove('active'));
-            // 根据panelName找到对应的移动端按钮并激活
+            // 
             const mobileNavBtns = document.querySelectorAll('.mobile-nav-btn');
             const panelIndex = { trains: 0, routes: 1, employees: 2, shop: 3, running: 4, map: 5, cities: 6, joint: 7, specialty: 8, upgrade: 9, redeem: 10, reform: 11, challenge: 12, title: 13, changelog: 14, mobilemore: 15 };
             if (panelIndex[panelName] !== undefined && mobileNavBtns[panelIndex[panelName]]) {
                 mobileNavBtns[panelIndex[panelName]].classList.add('active');
             }
-            // 如果是从侧边栏点击的，更新侧边栏按钮状态
+            // 
             if (event && event.target && event.target.classList.contains('nav-btn')) {
                 event.target.classList.add('active');
             }
@@ -2647,7 +2717,7 @@
 
         function showShopTab(tab) {
             currentShopTab = tab;
-            shopPage = 1; // 重置页码
+            shopPage = 1; // 
             document.querySelectorAll('#shopPanel .tabs .tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
             renderShop();
@@ -2677,7 +2747,7 @@
         }
 
         function toggleSelectAllTrains() {
-            // 根据当前筛选条件获取可选火车
+            // 
             let filteredTrains = gameState.ownedTrains;
             if (trainFilter !== 'all') {
                 filteredTrains = gameState.ownedTrains.filter(train => train.type === trainFilter);
@@ -2689,7 +2759,7 @@
                 selectedTrainIds.some(id => Math.abs(id - train.id) < 0.0001)
             );
             if (allSelected) {
-                // 取消选中当前筛选的火车
+                // 
                 selectableTrains.forEach(train => {
                     const index = selectedTrainIds.findIndex(id => Math.abs(id - train.id) < 0.0001);
                     if (index > -1) {
@@ -2697,7 +2767,7 @@
                     }
                 });
             } else {
-                // 选中当前筛选的火车
+                // 
                 selectableTrains.forEach(train => {
                     if (!selectedTrainIds.some(id => Math.abs(id - train.id) < 0.0001)) {
                         selectedTrainIds.push(train.id);
@@ -2708,27 +2778,27 @@
             renderTrainList();
         }
         
-        // 获取火车上限（含增加的上限）
+        // 
         function getTrainLimit(type) {
             const baseLimits = { normal: 20, intercity: 24, highspeed: 28, anime: 33, zodiac: 999 };
             const increased = (gameState.trainLimitIncreases && gameState.trainLimitIncreases[type]) || 0;
             return baseLimits[type] + increased;
         }
 
-        // 获取员工上限
-        // 基础上限：66
-        // 等级加成：20级后每升1级+2，50级后不再增加（20-50级共30级，+60）
-        // 闯关加成：600关后每25关+1，最多+66（600-2250关，共66次）
+        // 
+        // 
+        // 
+        // 
         function getEmployeeLimit() {
-            let limit = 66; // 基础上限
+            let limit = 66; // 
 
-            // 等级加成：20级后每升1级+2，50级后不再增加
+            // 
             if (gameState.level > 20) {
-                const levelBonus = Math.min(gameState.level - 20, 30) * 2; // 最多30级（20-50），每级+2
+                const levelBonus = Math.min(gameState.level - 20, 30) * 2; // 
                 limit += levelBonus;
             }
 
-            // 闯关加成：600关后每25关+1，最多+66
+            // 
             if (gameState.challengeLevel > 600) {
                 const challengeBonus = Math.min(Math.floor((gameState.challengeLevel - 600) / 25), 66);
                 limit += challengeBonus;
@@ -2737,7 +2807,7 @@
             return limit;
         }
 
-        // 计算增加上限消耗
+        // 
         function calculateLimitIncreaseCost(type) {
             const currentIncreases = (gameState.trainLimitIncreases && gameState.trainLimitIncreases[type]) || 0;
             const baseCosts = {
@@ -2755,7 +2825,7 @@
             return Math.floor(baseCosts[type] * Math.pow(multipliers[type], currentIncreases));
         }
 
-        // 更新增加上限按钮显示
+        // 
         function updateLimitIncreaseButtons() {
             const types = ['normal', 'intercity', 'highspeed', 'anime'];
             const names = { normal: '普通火车', intercity: '城际火车', highspeed: '高铁', anime: '自创火车' };
@@ -2777,14 +2847,14 @@
             });
         }
 
-        // 增加火车上限
+        // 
         function increaseTrainLimit(type) {
             if (type === 'zodiac') {
                 showNotification('生肖限定火车上限无限，无需增加！');
                 return;
             }
 
-            // 初始化上限增加记录
+            // 
             if (!gameState.trainLimitIncreases) {
                 gameState.trainLimitIncreases = { normal: 0, intercity: 0, highspeed: 28, anime: 0, zodiac: 0 };
             }
@@ -2792,7 +2862,7 @@
                 gameState.trainLimitIncreases[type] = 0;
             }
 
-            // 检查是否已达最大增加次数
+            // 
             if (gameState.trainLimitIncreases[type] >= 30) {
                 showNotification('该类型火车上限已达到最大增加次数（30次）！');
                 return;
@@ -2818,7 +2888,7 @@
                 return;
             }
             
-            // 获取选中的火车，排除受限火车和顶级萌新号
+            // 
             const trainsToRetire = selectedTrainIds.map(id => 
                 gameState.ownedTrains.find(t => Math.abs(t.id - id) < 0.0001)
             ).filter(t => t && !isTrainRestricted(t) && !t.isTopNewbie);
@@ -2871,15 +2941,15 @@
             showNotification(`成功退役 ${trainsToRetire.length} 辆火车！`);
         }
 
-        // 火车筛选状态
+        // 
         let trainFilter = 'all';
         let trainPage = 1;
-        const trainsPerPage = 10; // 每页显示10辆火车
+        const trainsPerPage = 10; // 
 
         function filterTrains(filter) {
             trainFilter = filter;
-            trainPage = 1; // 重置页码
-            // 更新按钮样式
+            trainPage = 1; // 
+            // 
             const btns = {
                 all: document.getElementById('filterTrainAllBtn'),
                 normal: document.getElementById('filterTrainNormalBtn'),
@@ -2889,12 +2959,12 @@
                 zodiac: document.getElementById('filterTrainZodiacBtn')
             };
 
-            // 重置所有按钮样式
+            // 
             Object.entries(btns).forEach(([key, btn]) => {
                 btn.style.boxShadow = 'none';
             });
 
-            // 高亮当前选中的按钮
+            // 
             if (btns[filter]) {
                 const colors = {
                     all: '#00ff88',
@@ -2927,7 +2997,7 @@
             }).join(' ');
             document.getElementById('trainCountInfo').textContent = `共${totalCount}辆 | ${countInfo}`;
 
-            // 更新增加上限按钮显示
+            // 
             updateLimitIncreaseButtons();
 
             if (gameState.ownedTrains.length === 0) {
@@ -2935,7 +3005,7 @@
                 return;
             }
 
-            // 根据筛选条件过滤火车
+            // 
             let filteredTrains = gameState.ownedTrains;
             if (trainFilter !== 'all') {
                 filteredTrains = gameState.ownedTrains.filter(train => train.type === trainFilter);
@@ -2946,10 +3016,10 @@
                 return;
             }
 
-            // 检测是否为移动端
+            // 
             const isMobile = window.innerWidth <= 768;
             
-            // 分页处理（PC端和移动端都启用）
+            // 
             let displayTrains = filteredTrains;
             let totalPages = 1;
             if (filteredTrains.length > trainsPerPage) {
@@ -2962,7 +3032,7 @@
 
             let html = '';
 
-            // 添加分页控件（放在上面）
+            // 
             if (totalPages > 1) {
                 html += `
                 <div class="train-pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
@@ -2986,7 +3056,7 @@
                 if (refundPoints > 0) refundText += ` <span style="color:var(--neon-magenta);">${refundPoints}点</span>`;
                 if (refundStones > 0) refundText += ` <span style="color:var(--neon-cyan);">${refundStones}石</span>`;
                 const isSelected = selectedTrainIds.some(id => Math.abs(id - train.id) < 0.0001);
-                // 检查是否配备司机
+                // 
                 const assignedDriver = gameState.employees.find(emp => emp.trainId === train.id);
                 let driverInfo = '';
                 if (assignedDriver) {
@@ -3016,7 +3086,7 @@
                         bonusText.push(`速度+${speedBonus}%`);
                     }
                     
-                    driverInfo = `<span style="color:var(--accent-success);font-size:10px;">👤 ${assignedDriver.name} Lv.${level}</span><br><span style="color:var(--fg-primary);font-size:9px;">${bonusText.join(' | ')}</span>`;
+                    driverInfo = `<span style="font-size:10px;">👤 ${assignedDriver.type === 'vip' ? `<span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300% 100%;animation:rainbowText 3s linear infinite;font-weight:bold;text-shadow:0 0 10px rgba(0,255,255,0.5);filter:drop-shadow(0 0 5px rgba(0,255,255,0.5));">${assignedDriver.name}</span>` : `<span style="color:var(--accent-success);">${assignedDriver.name}</span>`} Lv.${level}</span><br><span style="color:var(--fg-primary);font-size:9px;">${bonusText.join(' | ')}</span>`;
                 } else {
                     driverInfo = `<span style="color:var(--fg-secondary);font-size:10px;">👤 未配备</span>`;
                 }
@@ -3097,7 +3167,7 @@
                 gameState.ownedTrains.map(t => `<option value="${t.id}">${t.name} ${t.upgradeLevel ? '(+' + t.upgradeLevel + ')' : ''}</option>`).join('');
             
             const startSelect = document.getElementById('startCitySelect');
-            // 合并城市列表并去重（根据城市名称）
+            // 
             const allCities = [...cities.china, ...cities.world];
             const uniqueCities = allCities.filter((city, index, self) => 
                 index === self.findIndex(c => c.name === city.name)
@@ -3148,20 +3218,20 @@
             }
         }
 
-        // 员工筛选状态
+        // 
         let employeeFilter = 'all';
         let employeePage = 1;
         const employeesPerPage = 10;
 
         function filterEmployees(filter) {
             employeeFilter = filter;
-            employeePage = 1; // 重置页码
-            // 更新按钮样式
+            employeePage = 1; // 
+            // 
             const allBtn = document.getElementById('filterAllBtn');
             const assignedBtn = document.getElementById('filterAssignedBtn');
             const unassignedBtn = document.getElementById('filterUnassignedBtn');
 
-            // 重置所有按钮样式为默认亮色
+            // 
             allBtn.style.background = 'var(--accent-primary)';
             allBtn.style.borderColor = 'var(--accent-primary)';
             allBtn.style.color = '#fff';
@@ -3177,11 +3247,11 @@
             unassignedBtn.style.color = '#fff';
             unassignedBtn.style.fontWeight = '600';
 
-            // 高亮当前选中的按钮（添加发光效果）
+            // 
             const activeBtn = filter === 'all' ? allBtn : (filter === 'assigned' ? assignedBtn : unassignedBtn);
             activeBtn.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.5)';
 
-            // 移除其他按钮的发光效果
+            // 
             [allBtn, assignedBtn, unassignedBtn].forEach(btn => {
                 if (btn !== activeBtn) {
                     btn.style.boxShadow = 'none';
@@ -3202,7 +3272,7 @@
             const currentCount = gameState.employees.length;
             document.getElementById('employeeCountInfo').textContent = `(${currentCount}/${employeeLimit})`;
 
-            // 更新招聘按钮显示价格
+            // 
             const hireBtn = document.getElementById('hireEmployeeBtn');
             if (hireBtn) {
                 const hireCost = calculateHireCost();
@@ -3215,7 +3285,7 @@
                 return;
             }
 
-            // 根据筛选条件过滤员工
+            // 
             let filteredEmployees = gameState.employees;
             if (employeeFilter === 'assigned') {
                 filteredEmployees = gameState.employees.filter(emp => emp.trainId !== null);
@@ -3228,7 +3298,7 @@
                 return;
             }
 
-            // 分页处理
+            // 
             let displayEmployees = filteredEmployees;
             let totalPages = 1;
             if (filteredEmployees.length > employeesPerPage) {
@@ -3241,7 +3311,7 @@
 
             let html = '';
 
-            // 添加分页控件
+            // 
             if (totalPages > 1) {
                 html += `
                 <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
@@ -3261,7 +3331,7 @@
                 return `<div class="employee-card">
                     <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
                         <div>
-                            <strong style="font-size:16px;background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${emp.name}</strong>
+                            <strong style="font-size:16px;${emp.type === 'vip' ? 'background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300% 100%;animation:rainbowText 3s linear infinite;text-shadow:0 0 10px rgba(0,255,255,0.5);filter:drop-shadow(0 0 5px rgba(0,255,255,0.5));' : ''}">${emp.name}</strong>
                             <span class="employee-type type-${emp.type}">${typeInfo.name}</span>
                         </div>
                         <div style="color:var(--neon-cyan);font-size:12px;">Lv.${emp.level}/40</div>
@@ -3300,7 +3370,7 @@
             
             const totalUpgradeCost = calculateTotalUpgradeCost(emp.level);
             container.innerHTML = `<div class="employee-card">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div><strong style="font-size:16px;background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${emp.name}</strong> <span class="employee-type type-${emp.type}">${typeInfo.name}</span></div><div style="color:var(--neon-cyan);font-size:12px;">Lv.${emp.level}/40</div></div>
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div><strong style="font-size:16px;${emp.type === 'vip' ? 'background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300% 100%;animation:rainbowText 3s linear infinite;text-shadow:0 0 10px rgba(0,255,255,0.5);filter:drop-shadow(0 0 5px rgba(0,255,255,0.5));' : ''}">${emp.name}</strong> <span class="employee-type type-${emp.type}">${typeInfo.name}</span></div><div style="color:var(--neon-cyan);font-size:12px;">Lv.${emp.level}/40</div></div>
                 <div style="margin:12px 0;"><div style="display:flex;justify-content:space-between;font-size:11px;color:var(--fg-secondary);"><span>${typeInfo.effect}: +${typeInfo.baseBonus * emp.level}%</span><span>${assignedTrain ? '已分配: ' + assignedTrain.name : '未分配'}</span></div>
                 <div class="progress-bar"><div class="progress-fill" style="width:${(emp.level/40)*100}%"></div></div></div>
                 <div style="display:flex;gap:10px;">
@@ -3316,7 +3386,7 @@
             const container = document.getElementById('shopList');
             const trains = trainData[currentShopTab];
 
-            // 分页处理
+            // 
             let totalPages = 1;
             let displayTrains = trains;
             if (trains.length > shopItemsPerPage) {
@@ -3329,7 +3399,7 @@
 
             let html = '';
 
-            // 添加分页控件
+            // 
             if (totalPages > 1) {
                 html += `
                 <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
@@ -3462,8 +3532,8 @@
 
         function filterRunningTrains(filter) {
             runningTrainFilter = filter;
-            runningTrainPage = 1; // 重置页码
-            // 更新按钮样式
+            runningTrainPage = 1; // 
+            // 
             const btns = {
                 all: document.getElementById('filterRunningAllBtn'),
                 normal: document.getElementById('filterRunningNormalBtn'),
@@ -3473,12 +3543,12 @@
                 zodiac: document.getElementById('filterRunningZodiacBtn')
             };
 
-            // 重置所有按钮样式
+            // 
             Object.entries(btns).forEach(([key, btn]) => {
                 btn.style.boxShadow = 'none';
             });
 
-            // 高亮当前选中的按钮
+            // 
             if (btns[filter]) {
                 const colors = {
                     all: '#00ff88',
@@ -3519,7 +3589,7 @@
                 return;
             }
 
-            // 按路线分组
+            // 
             const routeGroups = {};
             filteredTrains.forEach((rt, idx) => {
                 const routeKey = `${rt.startCity}→${rt.endCity}`;
@@ -3589,7 +3659,7 @@
                         return `
                         <div class="running-train" style="margin:5px 0;">
                             <div class="train-route" style="font-size:11px;">
-                                <strong style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${train.name}</strong>
+                                <strong style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300% 100%;animation:rainbowText 3s linear infinite;text-shadow:0 0 10px rgba(0,255,255,0.5);filter:drop-shadow(0 0 5px rgba(0,255,255,0.5));">${train.name}</strong>
                                 <span style="color:var(--neon-yellow);font-size:10px;">🛋️${comfort} (+${comfortBonus}%)</span>
                             </div>
                             <div class="progress-bar" style="height:4px;"><div class="progress-fill" style="width:${progress}%"></div></div>
@@ -3605,7 +3675,7 @@
 
             container.innerHTML = html;
             
-            // 恢复展开状态
+            // 
             Object.keys(routeGroupStates).forEach(groupId => {
                 if (routeGroupStates[groupId].isOpen) {
                     const detail = document.getElementById(groupId);
@@ -3616,7 +3686,7 @@
             });
         }
 
-        // 车次分组展开状态记录
+        // 
         const routeGroupStates = {};
         
         function toggleRouteGroup(groupId, event) {
@@ -3625,7 +3695,7 @@
                 event.preventDefault();
             }
             
-            // 防抖：如果500ms内已经处理过，则忽略
+            // 
             const now = Date.now();
             if (routeGroupStates[groupId] && routeGroupStates[groupId].lastToggle && (now - routeGroupStates[groupId].lastToggle) < 500) {
                 return;
@@ -3636,7 +3706,7 @@
                 const isCurrentlyOpen = detail.style.display === 'block';
                 detail.style.display = isCurrentlyOpen ? 'none' : 'block';
                 
-                // 记录状态和时间
+                // 
                 routeGroupStates[groupId] = {
                     isOpen: !isCurrentlyOpen,
                     lastToggle: now
@@ -3644,27 +3714,27 @@
             }
         }
 
-        // 城市筛选状态
+        // 
         let cityFilter = 'all';
         let cityPage = 1;
         const citiesPerPage = 10;
 
         function filterCities(filter) {
             cityFilter = filter;
-            cityPage = 1; // 重置页码
-            // 更新按钮样式
+            cityPage = 1; // 
+            // 
             const btns = {
                 all: document.getElementById('filterCityAllBtn'),
                 unlocked: document.getElementById('filterCityUnlockedBtn'),
                 locked: document.getElementById('filterCityLockedBtn')
             };
 
-            // 重置所有按钮样式
+            // 
             Object.entries(btns).forEach(([key, btn]) => {
                 btn.style.boxShadow = 'none';
             });
 
-            // 高亮当前选中的按钮
+            // 
             if (btns[filter]) {
                 const colors = {
                     all: '#00ff88',
@@ -3684,17 +3754,17 @@
 
         function renderCityUnlockList() {
             const container = document.getElementById('cityUnlockList');
-            // 合并城市列表并去重
+            // 
             const allCitiesRaw = [...cities.china, ...cities.world];
             const allCitiesUnique = allCitiesRaw.filter((city, index, self) =>
                 index === self.findIndex(c => c.name === city.name)
             );
 
-            // 分离已解锁和未解锁的城市
+            // 
             const unlockedCities = allCitiesUnique.filter(c => isCityUnlocked(c.name));
             const lockedCities = allCitiesUnique.filter(c => !isCityUnlocked(c.name)).sort((a, b) => a.unlockLevel - b.unlockLevel);
 
-            // 根据筛选条件获取要显示的城市
+            // 
             let displayCities = [];
             if (cityFilter === 'all') {
                 displayCities = [...unlockedCities, ...lockedCities];
@@ -3709,7 +3779,7 @@
                 return;
             }
 
-            // 分页处理
+            // 
             let totalPages = 1;
             let paginatedCities = displayCities;
             if (displayCities.length > citiesPerPage) {
@@ -3722,7 +3792,7 @@
 
             let html = '';
 
-            // 添加分页控件
+            // 
             if (totalPages > 1) {
                 html += `
                 <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:var(--bg-tertiary);border-radius:8px;border:1px solid var(--border);">
@@ -3810,7 +3880,7 @@
                 : '<div style="color:var(--fg-secondary);text-align:center;padding:20px;font-size:12px;">// 暂无使用记录</div>';
         }
 
-        // ==================== 联运系统 ====================
+        // ==================== 
         let selectedJointCities = [];
         let selectedJointTrain = null;
 
@@ -3848,7 +3918,7 @@
             const container = document.getElementById('jointCitySelection');
             const unlockedCities = gameState.unlockedCities;
             
-            // 获取所有正在运营中的城市
+            // 
             const runningCities = new Set();
             if (gameState.runningJointTrains) {
                 gameState.runningJointTrains.forEach(jt => {
@@ -3887,7 +3957,7 @@
         }
 
         function toggleJointCity(cityName) {
-            // 检查城市是否有乘客
+            // 
             const passengers = getCityPassengers(cityName);
             if (passengers <= 0) {
                 showNotification(`${cityName}没有乘客，无法选择！`);
@@ -3940,19 +4010,19 @@
                 }
             });
             
-            // 城市联动效益：当所有城市都达到N级时，额外增加 N% * 城市数量
+            // 
             if (minLevel >= 1) {
                 const synergyBonus = minLevel * selectedJointCities.length;
                 totalBonus += synergyBonus;
             }
             
-            // 集体城市升级联动效益
+            // 
             totalBonus += calculateCollectiveCityBonus();
             
             return totalBonus;
         }
         
-        // 计算城市联动效益（用于离线模式和批量发车）
+        // 
         function calculateCitySynergyBonus(cities) {
             if (!cities || cities.length === 0) return 0;
             let minLevel = Infinity;
@@ -3965,12 +4035,12 @@
             return minLevel * cities.length;
         }
         
-        // 计算集体城市升级联动效益
+        // 
         function calculateCollectiveCityBonus() {
             let bonus = 0;
             const cities = gameState.unlockedCities || [];
             
-            // 统计各等级城市数量
+            // 
             let level10Count = 0;
             let level20Count = 0;
             let level30Count = 0;
@@ -3984,28 +4054,28 @@
                 if (level >= 40) level40Count++;
             });
             
-            // 10级城市联动效益
+            // 10
             if (level10Count >= 60) {
                 bonus += 5;
             } else if (level10Count >= 30) {
                 bonus += 3;
             }
             
-            // 20级城市联动效益
+            // 20
             if (level20Count >= 60) {
                 bonus += 12;
             } else if (level20Count >= 30) {
                 bonus += 8;
             }
             
-            // 30级城市联动效益
+            // 30
             if (level30Count >= 60) {
                 bonus += 18;
             } else if (level30Count >= 30) {
                 bonus += 14;
             }
             
-            // 40级城市联动效益
+            // 40
             if (level40Count >= 60) {
                 bonus += 25;
             } else if (level40Count >= 30) {
@@ -4023,7 +4093,7 @@
             return fragments;
         }
 
-        // ==================== 特产系统 ====================
+        // ==================== 
         function initCitySpecialties() {
             if (!gameState.citySpecialties) gameState.citySpecialties = {};
             gameState.unlockedCities.forEach(cityName => {
@@ -4142,7 +4212,7 @@
             let started = 0;
             availableTrains.forEach(train => {
                 if (gameState.runningSpecialTrains.length < getSpecialtyTrainLimit()) {
-                    // 找一个有特产的城市作为起点
+                    // 
                     const citiesWithSpecialty = gameState.unlockedCities.filter(cityName => {
                         const level = gameState.cityLevels[cityName] || 1;
                         return level >= 50 && gameState.citySpecialties[cityName];
@@ -4150,7 +4220,7 @@
                     if (citiesWithSpecialty.length > 0) {
                         const startCity = citiesWithSpecialty[Math.floor(Math.random() * citiesWithSpecialty.length)];
                         const specialty = gameState.citySpecialties[startCity].product;
-                        // 找需要这个特产的城市
+                        // 
                         const demandCities = gameState.unlockedCities.filter(cityName => {
                             const level = gameState.cityLevels[cityName] || 1;
                             return level >= 50 && 
@@ -4171,19 +4241,19 @@
 
         function calculateCityUpgradeCost(currentLevel) {
             if (currentLevel < 11) {
-                return 500 * currentLevel;      // 1-10级
+                return 500 * currentLevel;      // 1-10
             } else if (currentLevel < 20) {
-                return 2000 * currentLevel;     // 11-19级
+                return 2000 * currentLevel;     // 11-19
             } else if (currentLevel < 40) {
-                return 6000 * currentLevel;     // 20-39级
+                return 6000 * currentLevel;     // 20-39
             } else if (currentLevel < 60) {
-                return 18000 * currentLevel;    // 40-59级
+                return 18000 * currentLevel;    // 40-59
             } else if (currentLevel < 80) {
-                return 35000 * currentLevel;    // 60-79级
+                return 35000 * currentLevel;    // 60-79
             } else if (currentLevel < 100) {
-                return 70000 * currentLevel;    // 80-99级
+                return 70000 * currentLevel;    // 80-99
             } else {
-                return 100000 * currentLevel;   // 100级及之后
+                return 100000 * currentLevel;   // 100
             }
         }
 
@@ -4207,7 +4277,7 @@
             const weatherEffect = getWeatherIncomeModifier() * 100;
             const fragments = calculateJointFragments(distance);
             
-            // 计算乘客增益（整个行程总共只能装载trainCapacity数量的乘客）
+            // 
             let totalPassengers = 0;
             let passengerBonus = 0;
             if (selectedJointTrain) {
@@ -4299,7 +4369,7 @@
                 return;
             }
             
-            // 检查每个城市是否有乘客
+            // 
             for (const cityName of selectedJointCities) {
                 const passengers = getCityPassengers(cityName);
                 if (passengers <= 0) {
@@ -4314,7 +4384,7 @@
                 return;
             }
             
-            // 计算乘客数量和增益（整个行程总共只能装载trainCapacity数量的乘客）
+            // 
             const trainCapacity = getTrainCapacity(selectedJointTrain);
             let totalPassengers = 0;
             let remainingCapacity = trainCapacity;
@@ -4343,7 +4413,7 @@
             const earnings = Math.round(baseEarnings * totalBonus);
             const time = calculateTime(selectedJointTrain, distance);
             
-            // 消耗乘客
+            // 
             passengersPerCity.forEach(({ cityName, takePassengers }) => {
                 consumeCityPassengers(cityName, takePassengers);
             });
@@ -4388,7 +4458,7 @@
                 return;
             }
             
-            // 检查每个城市是否有乘客
+            // 
             for (const cityName of selectedJointCities) {
                 const passengers = getCityPassengers(cityName);
                 if (passengers <= 0) {
@@ -4429,9 +4499,9 @@
                 const level = gameState.cityLevels[cityName] || 1;
                 cityLevelBonus += (level - 1) * 5;
             });
-            // 添加城市联动效益
+            // 
             cityLevelBonus += calculateCitySynergyBonus(selectedJointCities);
-            // 添加集体城市升级联动效益
+            // 
             cityLevelBonus += calculateCollectiveCityBonus();
             let tourismBonus = 0;
             selectedJointCities.forEach(cityName => {
@@ -4444,14 +4514,14 @@
             const currentCount = gameState.runningJointTrains ? gameState.runningJointTrains.length : 0;
             const maxToAdd = 50 - currentCount;
             
-            // 计算每辆火车在每个城市可搭载的乘客
+            // 
             let totalPassengersAll = 0;
             const passengersPerCity = {};
             selectedJointCities.forEach(cityName => {
                 passengersPerCity[cityName] = getCityPassengers(cityName);
             });
             
-            // 检查是否有足够的乘客
+            // 
             let totalAvailablePassengers = 0;
             Object.values(passengersPerCity).forEach(p => totalAvailablePassengers += p);
             if (totalAvailablePassengers <= 0) {
@@ -4476,7 +4546,7 @@
                     remainingCapacity -= take;
                 });
                 
-                // 如果这辆火车没有乘客，跳过不发车
+                // 
                 if (trainPassengers <= 0) {
                     return;
                 }
@@ -4508,7 +4578,7 @@
                 startedCount++;
             });
             
-            // 消耗乘客
+            // 
             selectedJointCities.forEach(cityName => {
                 const originalPassengers = getCityPassengers(cityName);
                 const consumed = originalPassengers - passengersPerCity[cityName];
@@ -4519,7 +4589,7 @@
 
             isStartingAllJointTrains = false;
             
-            // 清空选择
+            // 
             selectedJointCities = [];
             
             if (startedCount === 0) {
@@ -4546,7 +4616,7 @@
                 return;
             }
             
-            // 检查每个城市是否有乘客
+            // 
             for (const cityName of selectedJointCities) {
                 const passengers = getCityPassengers(cityName);
                 if (passengers <= 0) {
@@ -4595,9 +4665,9 @@
                 const level = gameState.cityLevels[cityName] || 1;
                 cityLevelBonus += (level - 1) * 5;
             });
-            // 添加城市联动效益
+            // 
             cityLevelBonus += calculateCitySynergyBonus(selectedJointCities);
-            // 添加集体城市升级联动效益
+            // 
             cityLevelBonus += calculateCollectiveCityBonus();
             let tourismBonus = 0;
             selectedJointCities.forEach(cityName => {
@@ -4610,14 +4680,14 @@
             const currentCount = gameState.runningJointTrains ? gameState.runningJointTrains.length : 0;
             const maxToAdd = 50 - currentCount;
             
-            // 计算每辆火车在每个城市可搭载的乘客
+            // 
             let totalPassengersAll = 0;
             const passengersPerCity = {};
             selectedJointCities.forEach(cityName => {
                 passengersPerCity[cityName] = getCityPassengers(cityName);
             });
             
-            // 检查是否有足够的乘客
+            // 
             let totalAvailablePassengers = 0;
             Object.values(passengersPerCity).forEach(p => totalAvailablePassengers += p);
             if (totalAvailablePassengers <= 0) {
@@ -4642,7 +4712,7 @@
                     remainingCapacity -= take;
                 });
                 
-                // 如果这辆火车没有乘客，跳过不发车
+                // 
                 if (trainPassengers <= 0) {
                     return;
                 }
@@ -4674,7 +4744,7 @@
                 startedCount++;
             });
             
-            // 消耗乘客
+            // 
             selectedJointCities.forEach(cityName => {
                 const originalPassengers = getCityPassengers(cityName);
                 const consumed = originalPassengers - passengersPerCity[cityName];
@@ -4685,7 +4755,7 @@
 
             isStartingJointTrainsByType = false;
             
-            // 清空选择
+            // 
             selectedJointCities = [];
             
             if (startedCount === 0) {
@@ -4709,7 +4779,7 @@
                 return;
             }
             
-            // 按路线分组
+            // 
             const routeGroups = {};
             gameState.runningJointTrains.forEach((jt, idx) => {
                 const routeKey = jt.cities.join('→');
@@ -4797,7 +4867,7 @@
             
             container.innerHTML = html;
             
-            // 恢复展开状态
+            // 
             Object.keys(routeGroupStates).forEach(groupId => {
                 if (routeGroupStates[groupId].isOpen) {
                     const detail = document.getElementById(groupId);
@@ -4820,15 +4890,15 @@
             const container = document.getElementById('jointCityUpgradeList');
             let unlockedCities = [...gameState.unlockedCities];
             
-            // 按等级降序、碎片降序排序
+            // 
             unlockedCities.sort((a, b) => {
                 const levelA = gameState.cityLevels[a] || 1;
                 const levelB = gameState.cityLevels[b] || 1;
-                if (levelA !== levelB) return levelB - levelA;  // 等级高的优先
+                if (levelA !== levelB) return levelB - levelA;  // 
                 
                 const fragmentsA = gameState.cityFragments[a] || 0;
                 const fragmentsB = gameState.cityFragments[b] || 0;
-                return fragmentsB - fragmentsA;  // 碎片多的优先
+                return fragmentsB - fragmentsA;  // 
             });
             
             if (unlockedCities.length === 0) {
@@ -4928,12 +4998,12 @@
             renderJointPanel();
         }
 
-        // ==================== 闯关系统 ====================
+        // ==================== 
         let autoChallengeInterval = null;
         let isAutoChallenging = false;
 
         function renderChallengePanel() {
-            // 初始化闯关数据
+            // 
             if (gameState.challengeLevel === undefined) gameState.challengeLevel = 0;
             if (gameState.challengeProgress === undefined) gameState.challengeProgress = 0;
             if (gameState.challengeBonus === undefined) gameState.challengeBonus = 0;
@@ -4943,17 +5013,17 @@
             document.getElementById('challengeBonusDisplay').textContent = `+${(gameState.challengeBonus).toFixed(2)}%`;
             document.getElementById('reformStonesDisplay').textContent = `${gameState.reformStones || 0} 个`;
             document.getElementById('challengeProgressDisplay').textContent = gameState.challengeProgress;
-            document.getElementById('challengeProgressBar').style.width = `${(gameState.challengeProgress / 200) * 100}%`;
+            document.getElementById('challengeProgressBar').style.width = `${(gameState.challengeProgress / 20) * 100}%`;
 
-            // 计算当前挑战消耗
+            // 
             const cost = calculateChallengeCost();
             document.getElementById('challengeCostDisplay').textContent = formatNumber(cost) + ' 金币';
 
-            // 检查是否可以挑战
+            // 
             const canChallenge = gameState.gold >= cost;
             document.getElementById('challengeBtn').disabled = !canChallenge || isAutoChallenging;
 
-            // 更新自动挑战按钮状态
+            // 
             const autoBtn = document.getElementById('autoChallengeBtn');
             if (autoBtn) {
                 autoBtn.textContent = isAutoChallenging ? '⏹️ 停止自动' : '🔄 自动挑战';
@@ -4962,16 +5032,30 @@
         }
 
         function calculateChallengeCost() {
-            // 基础消耗：第1关每次10000金币
-            // 每关递增：关卡数 * 50%
-            // 每次递增：当前进度 * 0.5%
+            // 
+            // 
+            // 
+            // 
+            // 
             const level = gameState.challengeLevel || 0;
             const progress = gameState.challengeProgress || 0;
             const baseCost = 10000;
-            const levelMultiplier = 1 + level * 0.5; // 每关增加50%基础消耗
-            const progressMultiplier = 1 + progress * 0.005; // 每次挑战增加0.5%
+            const levelMultiplier = 1 + level * 0.5; // 
+            const progressMultiplier = 1 + progress * 1.47; // 
+            
+            // 
+            let extraMultiplier = 1;
+            if (level > 1500) {
+                extraMultiplier = 1 + (level - 1500) * 0.01;
+            }
+            
+            // 
+            let superMultiplier = 1;
+            if (level > 3500) {
+                superMultiplier = 1 + (level - 3500) * 0.02;
+            }
 
-            return Math.floor(baseCost * levelMultiplier * progressMultiplier);
+            return Math.floor(baseCost * levelMultiplier * progressMultiplier * extraMultiplier * superMultiplier);
         }
 
         function doChallenge() {
@@ -4983,69 +5067,69 @@
                 return false;
             }
 
-            // 扣除金币
+            // 
             gameState.gold -= cost;
 
-            // 增加进度
+            // 
             gameState.challengeProgress++;
 
-            // 检查是否通关
-            if (gameState.challengeProgress >= 200) {
+            // 
+            if (gameState.challengeProgress >= 20) {
                 completeLevel();
             }
 
-            // 更新界面
+            // 
             renderChallengePanel();
             updateUI();
             return true;
         }
 
         function completeLevel() {
-            // 增加关卡
+            // 
             gameState.challengeLevel++;
 
-            // 重置进度
+            // 
             gameState.challengeProgress = 0;
 
-            // 根据关卡计算奖励
+            // 
             let stonesReward, pointsReward, expReward, bonusReward;
 
             if (gameState.challengeLevel >= 2500) {
-                // 2500关及以上
-                stonesReward = Math.floor(Math.random() * 15) + 11;  // 11-25个改造石
-                pointsReward = Math.floor(Math.random() * 133) + 18;  // 18-150点卷
-                expReward = Math.floor(Math.random() * 850001) + 150000;  // 150000-1000000经验
+                // 2500
+                stonesReward = Math.floor(Math.random() * 15) + 11;  // 11-25
+                pointsReward = Math.floor(Math.random() * 133) + 18;  // 18-150
+                expReward = Math.floor(Math.random() * 850001) + 150000;  // 150000-1000000
                 bonusReward = 0.6;
             } else if (gameState.challengeLevel >= 1000) {
-                // 1000关及以上
-                stonesReward = Math.floor(Math.random() * 5) + 6;  // 6-10个改造石
-                pointsReward = Math.floor(Math.random() * 6) + 10;  // 10-15点卷
-                expReward = Math.floor(Math.random() * 100001) + 150000;  // 150000-250000经验
+                // 1000
+                stonesReward = Math.floor(Math.random() * 5) + 6;  // 6-10
+                pointsReward = Math.floor(Math.random() * 6) + 10;  // 10-15
+                expReward = Math.floor(Math.random() * 100001) + 150000;  // 150000-250000
                 bonusReward = 0.5;
             } else if (gameState.challengeLevel >= 450) {
-                // 450关及以上
-                stonesReward = Math.floor(Math.random() * 5) + 3;  // 3-7个改造石
-                pointsReward = Math.floor(Math.random() * 5) + 5;  // 5-9点卷
-                expReward = Math.floor(Math.random() * 80001) + 60000;  // 60000-140000经验
+                // 450
+                stonesReward = Math.floor(Math.random() * 5) + 3;  // 3-7
+                pointsReward = Math.floor(Math.random() * 5) + 5;  // 5-9
+                expReward = Math.floor(Math.random() * 80001) + 60000;  // 60000-140000
                 bonusReward = 0.45;
             } else if (gameState.challengeLevel >= 100) {
-                // 100-499关
-                stonesReward = Math.floor(Math.random() * 5) + 2;  // 2-6个改造石
-                pointsReward = Math.floor(Math.random() * 3) + 3;  // 3-5点卷
-                expReward = Math.floor(Math.random() * 40000) + 20000;  // 20000-59999经验
+                // 100-499
+                stonesReward = Math.floor(Math.random() * 5) + 2;  // 2-6
+                pointsReward = Math.floor(Math.random() * 3) + 3;  // 3-5
+                expReward = Math.floor(Math.random() * 40000) + 20000;  // 20000-59999
                 bonusReward = 0.15;
             } else {
-                // 1-99关
-                stonesReward = Math.floor(Math.random() * 5) + 1;  // 1-5个改造石
-                pointsReward = Math.floor(Math.random() * 5) + 1;  // 1-5点卷
-                expReward = Math.floor(Math.random() * 1001) + 1000;  // 1000-2000经验
+                // 1-99
+                stonesReward = Math.floor(Math.random() * 5) + 1;  // 1-5
+                pointsReward = Math.floor(Math.random() * 5) + 1;  // 1-5
+                expReward = Math.floor(Math.random() * 1001) + 1000;  // 1000-2000
                 bonusReward = 0.05;
             }
 
-            // 增加收益加成
+            // 
             gameState.challengeBonus = (gameState.challengeBonus || 0) + bonusReward;
 
-            // 确保reformStones已初始化并添加奖励
+            // 
             if (gameState.reformStones === undefined) gameState.reformStones = 0;
             gameState.reformStones += stonesReward;
             gameState.points += pointsReward;
@@ -5076,7 +5160,7 @@
                     return;
                 }
                 doChallenge();
-            }, 100); // 每100毫秒挑战一次
+            }, 100); // 
 
             renderChallengePanel();
         }
@@ -5093,7 +5177,7 @@
             renderChallengePanel();
         }
 
-        // ==================== 火车改造系统 ====================
+        // ==================== 
         function renderReformPanel() {
             document.getElementById('reformStonesCount').textContent = gameState.reformStones || 0;
             document.getElementById('dailyReformStones').textContent = gameState.dailyReformStonesEarned || 0;
@@ -5137,8 +5221,10 @@
             const speedBonus = reformLevel * 1;
             
             const nextComfortLevel = comfortReformLevel + 1;
-            const comfortReformCost = Math.floor(train.purchasePrice * 1000 * nextComfortLevel * nextComfortLevel);
-            const canComfortReform = comfortReformLevel < 100 && gameState.gold >= comfortReformCost;
+            const comfortReformCost = calculateComfortReformCost(nextComfortLevel);
+            const trainType = train.type || 'normal';
+            const comfortFragments = (gameState.comfortFragments && gameState.comfortFragments[trainType]) || 0;
+            const canComfortReform = comfortReformLevel < 100 && comfortFragments >= comfortReformCost;
             const comfort = train.comfort || 100;
             const comfortBonus = comfort / 100;
             
@@ -5159,29 +5245,53 @@
                 ${reformLevel < 25 ? `<button class="btn btn-primary" onclick="reformTrain(${train.id})" ${canReform ? '' : 'disabled'}>改造石改造 (消耗 ${reformCost} 改造石)</button>` : '<span style="color:var(--neon-orange);font-size:12px;">速度改造已满级</span>'}
                 
                 <div style="margin:12px 0;padding-top:12px;border-top:1px solid var(--border);">
-                    <div style="font-size:12px;color:var(--neon-yellow);margin-bottom:8px;">🛋️ 舒适度改造 (提升收入)</div>
+                    <div style="font-size:12px;color:var(--accent-warning);margin-bottom:8px;">🛋️ 舒适度改造 (提升收入)</div>
                     <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--fg-secondary);margin-bottom:8px;">
-                        <span>舒适度: <span style="color:var(--neon-yellow);">${comfort}</span> (收入+${comfortBonus.toFixed(1)}%)</span>
+                        <span>舒适度: <span style="color:var(--accent-warning);">${comfort}</span> (收入+${comfortBonus.toFixed(1)}%)</span>
                         <span>改造等级: ${comfortReformLevel}/100</span>
+                    </div>
+                    <div style="font-size:11px;color:var(--fg-secondary);margin-bottom:8px;">
+                        当前碎片: <span style="color:var(--accent-warning);">${formatNumber(comfortFragments)}</span>
                     </div>
                     <div class="progress-bar"><div class="progress-fill" style="width:${(comfortReformLevel/100)*100}%"></div></div>
                 </div>
-                ${comfortReformLevel < 100 ? `<button class="btn btn-primary" onclick="comfortReformTrain(${train.id})" ${canComfortReform ? '' : 'disabled'} style="background:var(--neon-yellow);">舒适度改造 (消耗 ${formatNumber(comfortReformCost)} 金币)</button>` : '<span style="color:var(--neon-orange);font-size:12px;">舒适度改造已满级</span>'}
+                ${comfortReformLevel < 100 ? `<button class="btn btn-primary" onclick="comfortReformTrain(${train.id})" ${canComfortReform ? '' : 'disabled'} style="background:var(--accent-warning);">舒适度改造 (消耗 ${formatNumber(comfortReformCost)} 碎片)</button>` : '<span style="color:var(--accent-warning);font-size:12px;">舒适度改造已满级</span>'}
             </div>`;
         }
 
         function getComfortIncreasePercent(level) {
-            if (level <= 10) return 0.05;      // 1-10级：+5%
-            if (level <= 20) return 0.10;      // 11-20级：+10%
-            if (level <= 30) return 0.15;      // 21-30级：+15%
-            if (level <= 40) return 0.20;      // 31-40级：+20%
-            if (level <= 60) return 0.25;      // 41-60级：+25%
-            if (level <= 75) return 0.30;      // 61-75级：+30%
-            if (level <= 90) return 0.35;      // 76-90级：+35%
-            if (level <= 95) return 0.45;      // 91-95级：+45%
-            if (level <= 98) return 0.65;      // 96-98级：+65%
-            if (level === 99) return 1.00;     // 99级：+100%
-            return 2.00;                        // 100级：+200%
+            if (level <= 10) return 0.05;      // 1-10
+            if (level <= 20) return 0.10;      // 11-20
+            if (level <= 30) return 0.15;      // 21-30
+            if (level <= 40) return 0.20;      // 31-40
+            if (level <= 60) return 0.25;      // 41-60
+            if (level <= 75) return 0.30;      // 61-75
+            if (level <= 90) return 0.35;      // 76-90
+            if (level <= 95) return 0.45;      // 91-95
+            if (level <= 98) return 0.65;      // 96-98
+            if (level === 99) return 1.00;     // 99
+            return 2.00;                        // 100
+        }
+
+        function calculateComfortReformCost(level) {
+            // 1-20
+            // 21-40
+            // 41-60
+            // 61-80
+            // 81-100
+            let multiplier;
+            if (level <= 20) {
+                multiplier = 10000;
+            } else if (level <= 40) {
+                multiplier = 20000;
+            } else if (level <= 60) {
+                multiplier = 30000;
+            } else if (level <= 80) {
+                multiplier = 40000;
+            } else {
+                multiplier = 50000;
+            }
+            return level * level * multiplier;
         }
 
         function reformTrain(trainId) {
@@ -5230,15 +5340,15 @@
             }
             
             const nextLevel = comfortReformLevel + 1;
-            // 调低消耗：原公式 purchasePrice^2 * 2.5 * level，改为 purchasePrice * 0.5 * level
-            const comfortReformCost = Math.floor(train.purchasePrice * 1000 * nextLevel * nextLevel);
+            const comfortReformCost = calculateComfortReformCost(nextLevel);
+            const trainType = train.type || 'normal';
             
-            if (gameState.gold < comfortReformCost) {
-                showNotification('金币不足！');
+            if (!gameState.comfortFragments || !gameState.comfortFragments[trainType] || gameState.comfortFragments[trainType] < comfortReformCost) {
+                showNotification('舒适度改造碎片不足！');
                 return;
             }
             
-            gameState.gold -= comfortReformCost;
+            gameState.comfortFragments[trainType] -= comfortReformCost;
             train.comfortReformLevel = nextLevel;
             const comfortIncreasePercent = getComfortIncreasePercent(nextLevel);
             const baseComfort = trainData[train.type] ? (trainData[train.type].find(t => t.name === train.name)?.comfort || 100) : 100;
@@ -5263,7 +5373,7 @@
                 const comfortBonus = (comfort / 100).toFixed(1);
                 const displayTime = Math.max(0, Math.round(rt.remainingTime));
                 return `<div class="running-train" style="margin-bottom:10px;">
-                    <div style="font-size:12px;font-weight:600;margin-bottom:6px;background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">${train.name}</div>
+                    <div style="font-size:12px;font-weight:600;margin-bottom:6px;background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300% 100%;animation:rainbowText 3s linear infinite;text-shadow:0 0 10px rgba(0,255,255,0.5);filter:drop-shadow(0 0 5px rgba(0,255,255,0.5));">${train.name}</div>
                     <div style="font-size:10px;color:var(--fg-secondary);margin-bottom:6px;">${rt.startCity} → ${rt.endCity}</div>
                     <div style="font-size:10px;color:var(--neon-yellow);margin-bottom:4px;">🛋️${comfort} (+${comfortBonus}%)</div>
                     <div class="progress-bar" style="height:3px;margin:6px 0;"><div class="progress-fill" style="width:${progress}%"></div></div>
@@ -5272,7 +5382,7 @@
             }).join('') + (gameState.runningTrains.length > 5 ? `<div style="text-align:center;color:var(--fg-secondary);font-size:10px;margin-top:8px;">... 还有 ${gameState.runningTrains.length - 5} 辆</div>` : '');
         }
 
-        // ==================== 称号系统 ====================
+        // ==================== 
         function renderTitlePanel() {
             if (gameState.titleFragments === undefined) gameState.titleFragments = 0;
             if (gameState.ownedTitles === undefined) gameState.ownedTitles = [];
@@ -5366,7 +5476,7 @@
             return titleData ? titleData.effect.expBonus : 0;
         }
 
-        // ==================== 特产面板渲染 ====================
+        // ==================== 
         let selectedSpecialtyStartCity = null;
         let selectedSpecialtyDestCities = [];
         
@@ -5529,7 +5639,7 @@
                 const trainSelect = document.getElementById('specialtyTrainSelect');
                 const trainIdStr = trainSelect.value;
                 const trainId = parseFloat(trainIdStr);
-                // 使用近似比较来查找火车（浮点数精度问题）
+                // 
                 const train = !isNaN(trainId) && trainIdStr !== '' ? gameState.ownedTrains.find(t => Math.abs(t.id - trainId) < 0.0001) : null;
                 
                 console.log('updateSpecialtyInfo:', { 
@@ -5562,7 +5672,7 @@
                 const specialty = gameState.citySpecialties[selectedSpecialtyStartCity].product;
                 const route = selectedSpecialtyStartCity + ' → ' + selectedSpecialtyDestCities.join(' → ');
                 
-                // 计算距离和时间
+                // 
                 let totalDistance = 0;
                 let prevCity = selectedSpecialtyStartCity;
                 selectedSpecialtyDestCities.forEach(cityName => {
@@ -5574,18 +5684,18 @@
                 
                 const totalTime = calculateTime(train, totalDistance);
                 
-                // 计算收益（包含旅游季节和城市等级加成）
+                // 
                 const baseEarnings = calculateEarnings(train, totalDistance);
                 const goldBonus = getGoldBonusEffect(gameState.goldBonusLevel);
                 
-                // 城市等级加成
+                // 
                 let cityLevelBonus = 0;
                 [selectedSpecialtyStartCity, ...selectedSpecialtyDestCities].forEach(cityName => {
                     const level = gameState.cityLevels[cityName] || 1;
                     cityLevelBonus += (level - 1) * 5;
                 });
                 
-                // 旅游季节加成
+                // 
                 let tourismBonus = 0;
                 [selectedSpecialtyStartCity, ...selectedSpecialtyDestCities].forEach(cityName => {
                     tourismBonus += getTourismIncomeModifier(cityName) * 100;
@@ -5609,7 +5719,7 @@
             try {
                 const trainSelect = document.getElementById('specialtyTrainSelect');
                 const trainId = parseFloat(trainSelect.value);
-                // 使用近似比较来查找火车（浮点数精度问题）
+                // 
                 const train = !isNaN(trainId) ? gameState.ownedTrains.find(t => Math.abs(t.id - trainId) < 0.0001) : null;
                 
                 console.log('startSpecialtyOperation:', { trainId, train: !!train, selectedSpecialtyStartCity, selectedSpecialtyDestCitiesLength: selectedSpecialtyDestCities.length });
@@ -5642,7 +5752,7 @@
                 
                 const specialty = gameState.citySpecialties[selectedSpecialtyStartCity].product;
                 
-                // 计算距离和时间
+                // 
                 let totalDistance = 0;
                 let prevCity = selectedSpecialtyStartCity;
                 selectedSpecialtyDestCities.forEach(cityName => {
@@ -5656,14 +5766,14 @@
                 const baseEarnings = calculateEarnings(train, totalDistance);
                 const goldBonus = getGoldBonusEffect(gameState.goldBonusLevel);
                 
-                // 城市等级加成
+                // 
                 let cityLevelBonus = 0;
                 [selectedSpecialtyStartCity, ...selectedSpecialtyDestCities].forEach(cityName => {
                     const level = gameState.cityLevels[cityName] || 1;
                     cityLevelBonus += (level - 1) * 5;
                 });
                 
-                // 旅游季节加成
+                // 
                 let tourismBonus = 0;
                 [selectedSpecialtyStartCity, ...selectedSpecialtyDestCities].forEach(cityName => {
                     tourismBonus += getTourismIncomeModifier(cityName) * 100;
@@ -5689,7 +5799,7 @@
                 saveGame();
                 showNotification(`特产列车 ${train.name} 已发车！`);
                 
-                // 重置选择
+                // 
                 selectedSpecialtyStartCity = null;
                 selectedSpecialtyDestCities = [];
                 renderSpecialtyPanel();
@@ -5706,7 +5816,7 @@
                 return;
             }
             
-            // 按路线分组
+            // 
             const routeGroups = {};
             gameState.runningSpecialTrains.forEach((st, idx) => {
                 const routeKey = `${st.startCity}→${st.endCities.join('→')}`;
@@ -5777,7 +5887,7 @@
             
             container.innerHTML = html;
             
-            // 恢复展开状态
+            // 
             Object.keys(routeGroupStates).forEach(groupId => {
                 if (routeGroupStates[groupId].isOpen) {
                     const detail = document.getElementById(groupId);
@@ -5788,7 +5898,7 @@
             });
         }
 
-        // ==================== 地图系统 ====================
+        // ==================== 
         let currentMapTab = 'china';
         let mapAnimationId = null;
         let mapZoom = 1;
@@ -5804,7 +5914,7 @@
             document.querySelectorAll('#mapPanel .tabs .tab').forEach(t => t.classList.remove('active'));
             event.target.classList.add('active');
             
-            // 更新地图标题
+            // 
             const mapTitle = document.getElementById('mapTitle');
             if (mapTitle) {
                 mapTitle.textContent = tab === 'china' ? 'CHINA MAP' : 'WORLD MAP';
@@ -5840,7 +5950,7 @@
 
         function toggleMapRotation() {
             globeAutoRotate = !globeAutoRotate;
-            globeUserPaused = !globeAutoRotate; // 记录用户是否主动暂停
+            globeUserPaused = !globeAutoRotate; // 
             const btn = document.getElementById('toggleRotationBtn');
             if (globeAutoRotate) {
                 btn.textContent = '⏸';
@@ -5854,7 +5964,7 @@
         function initMapControls() {
             const canvas = document.getElementById('mapCanvas');
             
-            // 鼠标滚轮缩放
+            // 
             canvas.addEventListener('wheel', (e) => {
                 e.preventDefault();
                 const delta = e.deltaY > 0 ? 0.9 : 1.1;
@@ -5863,7 +5973,7 @@
                 renderMap();
             });
 
-            // 鼠标拖拽旋转地球仪
+            // 
             canvas.addEventListener('mousedown', (e) => {
                 globeDragging = true;
                 globeAutoRotate = false;
@@ -5886,7 +5996,7 @@
 
             canvas.addEventListener('mouseup', () => {
                 globeDragging = false;
-                // 只有用户没有主动暂停时，才恢复自动旋转
+                // 
                 if (!globeUserPaused) {
                     setTimeout(() => { 
                         if (!globeUserPaused) globeAutoRotate = true; 
@@ -5897,7 +6007,7 @@
 
             canvas.addEventListener('mouseleave', () => {
                 globeDragging = false;
-                // 只有用户没有主动暂停时，才恢复自动旋转
+                // 
                 if (!globeUserPaused) {
                     setTimeout(() => { 
                         if (!globeUserPaused) globeAutoRotate = true; 
@@ -5906,11 +6016,11 @@
                 canvas.style.cursor = 'grab';
             });
             
-            // 双击恢复自动旋转
+            // 
             canvas.addEventListener('dblclick', () => {
                 globeAutoRotate = true;
-                globeUserPaused = false; // 清除用户暂停状态
-                // 更新按钮状态
+                globeUserPaused = false; // 
+                // 
                 const btn = document.getElementById('toggleRotationBtn');
                 if (btn) {
                     btn.textContent = '⏸';
@@ -5919,7 +6029,7 @@
                 showNotification('已恢复自动旋转');
             });
             
-            // 触摸事件支持 - 手机适配
+            // 
             let touchStartDistance = 0;
             let touchStartZoom = 1;
             let lastTouchX = 0;
@@ -5929,13 +6039,13 @@
             canvas.addEventListener('touchstart', (e) => {
                 e.preventDefault();
                 if (e.touches.length === 1) {
-                    // 单指拖拽
+                    // 
                     isTouchDragging = true;
                     globeAutoRotate = false;
                     lastTouchX = e.touches[0].clientX;
                     lastTouchY = e.touches[0].clientY;
                 } else if (e.touches.length === 2) {
-                    // 双指缩放
+                    // 
                     isTouchDragging = false;
                     const dx = e.touches[0].clientX - e.touches[1].clientX;
                     const dy = e.touches[0].clientY - e.touches[1].clientY;
@@ -5947,7 +6057,7 @@
             canvas.addEventListener('touchmove', (e) => {
                 e.preventDefault();
                 if (e.touches.length === 1 && isTouchDragging) {
-                    // 单指拖拽旋转地球仪
+                    // 
                     const deltaX = e.touches[0].clientX - lastTouchX;
                     const deltaY = e.touches[0].clientY - lastTouchY;
                     globeRotationY += deltaX * 0.01;
@@ -5956,7 +6066,7 @@
                     lastTouchY = e.touches[0].clientY;
                     renderMap();
                 } else if (e.touches.length === 2) {
-                    // 双指缩放
+                    // 
                     const dx = e.touches[0].clientX - e.touches[1].clientX;
                     const dy = e.touches[0].clientY - e.touches[1].clientY;
                     const currentDistance = Math.sqrt(dx * dx + dy * dy);
@@ -5970,12 +6080,12 @@
             canvas.addEventListener('touchend', (e) => {
                 if (e.touches.length === 0) {
                     isTouchDragging = false;
-                    // 3秒后恢复自动旋转
+                    // 3
                     setTimeout(() => { globeAutoRotate = true; }, 3000);
                 }
             });
             
-            // 双击恢复自动旋转（触摸）
+            // 
             let lastTapTime = 0;
             canvas.addEventListener('touchend', (e) => {
                 const currentTime = new Date().getTime();
@@ -5988,16 +6098,16 @@
             });
         }
 
-        // 地球仪参数
-        let globeRotationX = 0.3; // 俯仰角
-        let globeRotationY = -1.83;   // 水平旋转角（-105°，使中国居中显示）
+        // 
+        let globeRotationX = 0.3; // 
+        let globeRotationY = -1.83;   // 
         let globeAutoRotate = true;
-        let globeUserPaused = false; // 用户是否主动暂停了旋转
+        let globeUserPaused = false; // 
         let globeDragging = false;
         let globeLastMouseX = 0;
         let globeLastMouseY = 0;
         
-        // 城市随机颜色（每个城市分配一个固定颜色）
+        // 
         const cityColors = {};
         const rainbowColors = [
             '#ff0066', '#ff6600', '#ffcc00', '#66ff00', '#00ff66',
@@ -6036,7 +6146,7 @@
             const canvas = document.getElementById('mapCanvas');
             const container = document.getElementById('mapContainer');
             
-            // 设置canvas尺寸
+            // 
             canvas.width = container.offsetWidth * 2;
             canvas.height = container.offsetHeight * 2;
             const ctx = canvas.getContext('2d');
@@ -6048,7 +6158,7 @@
             const centerY = height / 2;
             const radius = Math.min(width, height) * 0.38 * mapZoom;
             
-            // 清空画布 - 深空渐变背景
+            // 
             const bgGradient = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, Math.max(width, height) * 0.8);
             bgGradient.addColorStop(0, '#0d0d1a');
             bgGradient.addColorStop(0.3, '#080812');
@@ -6057,7 +6167,7 @@
             ctx.fillStyle = bgGradient;
             ctx.fillRect(0, 0, width, height);
             
-            // 绘制星云背景
+            // 
             const time = Date.now() * 0.0001;
             for (let i = 0; i < 3; i++) {
                 const nebulaX = width * (0.2 + i * 0.3);
@@ -6071,8 +6181,8 @@
                 ctx.fillRect(0, 0, width, height);
             }
             
-            // 绘制多层星空
-            // 远景星星 - 小而暗
+            // 
+            // 
             ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
             for (let i = 0; i < 200; i++) {
                 const sx = (Math.sin(i * 123.456 + i * 0.1) * 0.5 + 0.5) * width;
@@ -6084,7 +6194,7 @@
                 ctx.fill();
             }
             
-            // 中景星星 - 中等亮度
+            // 
             ctx.globalAlpha = 1;
             for (let i = 0; i < 80; i++) {
                 const sx = (Math.sin(i * 456.789 + i) * 0.5 + 0.5) * width;
@@ -6097,14 +6207,14 @@
                 ctx.fill();
             }
             
-            // 近景亮星 - 带光晕
+            // 
             for (let i = 0; i < 20; i++) {
                 const sx = (Math.sin(i * 111.222 + i * 0.5) * 0.5 + 0.5) * width;
                 const sy = (Math.cos(i * 333.444 + i * 0.2) * 0.5 + 0.5) * height;
                 const twinkle = 0.7 + Math.sin(time * 20 + i * 5) * 0.3;
                 const starHue = [0, 30, 60, 180, 220][i % 5];
                 
-                // 星星光晕
+                // 
                 const starGlow = ctx.createRadialGradient(sx, sy, 0, sx, sy, 8);
                 starGlow.addColorStop(0, `hsla(${starHue}, 50%, 90%, ${0.8 * twinkle})`);
                 starGlow.addColorStop(0.3, `hsla(${starHue}, 60%, 70%, ${0.3 * twinkle})`);
@@ -6114,21 +6224,21 @@
                 ctx.arc(sx, sy, 8, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // 星星核心
+                // 
                 ctx.fillStyle = `rgba(255, 255, 255, ${twinkle})`;
                 ctx.beginPath();
                 ctx.arc(sx, sy, 1.5, 0, Math.PI * 2);
                 ctx.fill();
             }
             
-            // 流星效果 - 更慢更优雅
+            // 
             if (Math.random() < 0.005) {
                 const meteorX = Math.random() * width;
                 const meteorY = Math.random() * height * 0.5;
                 const meteorLen = 50 + Math.random() * 80;
                 const meteorAngle = Math.PI / 4 + Math.random() * 0.3;
                 
-                // 流星头部光晕
+                // 
                 const headGlow = ctx.createRadialGradient(meteorX, meteorY, 0, meteorX, meteorY, 6);
                 headGlow.addColorStop(0, 'rgba(255, 255, 255, 1)');
                 headGlow.addColorStop(0.3, 'rgba(200, 220, 255, 0.8)');
@@ -6138,7 +6248,7 @@
                 ctx.arc(meteorX, meteorY, 6, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // 流星尾迹 - 渐变
+                // 
                 const tailGradient = ctx.createLinearGradient(meteorX, meteorY, 
                     meteorX + Math.cos(meteorAngle) * meteorLen, meteorY + Math.sin(meteorAngle) * meteorLen);
                 tailGradient.addColorStop(0, 'rgba(255, 255, 255, 0.9)');
@@ -6154,25 +6264,25 @@
                 ctx.stroke();
             }
             
-            // 自动旋转
+            // 
             if (globeAutoRotate && !globeDragging) {
                 globeRotationY += 0.003;
             }
             
-            // 应用偏移
+            // 
             const offsetX = mapOffsetX;
             const offsetY = mapOffsetY;
             const globeX = centerX + offsetX;
             const globeY = centerY + offsetY;
             
-            // 呼吸效果 - 平滑的正弦波动画
-            const breathePhase = time * 8; // 呼吸周期
-            const breatheScale = 1 + Math.sin(breathePhase) * 0.015; // 轻微缩放
-            const breatheGlow = 0.7 + Math.sin(breathePhase) * 0.3; // 光晕强度变化
-            const breathePulse = Math.sin(breathePhase * 2) * 0.5 + 0.5; // 脉冲效果
+            // 
+            const breathePhase = time * 8; // 
+            const breatheScale = 1 + Math.sin(breathePhase) * 0.015; // 
+            const breatheGlow = 0.7 + Math.sin(breathePhase) * 0.3; // 
+            const breathePulse = Math.sin(breathePhase * 2) * 0.5 + 0.5; // 
             
-            // 绘制地球大气层 - 多层光晕 + 呼吸效果
-            // 最外层光晕 - 呼吸脉动
+            // 
+            // 
             const atmosphereOuter = ctx.createRadialGradient(globeX, globeY, radius * 0.95, globeX, globeY, radius * (1.8 + breathePulse * 0.2));
             atmosphereOuter.addColorStop(0, `rgba(80, 160, 220, ${0.2 * breatheGlow})`);
             atmosphereOuter.addColorStop(0.3, `rgba(60, 140, 200, ${0.1 * breatheGlow})`);
@@ -6183,7 +6293,7 @@
             ctx.arc(globeX, globeY, radius * (1.8 + breathePulse * 0.2), 0, Math.PI * 2);
             ctx.fill();
             
-            // 中层大气光晕 - 呼吸效果
+            // 
             const atmosphereMid = ctx.createRadialGradient(globeX, globeY, radius * 0.98, globeX, globeY, radius * (1.3 + breathePulse * 0.1));
             atmosphereMid.addColorStop(0, `rgba(120, 200, 255, ${0.3 * breatheGlow})`);
             atmosphereMid.addColorStop(0.5, `rgba(80, 160, 220, ${0.15 * breatheGlow})`);
@@ -6193,7 +6303,7 @@
             ctx.arc(globeX, globeY, radius * (1.3 + breathePulse * 0.1), 0, Math.PI * 2);
             ctx.fill();
             
-            // 内层大气边缘光 - 呼吸闪烁
+            // 
             const atmosphereInner = ctx.createRadialGradient(globeX, globeY, radius * 0.85, globeX, globeY, radius * (1.05 + breathePulse * 0.02));
             atmosphereInner.addColorStop(0, 'transparent');
             atmosphereInner.addColorStop(0.7, `rgba(150, 220, 255, ${0.15 * breatheGlow})`);
@@ -6204,7 +6314,7 @@
             ctx.arc(globeX, globeY, radius * (1.05 + breathePulse * 0.02), 0, Math.PI * 2);
             ctx.fill();
             
-            // 呼吸光环 - 外围动态光环
+            // 
             const ringAlpha = 0.1 + breathePulse * 0.15;
             const ringRadius = radius * (1.15 + breathePulse * 0.05);
             ctx.strokeStyle = `rgba(100, 200, 255, ${ringAlpha})`;
@@ -6213,7 +6323,7 @@
             ctx.arc(globeX, globeY, ringRadius, 0, Math.PI * 2);
             ctx.stroke();
             
-            // 第二层呼吸光环
+            // 
             const ring2Alpha = 0.05 + breathePulse * 0.1;
             const ring2Radius = radius * (1.35 + breathePulse * 0.08);
             ctx.strokeStyle = `rgba(80, 180, 240, ${ring2Alpha})`;
@@ -6222,8 +6332,8 @@
             ctx.arc(globeX, globeY, ring2Radius, 0, Math.PI * 2);
             ctx.stroke();
             
-            // 绘制地球主体 - 多层渐变球体
-            // 基础海洋层 - 深邃的海洋效果
+            // 
+            // 
             const oceanGradient = ctx.createRadialGradient(
                 globeX - radius * 0.3, 
                 globeY - radius * 0.3, 
@@ -6242,13 +6352,13 @@
             ctx.arc(globeX, globeY, radius, 0, Math.PI * 2);
             ctx.fill();
             
-            // 开始裁剪区域
+            // 
             ctx.save();
             ctx.beginPath();
             ctx.arc(globeX, globeY, radius, 0, Math.PI * 2);
             ctx.clip();
             
-            // 绘制海洋流动效果 - 多层动态波纹
+            // 
             const oceanTime = time * 15;
             for (let layer = 0; layer < 3; layer++) {
                 const layerAlpha = 0.08 - layer * 0.02;
@@ -6281,7 +6391,7 @@
                 }
             }
             
-            // 海洋深色流动线条
+            // 
             for (let i = 0; i < 5; i++) {
                 const flowLat = -50 + i * 25;
                 const flowOffset = oceanTime * 0.8 + i * 1.2;
@@ -6307,7 +6417,7 @@
                 ctx.stroke();
             }
             
-            // 绘制云层效果
+            // 
             const cloudTime = time * 5;
             for (let i = 0; i < 12; i++) {
                 const cloudLat = -60 + (i % 6) * 25;
@@ -6318,7 +6428,7 @@
                     const cloudSize = 15 + Math.sin(i * 2.5) * 8;
                     const cloudAlpha = 0.08 + Math.sin(cloudTime + i) * 0.03;
                     
-                    // 云团
+                    // 
                     const cloudGradient = ctx.createRadialGradient(cloudPos.x, cloudPos.y, 0, cloudPos.x, cloudPos.y, cloudSize);
                     cloudGradient.addColorStop(0, `rgba(255, 255, 255, ${cloudAlpha})`);
                     cloudGradient.addColorStop(0.5, `rgba(255, 255, 255, ${cloudAlpha * 0.5})`);
@@ -6328,7 +6438,7 @@
                     ctx.arc(cloudPos.x, cloudPos.y, cloudSize, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // 云团延伸
+                    // 
                     for (let j = 0; j < 3; j++) {
                         const offsetX = Math.cos(j * 2.1) * cloudSize * 0.6;
                         const offsetY = Math.sin(j * 2.1) * cloudSize * 0.3;
@@ -6340,8 +6450,8 @@
                 }
             }
             
-            // 绘制经纬线网格 - 更精美的样式
-            // 经线 - 渐变效果
+            // 
+            // 
             for (let lng = -180; lng < 180; lng += 30) {
                 const gradient = ctx.createLinearGradient(
                     globeX - radius, globeY - radius,
@@ -6363,7 +6473,7 @@
                 ctx.stroke();
             }
             
-            // 纬线 - 渐变效果
+            // 
             for (let lat = -60; lat <= 60; lat += 30) {
                 const latGradient = ctx.createLinearGradient(
                     globeX - radius, globeY,
@@ -6385,7 +6495,7 @@
                 ctx.stroke();
             }
             
-            // 赤道线 - 特殊高亮
+            // 
             const equatorGradient = ctx.createLinearGradient(
                 globeX - radius, globeY,
                 globeX + radius, globeY
@@ -6407,7 +6517,7 @@
             }
             ctx.stroke();
             
-            // 回归线和极圈
+            // 
             const specialLats = [23.5, -23.5, 66.5, -66.5];
             specialLats.forEach(slat => {
                 ctx.strokeStyle = 'rgba(255, 200, 100, 0.25)';
@@ -6427,7 +6537,7 @@
             
             ctx.restore();
             
-            // 地球表面高光
+            // 
             const highlightGradient = ctx.createRadialGradient(
                 globeX - radius * 0.5,
                 globeY - radius * 0.5,
@@ -6444,7 +6554,7 @@
             ctx.arc(globeX, globeY, radius, 0, Math.PI * 2);
             ctx.fill();
             
-            // 地球边缘发光
+            // 
             const edgeGlow = ctx.createRadialGradient(globeX, globeY, radius * 0.92, globeX, globeY, radius);
             edgeGlow.addColorStop(0, 'transparent');
             edgeGlow.addColorStop(0.5, 'rgba(120, 200, 255, 0.15)');
@@ -6454,24 +6564,24 @@
             ctx.arc(globeX, globeY, radius, 0, Math.PI * 2);
             ctx.fill();
             
-            // 获取当前地图的城市数据
+            // 
             const currentCities = currentMapTab === 'china' ? cities.china : cities.world;
             
-            // 更新动画相位
+            // 
             trainAnimationPhase = (trainAnimationPhase + 0.05) % (Math.PI * 2);
             
-            // 3D投影函数
+            // 3D
             function projectToGlobe(lat, lng, r, rotX, rotY, cx, cy) {
-                // 将经纬度转换为弧度
+                // 
                 const latRad = lat * Math.PI / 180;
                 const lngRad = lng * Math.PI / 180;
                 
-                // 3D坐标
+                // 3D
                 let x = r * Math.cos(latRad) * Math.sin(lngRad + rotY);
                 let y = r * Math.sin(latRad);
                 let z = r * Math.cos(latRad) * Math.cos(lngRad + rotY);
                 
-                // 应用俯仰旋转
+                // 
                 const y2 = y * Math.cos(rotX) - z * Math.sin(rotX);
                 const z2 = y * Math.sin(rotX) + z * Math.cos(rotX);
                 
@@ -6483,7 +6593,7 @@
                 };
             }
             
-            // 绘制运营路线（在球面上）
+            // 
             gameState.runningTrains.forEach(rt => {
                 const startCity = getCityByName(rt.startCity);
                 const endCity = getCityByName(rt.endCity);
@@ -6496,9 +6606,9 @@
                     const pos1 = projectToGlobe(startDisplayLat, startDisplayLng, radius, globeRotationX, globeRotationY, globeX, globeY);
                     const pos2 = projectToGlobe(endDisplayLat, endDisplayLng, radius, globeRotationX, globeRotationY, globeX, globeY);
                     
-                    // 只有当两个城市都可见时才绘制路线
+                    // 
                     if (pos1.visible && pos2.visible) {
-                        // 绘制球面曲线 - 发光效果
+                        // 
                         ctx.shadowColor = 'rgba(0, 212, 255, 0.8)';
                         ctx.shadowBlur = 10;
                         ctx.strokeStyle = 'rgba(0, 212, 255, 0.6)';
@@ -6507,7 +6617,7 @@
                         ctx.lineDashOffset = -trainAnimationPhase * 10;
                         ctx.beginPath();
                         
-                        // 绘制大圆弧线
+                        // 
                         const steps = 30;
                         for (let i = 0; i <= steps; i++) {
                             const t = i / steps;
@@ -6523,7 +6633,7 @@
                         ctx.setLineDash([]);
                         ctx.shadowBlur = 0;
                         
-                        // 绘制火车位置
+                        // 
                         const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
                         if (train) {
                             const progress = (rt.totalTime - rt.remainingTime) / rt.totalTime;
@@ -6535,14 +6645,14 @@
                                 const trainX = trainPos.x;
                                 const trainY = trainPos.y;
                         
-                        // 计算火车朝向角度
+                        // 
                         const nextT = Math.min(progress + 0.05, 1);
                         const nextLat = startDisplayLat + (endDisplayLat - startDisplayLat) * nextT;
                         const nextLng = startDisplayLng + (endDisplayLng - startDisplayLng) * nextT;
                         const nextPos = projectToGlobe(nextLat, nextLng, radius, globeRotationX, globeRotationY, globeX, globeY);
                         const angle = Math.atan2(nextPos.y - trainY, nextPos.x - trainX);
                         
-                        // 火车外圈动态发光效果
+                        // 
                         const glowSize = 15 + Math.sin(trainAnimationPhase * 3) * 3;
                         const gradient = ctx.createRadialGradient(trainX, trainY, 0, trainX, trainY, glowSize);
                         gradient.addColorStop(0, 'rgba(255, 0, 255, 0.8)');
@@ -6554,7 +6664,7 @@
                         ctx.arc(trainX, trainY, glowSize, 0, Math.PI * 2);
                         ctx.fill();
                         
-                        // 绘制火车图形
+                        // 
                         ctx.save();
                         ctx.translate(trainX, trainY);
                         ctx.rotate(angle);
@@ -6562,12 +6672,12 @@
                         const trainLength = 12;
                         const trainWidth = 6;
                         
-                        // 火车车身
+                        // 
                         ctx.fillStyle = '#ff00ff';
                         ctx.strokeStyle = '#ffffff';
                         ctx.lineWidth = 1;
                         
-                        // 车头
+                        // 
                         ctx.beginPath();
                         ctx.moveTo(trainLength/2, 0);
                         ctx.lineTo(trainLength/4, -trainWidth/2);
@@ -6578,13 +6688,13 @@
                         ctx.fill();
                         ctx.stroke();
                         
-                        // 车窗
+                        // 
                         ctx.fillStyle = '#00ffff';
                         ctx.fillRect(-trainLength/4, -trainWidth/3, trainLength/3, trainWidth/1.5);
                         
                         ctx.restore();
                         
-                        // 火车名称
+                        // 
                         ctx.fillStyle = '#ff00ff';
                         ctx.font = 'bold 9px "Share Tech Mono", monospace';
                         ctx.textAlign = 'center';
@@ -6595,7 +6705,7 @@
                 }
             });
             
-            // 绘制城市
+            // 
             currentCities.forEach((city, index) => {
                 const displayLat = city.displayLat !== undefined ? city.displayLat : city.lat;
                 const displayLng = city.displayLng !== undefined ? city.displayLng : city.lng;
@@ -6606,18 +6716,18 @@
                 const y = pos.y;
                 const unlocked = isCityUnlocked(city.name);
                 
-                // 根据城市重要程度确定大小
+                // 
                 const isMajor = city.unlockLevel <= 10 || city.unlockCost >= 10000000;
                 const isCapital = city.unlockLevel <= 5 || city.unlockCost >= 50000000;
                 const baseSize = isCapital ? 7 : isMajor ? 5 : 4;
                 
-                // 城市发光效果 - 多层光晕
+                // 
                 if (unlocked) {
                     const cityColor = getCityColor(city.name);
                     const breathe = 0.5 + Math.sin(trainAnimationPhase * 2 + index * 0.7) * 0.3;
                     const glowSize = baseSize + 8 + Math.sin(trainAnimationPhase * 2 + index * 0.5) * 3;
                     
-                    // 最外层光晕
+                    // 
                     const outerGlow = ctx.createRadialGradient(x, y, 0, x, y, glowSize + 5);
                     outerGlow.addColorStop(0, hexToRgba(cityColor, breathe * 0.3));
                     outerGlow.addColorStop(0.5, hexToRgba(cityColor, breathe * 0.15));
@@ -6627,7 +6737,7 @@
                     ctx.arc(x, y, glowSize + 5, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // 中层发光
+                    // 
                     const gradient = ctx.createRadialGradient(x, y, 0, x, y, glowSize);
                     gradient.addColorStop(0, hexToRgba(cityColor, breathe));
                     gradient.addColorStop(0.4, hexToRgba(cityColor, breathe * 0.6));
@@ -6638,12 +6748,12 @@
                     ctx.fill();
                 }
                 
-                // 绘制城市图标
+                // 
                 if (unlocked) {
                     const cityColor = getCityColor(city.name);
                     const breathe = 0.7 + Math.sin(trainAnimationPhase * 2 + index * 0.7) * 0.3;
                     
-                    // 已解锁城市 - 发光核心
+                    // 
                     ctx.shadowColor = cityColor;
                     ctx.shadowBlur = 8;
                     ctx.fillStyle = hexToRgba(cityColor, breathe);
@@ -6652,7 +6762,7 @@
                     ctx.fill();
                     ctx.shadowBlur = 0;
                     
-                    // 内圈高光
+                    // 
                     const innerHighlight = ctx.createRadialGradient(x - baseSize * 0.3, y - baseSize * 0.3, 0, x, y, baseSize);
                     innerHighlight.addColorStop(0, 'rgba(255, 255, 255, 0.4)');
                     innerHighlight.addColorStop(0.5, 'rgba(255, 255, 255, 0.1)');
@@ -6662,14 +6772,14 @@
                     ctx.arc(x, y, baseSize, 0, Math.PI * 2);
                     ctx.fill();
                     
-                    // 外圈
+                    // 
                     ctx.strokeStyle = cityColor;
                     ctx.lineWidth = 1.5;
                     ctx.beginPath();
                     ctx.arc(x, y, baseSize + 2, 0, Math.PI * 2);
                     ctx.stroke();
                     
-                    // 脉冲环效果
+                    // 
                     const pulseSize = baseSize + 4 + Math.sin(trainAnimationPhase * 3 + index) * 2;
                     ctx.strokeStyle = hexToRgba(cityColor, 0.3);
                     ctx.lineWidth = 1;
@@ -6677,7 +6787,7 @@
                     ctx.arc(x, y, pulseSize, 0, Math.PI * 2);
                     ctx.stroke();
                 } else {
-                    // 未解锁城市 - 更醒目的颜色
+                    // 
                     ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
                     ctx.beginPath();
                     ctx.arc(x, y, baseSize, 0, Math.PI * 2);
@@ -6691,7 +6801,7 @@
                     ctx.stroke();
                     ctx.setLineDash([]);
                     
-                    // 外圈提示
+                    // 
                     ctx.strokeStyle = 'rgba(255, 150, 50, 0.4)';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
@@ -6699,7 +6809,7 @@
                     ctx.stroke();
                 }
                 
-                // 城市名称
+                // 
                 if (unlocked) {
                     const cityColor = getCityColor(city.name);
                     ctx.shadowColor = cityColor;
@@ -6710,14 +6820,14 @@
                     ctx.fillText(city.name, x, y - baseSize - 6);
                     ctx.shadowBlur = 0;
                 } else {
-                    // 未解锁城市名称 - 更醒目
+                    // 
                     ctx.fillStyle = 'rgba(255, 220, 150, 0.9)';
                     ctx.font = 'bold 9px "Share Tech Mono", monospace';
                     ctx.textAlign = 'center';
                     ctx.fillText(city.name, x, y - baseSize - 6);
                 }
                 
-                // 如果未解锁,显示解锁等级
+                // 
                 if (!unlocked) {
                     ctx.fillStyle = '#ff6b00';
                     ctx.font = 'bold 8px "Share Tech Mono", monospace';
@@ -6725,7 +6835,7 @@
                 }
             });
             
-            // 绘制地球边缘高光
+            // 
             const edgeGradient = ctx.createRadialGradient(
                 globeX, 
                 globeY, 
@@ -6744,10 +6854,10 @@
             ctx.arc(globeX, globeY, radius, 0, Math.PI * 2);
             ctx.fill();
             
-            // 更新统计信息
+            // 
             updateMapStats();
             
-            // 启动动画
+            // 
             if (mapAnimationId) cancelAnimationFrame(mapAnimationId);
             const animate = () => {
                 if (document.getElementById('mapPanel').style.display !== 'none') {
@@ -6760,7 +6870,7 @@
         function updateMapStats() {
             const statsContainer = document.getElementById('mapStatsContent');
             
-            // 计算统计数据
+            // 
             const totalCities = currentMapTab === 'china' ? cities.china.length : cities.world.length;
             const unlockedCount = (currentMapTab === 'china' ? cities.china : cities.world)
                 .filter(c => isCityUnlocked(c.name)).length;
@@ -6799,7 +6909,7 @@
             `;
         }
 
-        // ==================== 游戏逻辑 ====================
+        // ==================== 
         function showUnlockCityModal(cityName) {
             const city = getCityByName(cityName);
             pendingUnlockCity = city;
@@ -6830,14 +6940,14 @@
 
         function closeUnlockModal() { document.getElementById('unlockCityModal').classList.remove('show'); pendingUnlockCity = null; }
         
-        // ==================== 关闭城市功能 ====================
+        // ==================== 
         let pendingLockCity = null;
         
         function showLockCityModal(cityName) {
             const city = getCityByName(cityName);
             pendingLockCity = city;
             
-            // 检查是否有正在运营的线路使用该城市
+            // 
             const runningRoutes = gameState.runningTrains.filter(rt => 
                 rt.startCity === cityName || rt.endCity === cityName
             );
@@ -6872,7 +6982,7 @@
             if (!pendingLockCity) return;
             const cityName = pendingLockCity.name;
             
-            // 取消所有使用该城市的运营线路
+            // 
             const routesToCancel = gameState.runningTrains.filter(rt => 
                 rt.startCity === cityName || rt.endCity === cityName
             );
@@ -6881,7 +6991,7 @@
                 if (idx > -1) gameState.runningTrains.splice(idx, 1);
             });
             
-            // 从已解锁城市列表中移除
+            // 
             const cityIndex = gameState.unlockedCities.indexOf(cityName);
             if (cityIndex > -1) {
                 gameState.unlockedCities.splice(cityIndex, 1);
@@ -6933,11 +7043,11 @@
             const trainInfo = trainData[type].find(t => t.name === name);
             const comfort = trainInfo ? trainInfo.comfort : 100;
             
-            // 计算该名称火车的现有数量，用于自动命名
+            // 
             const existingCount = gameState.ownedTrains.filter(t => t.name.startsWith(name)).length;
 
             for (let i = 0; i < actualCount; i++) {
-                // 自动命名：如果批量购买多辆，添加编号
+                // 
                 let trainName = name;
                 if (actualCount > 1 || existingCount > 0) {
                     trainName = name + (existingCount + i + 1);
@@ -7012,7 +7122,7 @@
             showNotification(`${train ? train.name : '火车'} 的运营已取消！`);
         }
 
-        // 一键停车：停止所有运营中的火车
+        // 
         function stopAllTrains() {
             const runningCount = gameState.runningTrains.length;
             const jointCount = gameState.runningJointTrains ? gameState.runningJointTrains.length : 0;
@@ -7231,66 +7341,66 @@
             }
         }
 
-        // VIP系统函数
-        // 获取VIP等级（1经验=1级）
+        // VIP
+        // 
         function getVipLevel() {
             return gameState.vipExp || 0;
         }
 
-        // 获取VIP经验加成（+n%）
+        // 
         function getVipExpBonus() {
             return getVipLevel();
         }
 
-        // 获取VIP每日点卷获取上限加成（+n）
+        // 
         function getVipDailyPointsBonus() {
             return getVipLevel();
         }
 
-        // 获取VIP每日改造石获取上限加成（+(n-1)）
+        // 
         function getVipDailyReformStonesBonus() {
             return Math.max(0, getVipLevel() - 1);
         }
 
-        // 获取VIP离线收益加成（每10级加成1%，最高50%）
+        // 
         function getVipOfflineBonus() {
             const level = getVipLevel();
             return Math.min(50, Math.floor(level / 10));
         }
         
-        // 获取VIP称号碎片概率加成（每100级增加1%，最大30%）
+        // 
         function getVipTitleFragmentBonus() {
             const level = getVipLevel();
             return Math.min(30, Math.floor(level / 100));
         }
         
-        // 获取VIP乘客容量加成（每1级增加1乘客）
+        // 
         function getVipCapacityBonus() {
             const level = getVipLevel();
             return level;
         }
         
-        // 获取基础每日点卷上限
+        // 
         function getBaseDailyPointsLimit() {
             return 6000;
         }
 
-        // 获取实际每日点卷上限（含VIP加成）
+        // 
         function getDailyPointsLimit() {
             return getBaseDailyPointsLimit() + getVipDailyPointsBonus();
         }
 
-        // 获取基础每日改造石上限
+        // 
         function getBaseDailyReformStonesLimit() {
             return 300;
         }
 
-        // 获取实际每日改造石上限（含VIP加成）
+        // 
         function getDailyReformStonesLimit() {
             return getBaseDailyReformStonesLimit() + getVipDailyReformStonesBonus();
         }
 
-        // 添加VIP经验
+        // 
         function addVipExp(amount) {
             const oldLevel = getVipLevel();
             gameState.vipExp = (gameState.vipExp || 0) + amount;
@@ -7301,15 +7411,15 @@
             }
         }
 
-        // 计算员工招聘价格
-        // 第一名员工1000，从第二名开始价格=现有员工数量×现有员工数量×1000
+        // 
+        // 
         function calculateHireCost() {
             const currentCount = gameState.employees.length;
             if (currentCount === 0) return 1000;
             return currentCount * currentCount * 1000;
         }
 
-        // 员工ID计数器，确保唯一性
+        // 
         let employeeIdCounter = 0;
 
         function hireEmployee() {
@@ -7324,19 +7434,19 @@
                 return; 
             }
             
-            // 先扣除金币
+            // 
             gameState.gold -= hireCost;
             
-            // 生成唯一ID
+            // 
             employeeIdCounter++;
             const newId = Date.now() * 1000 + employeeIdCounter;
             
-            // 随机选择员工类型和名字
+            // 
             const types = ['income', 'speed', 'weight'];
             const randomType = types[Math.floor(Math.random() * types.length)];
             const randomName = employeeNames[Math.floor(Math.random() * employeeNames.length)];
             
-            // 创建新员工
+            // 
             const newEmployee = {
                 id: newId,
                 name: randomName,
@@ -7345,13 +7455,13 @@
                 trainId: null
             };
             
-            // 添加到员工列表
+            // 
             gameState.employees.push(newEmployee);
             
-            // 立即保存
+            // 
             saveGame();
             
-            // 更新界面
+            // 
             updateUI();
             renderEmployeeList();
             showNotification(`成功招聘员工：${randomName}！花费 ${formatNumber(hireCost)} 金币`);
@@ -7380,19 +7490,19 @@
             showNotification(`${emp.name} 已辞退，返还 ${refundPoints} 点卷！`);
         }
 
-        // 一键分配：将未分配的员工分配至无员工的火车（优先分配给售价高的火车）
+        // 
         function autoAssignEmployees() {
-            // 获取未分配的员工
+            // 
             const unassignedEmployees = gameState.employees.filter(e => e.trainId === null);
             if (unassignedEmployees.length === 0) {
                 showNotification('没有未分配的员工！');
                 return;
             }
 
-            // 获取没有员工且不受限制的火车，并按售价从高到低排序
+            // 
             const trainsWithoutEmployee = gameState.ownedTrains.filter(train => {
                 return !gameState.employees.some(e => e.trainId === train.id) && !isTrainRestricted(train);
-            }).sort((a, b) => b.purchasePrice - a.purchasePrice); // 按售价降序排序
+            }).sort((a, b) => b.purchasePrice - a.purchasePrice); // 
 
             if (trainsWithoutEmployee.length === 0) {
                 showNotification('所有火车都已有员工！');
@@ -7413,7 +7523,7 @@
             showNotification(`成功分配 ${assignedCount} 名员工！`);
         }
 
-        // 一键取消分配：取消所有员工的分配
+        // 
         function unassignAllEmployees() {
             const assignedEmployees = gameState.employees.filter(e => e.trainId !== null);
             if (assignedEmployees.length === 0) {
@@ -7500,7 +7610,7 @@
             showNotification(`已取消 ${assignedEmployees.length} 名员工从${typeNames[type]}的分配！`);
         }
 
-        // 一键升级：将所有等级小于目标等级的员工升级至目标等级
+        // 
         function batchUpgradeEmployees() {
             const targetLevel = parseInt(document.getElementById('targetLevelInput').value);
             if (isNaN(targetLevel) || targetLevel < 1 || targetLevel > 40) {
@@ -7508,7 +7618,7 @@
                 return;
             }
 
-            // 获取需要升级的员工（等级小于目标等级的）
+            // 
             const employeesToUpgrade = gameState.employees.filter(e => e.level < targetLevel);
             if (employeesToUpgrade.length === 0) {
                 showNotification('没有需要升级的员工！');
@@ -7519,20 +7629,20 @@
             let upgradedCount = 0;
             let stopped = false;
 
-            // 计算每个员工升级到目标等级所需的总点卷
+            // 
             for (const emp of employeesToUpgrade) {
                 let costForThisEmployee = 0;
                 for (let lvl = emp.level; lvl < targetLevel; lvl++) {
                     costForThisEmployee += calculateUpgradeCost(lvl);
                 }
 
-                // 检查点卷是否足够
+                // 
                 if (gameState.points >= totalCost + costForThisEmployee) {
                     totalCost += costForThisEmployee;
                     emp.level = targetLevel;
                     upgradedCount++;
                 } else {
-                    // 点卷不足，停止升级
+                    // 
                     stopped = true;
                     break;
                 }
@@ -7553,7 +7663,7 @@
             }
         }
 
-        // 一键改造：将所有改造等级小于目标等级的火车改造至目标等级
+        // 
         function batchReformTrains() {
             const targetLevel = parseInt(document.getElementById('targetReformLevelInput').value);
             if (isNaN(targetLevel) || targetLevel < 1 || targetLevel > 25) {
@@ -7561,10 +7671,10 @@
                 return;
             }
 
-            // 确保reformStones已初始化
+            // 
             if (gameState.reformStones === undefined) gameState.reformStones = 0;
 
-            // 获取需要改造的火车（改造等级小于目标等级且不受限制的）
+            // 
             const trainsToReform = gameState.ownedTrains.filter(train => {
                 const reformLevel = train.reformLevel || 0;
                 return reformLevel < targetLevel && !isTrainRestricted(train);
@@ -7575,7 +7685,7 @@
                 return;
             }
 
-            // 先计算所有火车改造所需的总改造石
+            // 
             let totalCost = 0;
             const trainCosts = [];
             for (const train of trainsToReform) {
@@ -7588,9 +7698,9 @@
                 totalCost += costForThisTrain;
             }
 
-            // 检查改造石是否足够
+            // 
             if (gameState.reformStones < totalCost) {
-                // 改造石不足，逐个改造直到耗尽
+                // 
                 let usedStones = 0;
                 let reformedCount = 0;
                 for (const { train, cost } of trainCosts) {
@@ -7609,7 +7719,7 @@
                 }
                 showNotification(`改造石不足！已成功改造 ${reformedCount} 辆火车至 ${targetLevel} 级，消耗 ${usedStones} 改造石。还需 ${totalCost - usedStones} 改造石改造剩余火车。`);
             } else {
-                // 改造石足够，全部改造
+                // 
                 gameState.reformStones -= totalCost;
                 for (const { train } of trainCosts) {
                     train.reformLevel = targetLevel;
@@ -7648,7 +7758,7 @@
             showNotification(`${train.name} 改造升级成功！`);
         }
 
-        // 一键强化：将所有强化等级小于目标等级的火车强化至目标等级
+        // 
         function batchUpgradeTrains() {
             const targetLevel = parseInt(document.getElementById('targetUpgradeLevelInput').value);
             if (isNaN(targetLevel) || targetLevel < 1 || targetLevel > 20) {
@@ -7656,7 +7766,7 @@
                 return;
             }
 
-            // 获取需要强化的火车（强化等级小于目标等级且不受限制的）
+            // 
             const trainsToUpgrade = gameState.ownedTrains.filter(train => {
                 const upgradeLevel = train.upgradeLevel || 0;
                 return upgradeLevel < targetLevel && !isTrainRestricted(train);
@@ -7667,7 +7777,7 @@
                 return;
             }
 
-            // 先计算所有火车强化所需的总点卷
+            // 
             let totalCost = 0;
             const trainCosts = [];
             for (const train of trainsToUpgrade) {
@@ -7680,13 +7790,13 @@
                 totalCost += costForThisTrain;
             }
 
-            // 检查点卷是否足够
+            // 
             if (gameState.points < totalCost) {
                 showNotification(`点卷不足！需要 ${totalCost} 点卷，当前只有 ${gameState.points} 点卷。`);
                 return;
             }
 
-            // 点卷足够，全部强化
+            // 
             gameState.points -= totalCost;
             for (const { train } of trainCosts) {
                 train.upgradeLevel = targetLevel;
@@ -7697,7 +7807,7 @@
         }
 
         function isTrainRestricted(train) {
-            // 只检查是否在运营中，不检查等级限制
+            // 
             if (gameState.runningTrains.some(rt => rt.trainId === train.id && !rt.paused)) {
                 return true;
             }
@@ -7705,7 +7815,7 @@
         }
 
         function getTrainRestrictLevel(train) {
-            // 获取火车限制等级（已取消兑换码火车的等级限制）
+            // 
             return 0;
         }
 
@@ -7715,7 +7825,7 @@
             if (gameState.usedRedeemCodes && gameState.usedRedeemCodes.includes(code)) { showNotification('该兑换码已使用！'); return; }
             if (!redeemCodes[code]) { showNotification('无效的兑换码！'); return; }
             
-            // 检查兑换码是否过期
+            // 
             if (redeemCodes[code].expireTime && Date.now() > redeemCodes[code].expireTime) {
                 showNotification('该兑换码已过期！'); return;
             }
@@ -7752,8 +7862,8 @@
             }
             if (redeemCodes[code].train) {
                 const trainName = redeemCodes[code].train;
-                const trainCount = redeemCodes[code].trainCount || 1; // 默认1辆，可指定多辆
-                // 在所有火车类型中查找
+                const trainCount = redeemCodes[code].trainCount || 1; // 
+                // 
                 let trainDataItem = null;
                 let trainType = null;
                 for (const type of ['normal', 'intercity', 'highspeed', 'anime', 'zodiac']) {
@@ -7764,7 +7874,7 @@
                     }
                 }
                 if (trainDataItem) {
-                    // 添加指定数量的火车
+                    // 
                     for (let i = 0; i < trainCount; i++) {
                         const trainObj = {
                             id: Date.now() + Math.random() + i,
@@ -7776,7 +7886,7 @@
                             comfort: trainDataItem.comfort || 100,
                             fromRedeemCode: true
                         };
-                        // 顶级萌新号特殊标记，改名后仍保持无限制
+                        // 
                         if (trainName === '顶级萌新号') {
                             trainObj.isTopNewbie = true;
                         }
@@ -7787,7 +7897,7 @@
             }
             if (redeemCodes[code].vipEmployee) {
                 const vipCount = redeemCodes[code].vipEmployee;
-                // 添加指定数量的满级VIP员工
+                // 
                 for (let i = 0; i < vipCount; i++) {
                     employeeIdCounter++;
                     const newId = Date.now() * 1000 + employeeIdCounter + i;
@@ -7795,7 +7905,7 @@
                         id: newId,
                         name: 'VIP司机',
                         type: 'vip',
-                        level: 40, // 满级
+                        level: 40, // 
                         trainId: null
                     });
                 }
@@ -7815,8 +7925,9 @@
 
         function showAssignModal(empId) {
             const emp = gameState.employees.find(e => e.id === empId);
+            const nameStyle = emp.type === 'vip' ? 'background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300% 100%;animation:rainbowText 3s linear infinite;font-weight:bold;text-shadow:0 0 10px rgba(0,255,255,0.5);filter:drop-shadow(0 0 5px rgba(0,255,255,0.5));' : '';
             document.getElementById('assignEmployeeList').innerHTML = `
-                <div style="margin-bottom:15px;font-size:14px;"><strong>${emp.name}</strong> - ${employeeTypes[emp.type].name}</div>
+                <div style="margin-bottom:15px;font-size:14px;"><strong style="${nameStyle}">${emp.name}</strong> - ${employeeTypes[emp.type].name}</div>
                 <div style="margin-bottom:12px;"><button class="btn btn-secondary" onclick="assignEmployee(${emp.id}, null)" style="width:100%;">取消分配</button></div>
                 ${gameState.ownedTrains.map(train => {
                     const restricted = isTrainRestricted(train);
@@ -7837,7 +7948,7 @@
                     showNotification(`该火车需要达到${getTrainRestrictLevel(train)}级才能分配司机！`);
                     return;
                 }
-                // 检查该火车是否已经有其他司机
+                // 
                 const existingEmp = gameState.employees.find(e => e.trainId === trainId && e.id !== empId);
                 if (existingEmp) {
                     showNotification('该火车已有司机，请先解除当前司机！');
@@ -7853,62 +7964,124 @@
         function closeModal() { document.getElementById('employeeModal').classList.remove('show'); }
         function closeOfflineModal() { document.getElementById('offlineModal').classList.remove('show'); }
 
+        // LZString压缩库（简化版）
+        const LZString = {
+            compressToEncodedURIComponent: function(input) {
+                if (input == null) return "";
+                return btoa(unescape(encodeURIComponent(input))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+            },
+            decompressFromEncodedURIComponent: function(input) {
+                if (input == null || input === "") return "";
+                try {
+                    input = input.replace(/-/g, '+').replace(/_/g, '/');
+                    while (input.length % 4) input += '=';
+                    return decodeURIComponent(escape(atob(input)));
+                } catch (e) {
+                    return null;
+                }
+            }
+        };
+
+        function cleanSaveData(data) {
+            const defaults = {
+                gold: 0, points: 0, level: 1, exp: 0, expToNext: 500,
+                employees: [], runningTrains: [], ownedTrains: [],
+                unlockedCities: ["广州", "深圳"], dailyPointsEarned: 0,
+                lastDailyReset: null, lastSaveTime: null, lastOnlineTime: null,
+                totalEarnings: 0, expBonus: 0, consumedPoints: 0,
+                usedRedeemCodes: [],
+                reformStones: 0, dailyReformStonesEarned: 0,
+                vipExp: 0, currentWeather: 'sunny', lastWeatherUpdate: null,
+                challengeLevel: 0, challengeProgress: 0, challengeBonus: 0,
+                trainParts: 0, cityLevels: {}, cityFragments: {}, cityPassengers: {},
+                runningJointTrains: [], citySpecialties: {}, runningSpecialTrains: [],
+                goldBonusLevel: 0, goldBonusFragments: 0,
+                titleFragments: 0, ownedTitles: [], equippedTitle: null,
+                cityTourismSeasons: {}, lastTourismUpdate: null, lastPassengerRefresh: null
+            };
+            
+            const cleaned = {};
+            for (const key in data) {
+                const value = data[key];
+                const defaultValue = defaults[key];
+                
+                if (value === undefined || value === null) continue;
+                
+                if (Array.isArray(value)) {
+                    if (value.length > 0) cleaned[key] = value;
+                } else if (typeof value === 'object' && value !== null) {
+                    if (Object.keys(value).length > 0) {
+                        cleaned[key] = cleanSaveData(value);
+                    }
+                } else if (value !== defaultValue) {
+                    cleaned[key] = value;
+                }
+            }
+            return cleaned;
+        }
+
         function manualSave() {
             saveGame();
             showNotification('保存成功！');
         }
 
-        // ==================== 存档导入导出功能 ====================
+        // ==================== 
         function exportSave() {
-            // 先保存最新数据
+            // 
             saveGame();
             
-            // 获取存档数据
+            // 
             const saveData = localStorage.getItem('railroadTycoon');
             if (!saveData) {
                 showNotification('没有可导出的存档！');
                 return;
             }
             
-            // 使用分块Base64编码处理大数据
-            let encodedData;
             try {
-                // 先尝试标准方式
-                encodedData = btoa(unescape(encodeURIComponent(saveData)));
+                const parsed = JSON.parse(saveData);
+                const cleaned = cleanSaveData(parsed);
+                const compressed = LZString.compressToEncodedURIComponent(JSON.stringify(cleaned));
+                
+                const blob = new Blob([compressed], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rail_empire_${new Date().toISOString().slice(0,10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                navigator.clipboard.writeText(compressed).then(() => {
+                    showNotification('存档已导出并复制到剪贴板！');
+                }).catch(() => {
+                    showNotification('存档已导出为文件！');
+                });
             } catch (e) {
-                // 如果失败，使用分块处理
+                // 回退到旧格式
+                let encodedData;
                 try {
-                    const utf8Data = unescape(encodeURIComponent(saveData));
-                    const chunkSize = 65536; // 64KB chunks
-                    let result = '';
-                    for (let i = 0; i < utf8Data.length; i += chunkSize) {
-                        const chunk = utf8Data.slice(i, i + chunkSize);
-                        result += btoa(chunk);
-                    }
-                    encodedData = result;
+                    encodedData = btoa(unescape(encodeURIComponent(saveData)));
                 } catch (e2) {
-                    // 最后尝试直接保存JSON
                     encodedData = saveData;
                 }
+                
+                const blob = new Blob([encodedData], { type: 'text/plain' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `rail_empire_${new Date().toISOString().slice(0,10)}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                
+                navigator.clipboard.writeText(encodedData).then(() => {
+                    showNotification('存档已导出并复制到剪贴板！');
+                }).catch(() => {
+                    showNotification('存档已导出为文件！');
+                });
             }
-            
-            // 创建下载链接
-            const blob = new Blob([encodedData], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `铁轨帝国存档_${new Date().toISOString().slice(0,10)}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            // 同时复制到剪贴板
-            navigator.clipboard.writeText(encodedData).then(() => {
-                showNotification('存档已导出并复制到剪贴板！');
-            }).catch(() => {
-                showNotification('存档已导出为文件！');
-            });
         }
         
         function showImportModal() {
@@ -7921,7 +8094,7 @@
         }
 
         function showMobileMoreModal() {
-            // 更新VIP信息
+            // 
             const vipLevel = getVipLevel();
             document.getElementById('mobileVipLevel').textContent = vipLevel;
             document.getElementById('mobileVipExpBonus').textContent = vipLevel;
@@ -7929,7 +8102,18 @@
             document.getElementById('mobileVipPointsBonus').textContent = getVipDailyPointsBonus();
             document.getElementById('mobileVipStonesBonus').textContent = getVipDailyReformStonesBonus();
             
-            // 更新游戏信息
+            // VIP彩虹效果控制
+            const vipRainbowEl = document.querySelector('.vip-rainbow');
+            const vipBonusEls = document.querySelectorAll('.vip-bonus-rainbow');
+            if (vipLevel > 0) {
+                vipRainbowEl.classList.add('vip-rainbow');
+                vipBonusEls.forEach(el => el.classList.add('vip-bonus-rainbow'));
+            } else {
+                vipRainbowEl.classList.remove('vip-rainbow');
+                vipBonusEls.forEach(el => el.classList.remove('vip-bonus-rainbow'));
+            }
+            
+            // 
             document.getElementById('mobileLevel').textContent = gameState.level;
             document.getElementById('mobileExp').textContent = formatNumber(gameState.exp);
             document.getElementById('mobileExpToNext').textContent = formatNumber(gameState.expToNext);
@@ -7937,12 +8121,12 @@
             const vipBonus = getVipExpBonus();
             document.getElementById('mobileExpBonus').textContent = expBonus * 15 + vipBonus;
             
-            // 更新天气信息
+            // 
             document.getElementById('mobileWeather').textContent = document.getElementById('weatherInfo').textContent;
             document.getElementById('mobileWeatherEffect').textContent = document.getElementById('weatherEffect').textContent || '-';
             document.getElementById('mobileWeatherTimer').textContent = document.getElementById('weatherTimer').textContent || '-';
             
-            // 更新今日点卷（含VIP上限）
+            // 
             const dailyLimit = getDailyPointsLimit();
             document.getElementById('mobileDailyPoints').textContent = formatNumber(gameState.dailyPointsEarned || 0);
             document.getElementById('mobileDailyLimit').textContent = dailyLimit;
@@ -7962,52 +8146,56 @@
             }
             
             try {
-                // 尝试解码Base64
                 let decodedData;
-                try {
-                    // 先尝试标准解码
-                    decodedData = decodeURIComponent(escape(atob(importData)));
-                } catch (e) {
-                    // 尝试直接解析JSON（可能是未编码的JSON）
+                let parsedData;
+                
+                // 尝试新格式（LZString压缩）
+                const decompressed = LZString.decompressFromEncodedURIComponent(importData);
+                if (decompressed) {
                     try {
-                        JSON.parse(importData);
-                        decodedData = importData;
-                    } catch (e2) {
-                        // 可能是分块编码的数据，尝试其他方式
-                        throw new Error('无法解码存档数据，请确保完整复制了存档内容');
+                        parsedData = JSON.parse(decompressed);
+                        decodedData = JSON.stringify(parsedData);
+                    } catch (e) {}
+                }
+                
+                // 如果不是新格式，尝试旧格式
+                if (!parsedData) {
+                    try {
+                        decodedData = decodeURIComponent(escape(atob(importData)));
+                        parsedData = JSON.parse(decodedData);
+                    } catch (e) {
+                        try {
+                            JSON.parse(importData);
+                            decodedData = importData;
+                            parsedData = JSON.parse(decodedData);
+                        } catch (e2) {
+                            throw new Error('无法解码存档数据，请确保完整复制了存档内容');
+                        }
                     }
                 }
                 
-                // 验证JSON格式
-                let parsedData;
-                try {
-                    parsedData = JSON.parse(decodedData);
-                } catch (e) {
-                    throw new Error('JSON解析失败，存档数据可能已损坏');
-                }
-                
-                // 验证存档数据的基本结构
+                // 
                 if (typeof parsedData !== 'object' || parsedData === null) {
                     throw new Error('无效的存档格式');
                 }
                 
-                // 检查必要字段
+                // 
                 if (parsedData.gold === undefined || parsedData.level === undefined) {
                     throw new Error('存档数据不完整');
                 }
                 
-                // 确认导入
+                // 
                 if (!confirm('导入存档将覆盖当前游戏进度，确定要继续吗？')) {
                     return;
                 }
                 
-                // 保存导入的数据到localStorage
+                // 
                 localStorage.setItem('railroadTycoon', decodedData);
                 
-                // 立即更新gameState变量，防止自动保存覆盖
+                // 
                 gameState = { ...gameState, ...parsedData };
                 
-                // 关闭弹窗并刷新界面
+                // 
                 closeImportModal();
                 updateUI();
                 updateLevelUI();
@@ -8060,7 +8248,7 @@
             setTimeout(() => notification.remove(), 2000);
         }
 
-        // 奖励汇总系统
+        // 
         let rewardQueue = { gold: 0, exp: 0, fragments: 0, jointCount: 0, stones: 0 };
         let rewardTimer = null;
 
@@ -8071,7 +8259,7 @@
             rewardQueue.stones += stones || 0;
             if (fragments > 0) rewardQueue.jointCount++;
             
-            // 延迟显示，合并同一秒内的所有奖励
+            // 
             if (rewardTimer) clearTimeout(rewardTimer);
             rewardTimer = setTimeout(() => {
                 showRewardSummary();
@@ -8088,23 +8276,23 @@
                 if (r.stones > 0) msg += `🔧${r.stones}改造石 `;
                 showNotification(msg.trim());
             }
-            // 重置队列
+            // 
             rewardQueue = { gold: 0, exp: 0, fragments: 0, jointCount: 0, stones: 0 };
         }
 
-        // ==================== 游戏循环 ====================
+        // ==================== 
         function gameLoop() {
             updateWeather();
             updateTourismSeason();
             
-            // 每分钟刷新乘客
+            // 
             const now = Date.now();
             if (!gameState.lastPassengerRefresh || now - gameState.lastPassengerRefresh >= 60000) {
                 refreshCityPassengers();
                 gameState.lastPassengerRefresh = now;
             }
 
-            // 检查所有运行中的火车员工数量（防止BUG）
+            // 
             const trainsToStop = [];
             gameState.runningTrains.forEach(rt => {
                 const employeesOnTrain = gameState.employees.filter(e => e.trainId === rt.trainId);
@@ -8112,7 +8300,7 @@
                     trainsToStop.push(rt);
                 }
             });
-            // 停运异常火车
+            // 
             if (trainsToStop.length > 0) {
                 trainsToStop.forEach(rt => {
                     const idx = gameState.runningTrains.indexOf(rt);
@@ -8121,6 +8309,17 @@
                     }
                 });
                 showNotification('检测到异常：部分火车员工数量超过1人，已自动停运！');
+            }
+
+            // 
+            const totalRunningTrains = gameState.runningTrains.length + (gameState.runningJointTrains ? gameState.runningJointTrains.length : 0) + (gameState.runningSpecialTrains ? gameState.runningSpecialTrains.length : 0);
+            const ownedTrainsCount = gameState.ownedTrains.length;
+            if (totalRunningTrains > ownedTrainsCount) {
+                // 
+                gameState.runningTrains = [];
+                if (gameState.runningJointTrains) gameState.runningJointTrains = [];
+                if (gameState.runningSpecialTrains) gameState.runningSpecialTrains = [];
+                showNotification('检测到异常：运营火车数量超过持有数量，所有火车已自动停运！');
             }
 
             gameState.runningTrains.forEach(rt => {
@@ -8132,7 +8331,7 @@
                     gameState.totalEarnings += earnings;
                     addExp(exp);
                     
-                    // 添加到奖励队列
+                    // 
                     addRewardToQueue(earnings, exp, 0, 0);
                     
                     checkDailyPointsReset();
@@ -8150,7 +8349,7 @@
                         if (gameState.reformStones === undefined) gameState.reformStones = 0;
                         gameState.reformStones += canEarnStones;
                         gameState.dailyReformStonesEarned += canEarnStones;
-                        // 添加到奖励队列
+                        // 
                         addRewardToQueue(0, 0, 0, canEarnStones);
                     }
                     const train = gameState.ownedTrains.find(t => t.id === rt.trainId);
@@ -8178,27 +8377,24 @@
                     if (jt.remainingTime <= 0) {
                         const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
                         if (train) {
-                            // 先检查所有城市是否有乘客
-                            let hasPassengers = true;
+                            // 
+                            const trainCapacity = getTrainCapacity(train);
+                            let totalPassengersAvailable = 0;
                             for (const cityName of jt.cities) {
-                                if (getCityPassengers(cityName) <= 0) {
-                                    hasPassengers = false;
-                                    break;
-                                }
+                                totalPassengersAvailable += getCityPassengers(cityName);
                             }
                             
-                            if (!hasPassengers) {
-                                // 没有乘客，停止该列车（不发放奖励）
+                            if (totalPassengersAvailable <= 0) {
+                                // 
                                 const idx = gameState.runningJointTrains.indexOf(jt);
                                 if (idx > -1) {
                                     gameState.runningJointTrains.splice(idx, 1);
-                                    showNotification(`${jt.trainName}因部分城市无乘客已自动停运`);
+                                    showNotification(`${jt.trainName}因所有城市无乘客已自动停运`);
                                 }
                                 return;
                             }
                             
-                            // 计算乘客数量和增益（整个行程总共只能装载trainCapacity数量的乘客）
-                            const trainCapacity = getTrainCapacity(train);
+                            // 
                             let totalPassengers = 0;
                             let remainingCapacity = trainCapacity;
                             jt.cities.forEach(cityName => {
@@ -8213,7 +8409,7 @@
                             const passengerBonus = calculatePassengerBonus(totalPassengers);
                             jt.passengers = totalPassengers;
                             
-                            // 乘客足够，发放奖励
+                            // 
                             const earnings = jt.earnings;
                             const exp = Math.floor(jt.distance / 5);
                             gameState.gold += earnings;
@@ -8230,7 +8426,7 @@
                                 totalFragments += jt.fragments;
                             });
                             
-                            // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
+                            // 
                             let titleFragmentEarned = 0;
                             const titleFragmentBonus = getVipTitleFragmentBonus();
                             const baseChance = 0.01;
@@ -8246,10 +8442,27 @@
                                 gameState.titleFragments += titleFragmentEarned;
                             }
                             
-                            // 添加到奖励队列
+                            // 
+                            let comfortFragmentsEarned = 0;
+                            const vipLevel = getVipLevel();
+                            const extraComfortFragments = Math.floor(vipLevel / 100); // VIP
+                            jt.cities.forEach(cityName => {
+                                const cityLevel = gameState.cityLevels[cityName] || 1;
+                                if (cityLevel > 40) {
+                                    comfortFragmentsEarned += 12 + extraComfortFragments;
+                                }
+                            });
+                            if (comfortFragmentsEarned > 0) {
+                                const trainType = train.type || 'normal';
+                                if (!gameState.comfortFragments) gameState.comfortFragments = {};
+                                if (!gameState.comfortFragments[trainType]) gameState.comfortFragments[trainType] = 0;
+                                gameState.comfortFragments[trainType] += comfortFragmentsEarned;
+                            }
+                            
+                            // 
                             addRewardToQueue(earnings, exp, totalFragments, 0);
                             
-                            // 联运列车完成时计算每日点卷和改造石
+                            // 
                             checkDailyPointsReset();
                             const dailyPointsLimit = getDailyPointsLimit();
                             if (gameState.dailyPointsEarned < dailyPointsLimit) {
@@ -8267,7 +8480,7 @@
                                 gameState.dailyReformStonesEarned += canEarnStones;
                             }
                             
-                            // 重新发车
+                            // 
                             jt.cities = jt.cities.reverse();
                             jt.totalTime = calculateTime(train, jt.distance);
                             jt.remainingTime = jt.totalTime;
@@ -8278,9 +8491,9 @@
                                 const level = gameState.cityLevels[cityName] || 1;
                                 cityLevelBonus += (level - 1) * 5;
                             });
-                            // 添加城市联动效益
+                            // 
                             cityLevelBonus += calculateCitySynergyBonus(jt.cities);
-                            // 添加集体城市升级联动效益
+                            // 
                             cityLevelBonus += calculateCollectiveCityBonus();
                             let tourismBonus = 0;
                             jt.cities.forEach(cityName => {
@@ -8293,7 +8506,7 @@
                 });
             }
 
-            // 处理特产列车
+            // 
             if (gameState.runningSpecialTrains) {
                 gameState.runningSpecialTrains.forEach((st, index) => {
                     if (st.paused) return;
@@ -8306,11 +8519,11 @@
                         gameState.totalEarnings += earnings;
                         addExp(exp);
                         
-                        // 获得金币加成碎片1-3个
+                        // 
                         const fragments = Math.floor(Math.random() * 3) + 1;
                         gameState.goldBonusFragments = (gameState.goldBonusFragments || 0) + fragments;
                         
-                        // 特产列车完成时计算每日点卷和改造石
+                        // 
                         checkDailyPointsReset();
                         const spDailyPointsLimit = getDailyPointsLimit();
                         if (gameState.dailyPointsEarned < spDailyPointsLimit) {
@@ -8330,24 +8543,24 @@
                         
                         showNotification(`特产列车 ${st.trainName} 完成！获得 ${formatNumber(earnings)} 金币 + ${fragments} 金币加成碎片`);
                         
-                        // 循环发车（保持原有路线）
+                        // 
                         const train = gameState.ownedTrains.find(t => t.id === st.trainId);
                         if (train) {
                             st.totalTime = calculateTime(train, st.distance);
                             st.remainingTime = st.totalTime;
                             
-                            // 重新计算收益（包含旅游季节和城市等级加成）
+                            // 
                             const baseEarnings = calculateEarnings(train, st.distance);
                             const goldBonus = getGoldBonusEffect(gameState.goldBonusLevel);
                             
-                            // 城市等级加成
+                            // 
                             let cityLevelBonus = 0;
                             [st.startCity, ...st.endCities].forEach(cityName => {
                                 const level = gameState.cityLevels[cityName] || 1;
                                 cityLevelBonus += (level - 1) * 5;
                             });
                             
-                            // 旅游季节加成
+                            // 
                             let tourismBonus = 0;
                             [st.startCity, ...st.endCities].forEach(cityName => {
                                 tourismBonus += getTourismIncomeModifier(cityName) * 100;
@@ -8360,7 +8573,7 @@
                 });
             }
 
-            // 更新乘客刷新倒计时
+            // 
             updatePassengerRefreshTimer();
             updateManualRefreshButton();
 
@@ -8384,9 +8597,9 @@
             }
         }
 
-        // ==================== 存档系统 ====================
+        // ==================== 
         function saveGame() {
-            // 数据校验：检测异常数值
+            // 
             if (gameState.gold < 0) {
                 gameState.gold = 0;
                 showNotification('检测到异常数据，已重置金币！');
@@ -8409,7 +8622,7 @@
                 const loadedState = JSON.parse(saved);
                 gameState = { ...gameState, ...loadedState };
                 if (!gameState.unlockedCities) gameState.unlockedCities = ["广州", "深圳"];
-                // 兼容旧存档：incomeBonus 转换为 expBonus
+                // 
                 if (gameState.expBonus === undefined) {
                     gameState.expBonus = gameState.incomeBonus || 0;
                     delete gameState.incomeBonus;
@@ -8417,12 +8630,12 @@
                 if (gameState.consumedPoints === undefined) gameState.consumedPoints = 0;
                 if (!gameState.usedRedeemCodes) gameState.usedRedeemCodes = [];
                 gameState.ownedTrains.forEach(train => { if (train.upgradeLevel === undefined) train.upgradeLevel = 0; });
-                // 改造石系统兼容
+                // 
                 if (gameState.reformStones === undefined) gameState.reformStones = 0;
                 if (gameState.dailyReformStonesEarned === undefined) gameState.dailyReformStonesEarned = 0;
-                // VIP系统兼容
+                // VIP
                 if (gameState.vipExp === undefined) gameState.vipExp = 0;
-                // 闯关系统兼容
+                // 
                 if (gameState.challengeLevel === undefined) gameState.challengeLevel = 0;
                 if (gameState.challengeProgress === undefined) gameState.challengeProgress = 0;
                 if (gameState.challengeBonus === undefined) gameState.challengeBonus = 0;
@@ -8434,11 +8647,11 @@
                 if (gameState.trainLimitIncreases === undefined) {
                     gameState.trainLimitIncreases = { normal: 0, intercity: 0, highspeed: 0, anime: 0, zodiac: 0 };
                 }
-                // 称号系统兼容
+                // 
                 if (gameState.titleFragments === undefined) gameState.titleFragments = 0;
                 if (gameState.ownedTitles === undefined) gameState.ownedTitles = [];
                 if (gameState.equippedTitle === undefined) gameState.equippedTitle = null;
-                // 特产系统兼容
+                // 
                 if (gameState.citySpecialties === undefined) gameState.citySpecialties = {};
                 if (gameState.runningSpecialTrains === undefined) gameState.runningSpecialTrains = [];
                 if (gameState.goldBonusLevel === undefined) gameState.goldBonusLevel = 0;
@@ -8448,11 +8661,11 @@
                     if (train.goldReformLevel === undefined) train.goldReformLevel = 0;
                 });
                 
-                // 恢复运行中的火车数据,而不是清空
+                // 
                 if (!gameState.runningTrains) gameState.runningTrains = [];
                 if (!gameState.runningJointTrains) gameState.runningJointTrains = [];
                 
-                // 初始化城市乘客数据
+                // 
                 if (!gameState.cityPassengers) gameState.cityPassengers = {};
                 const vipBonus = getVipLevel();
                 const playerLevel = gameState.level || 1;
@@ -8463,30 +8676,30 @@
                     }
                 });
 
-                // 计算离线期间的火车运营（包括普通火车和联运火车）
+                // 
                 const hasRunningTrains = gameState.runningTrains.length > 0 || gameState.runningJointTrains.length > 0;
                 if (gameState.lastOnlineTime && hasRunningTrains) {
-                    // 优先使用本地时间，避免服务器时间同步问题
+                    // 
                     const now = Date.now();
                     const lastTime = new Date(gameState.lastOnlineTime).getTime();
                     const offlineTime = (now - lastTime) / 1000;
                     
                     console.log(`离线时间检测: ${offlineTime}秒, 上次在线: ${gameState.lastOnlineTime}`);
                     
-                    // 防作弊：检测时间是否被修改（允许一定误差）
+                    // 
                     if (offlineTime < -60) {
-                        // 系统时间被调后超过60秒，不计算离线收益
+                        // 
                         console.warn('检测到系统时间异常，跳过离线收益计算');
                         gameState.lastOnlineTime = new Date().toISOString();
                     } else if (offlineTime > 10) {
                         let totalOfflineEarnings = 0;
                         let totalOfflineExp = 0;
 
-                        // 防作弊：限制最大离线时间为12小时
+                        // 
                         const maxOfflineTime = 43200;
                         const maxOfflineSeconds = Math.min(Math.floor(Math.max(0, offlineTime)), maxOfflineTime);
                         
-                        // 检测异常离线时间
+                        // 
                         if (offlineTime > maxOfflineTime * 10) {
                             console.warn('检测到异常离线时间，已限制为12小时');
                         }
@@ -8494,7 +8707,7 @@
                         console.log(`计算离线收益: ${maxOfflineSeconds}秒`);
                         
                         for (let i = 0; i < maxOfflineSeconds; i++) {
-                            // 计算普通火车离线收益
+                            // 
                             gameState.runningTrains.forEach(rt => {
                                 if (!rt.paused) {
                                     rt.remainingTime--;
@@ -8518,21 +8731,19 @@
                                 }
                             });
                             
-                            // 计算联运火车离线收益
+                            // 
                             gameState.runningJointTrains.forEach(jt => {
                                 jt.remainingTime--;
                                 if (jt.remainingTime <= 0) {
-                                    // 检查所有城市是否有乘客
-                                    let hasPassengers = true;
+                                    // 
+                                    const trainInfo = gameState.ownedTrains.find(t => t.id === jt.trainId);
+                                    let totalPassengersAvailable = 0;
                                     for (const cityName of jt.cities) {
-                                        if (getCityPassengers(cityName) <= 0) {
-                                            hasPassengers = false;
-                                            break;
-                                        }
+                                        totalPassengersAvailable += getCityPassengers(cityName);
                                     }
                                     
-                                    if (!hasPassengers) {
-                                        // 没有乘客，停止该列车
+                                    if (totalPassengersAvailable <= 0) {
+                                        // 
                                         const idx = gameState.runningJointTrains.indexOf(jt);
                                         if (idx > -1) {
                                             gameState.runningJointTrains.splice(idx, 1);
@@ -8540,18 +8751,16 @@
                                         return;
                                     }
                                     
-                                    // 计算乘客数量和增益
-                                    const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
+                                    // 
                                     let passengerBonus = 0;
-                                    if (train) {
-                                        const trainCapacity = getTrainCapacity(train);
+                                    if (trainInfo) {
+                                        const trainCapacity = getTrainCapacity(trainInfo);
                                         let totalPassengers = 0;
                                         let remainingCapacity = trainCapacity;
                                         jt.cities.forEach(cityName => {
                                             if (remainingCapacity <= 0) return;
                                             const cityPassengers = getCityPassengers(cityName);
                                             const takePassengers = Math.min(cityPassengers, remainingCapacity);
-                                            consumeCityPassengers(cityName, takePassengers);
                                             totalPassengers += takePassengers;
                                             remainingCapacity -= takePassengers;
                                         });
@@ -8563,7 +8772,7 @@
                                     gameState.totalEarnings += jt.earnings;
                                     totalOfflineExp += Math.floor(jt.distance / 5);
                                     
-                                    // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
+                                    // 
                                     const titleFragmentBonus = getVipTitleFragmentBonus();
                                     const baseChance = 0.01;
                                     const finalChance = baseChance + titleFragmentBonus / 100;
@@ -8574,6 +8783,23 @@
                                             gameState.titleFragments++;
                                         }
                                     });
+                                    
+                                    // 
+                                    let comfortFragmentsEarned = 0;
+                                    const vipLevelForComfort = getVipLevel();
+                                    const extraComfortFragments = Math.floor(vipLevelForComfort / 100);
+                                    jt.cities.forEach(cityName => {
+                                        const cityLevel = gameState.cityLevels[cityName] || 1;
+                                        if (cityLevel > 40) {
+                                            comfortFragmentsEarned += 12 + extraComfortFragments;
+                                        }
+                                    });
+                                    if (comfortFragmentsEarned > 0 && train) {
+                                        const trainType = train.type || 'normal';
+                                        if (!gameState.comfortFragments) gameState.comfortFragments = {};
+                                        if (!gameState.comfortFragments[trainType]) gameState.comfortFragments[trainType] = 0;
+                                        gameState.comfortFragments[trainType] += comfortFragmentsEarned;
+                                    }
                                     
                                     jt.cities.forEach(cityName => {
                                         if (!gameState.cityFragments) gameState.cityFragments = {};
@@ -8594,9 +8820,9 @@
                                             const level = gameState.cityLevels[cityName] || 1;
                                             cityLevelBonus += (level - 1) * 5;
                                         });
-                                        // 添加城市联动效益
+                                        // 
                                         cityLevelBonus += calculateCitySynergyBonus(jt.cities);
-                                        // 添加集体城市升级联动效益
+                                        // 
                                         cityLevelBonus += calculateCollectiveCityBonus();
                                         let tourismBonus = 0;
                                         jt.cities.forEach(cityName => {
@@ -8608,7 +8834,7 @@
                                 }
                             });
                             
-                            // 计算特产列车离线收益
+                            // 
                             if (gameState.runningSpecialTrains) {
                                 gameState.runningSpecialTrains.forEach(st => {
                                     if (!st.paused) {
@@ -8618,11 +8844,11 @@
                                             gameState.totalEarnings += st.earnings;
                                             totalOfflineExp += Math.floor(st.distance / 5);
                                             
-                                            // 获得金币加成碎片1-3个
+                                            // 
                                             const fragments = Math.floor(Math.random() * 3) + 1;
                                             gameState.goldBonusFragments = (gameState.goldBonusFragments || 0) + fragments;
                                             
-                                            // 重新发车
+                                            // 
                                             const train = gameState.ownedTrains.find(t => t.id === st.trainId);
                                             if (train) {
                                                 const citiesWithSpecialty = gameState.unlockedCities.filter(cityName => {
@@ -8670,13 +8896,13 @@
                             }
                         }
 
-                        // 显示离线收益
+                        // 
                         if (totalOfflineEarnings > 0 || totalOfflineExp > 0) {
-                            // 离线收益改为在线的50%
+                            // 
                             totalOfflineEarnings = Math.floor(totalOfflineEarnings * 0.5);
                             totalOfflineExp = Math.floor(totalOfflineExp * 0.5);
                             
-                            // 应用VIP离线收益加成（收益和经验都加成）
+                            // 
                             const vipOfflineBonus = getVipOfflineBonus();
                             const bonusEarnings = Math.floor(totalOfflineEarnings * vipOfflineBonus / 100);
                             const bonusExp = Math.floor(totalOfflineExp * vipOfflineBonus / 100);
@@ -8684,13 +8910,13 @@
                             totalOfflineExp += bonusExp;
                             
                             gameState.gold += totalOfflineEarnings;
-                            // 计算加成后的经验值
+                            // 
                             const expBonus = gameState.expBonus || 0;
                             const vipBonus = getVipExpBonus();
                             const totalBonus = expBonus * 0.15 + vipBonus * 0.01;
                             const extraExp = Math.floor(totalOfflineExp * totalBonus);
                             totalOfflineExp += extraExp;
-                            // 添加离线经验值
+                            // 
                             if (totalOfflineExp > 0) {
                                 addExp(totalOfflineExp);
                             }
@@ -8706,17 +8932,17 @@
                         }
                     }
                 }
-                // 更新最后在线时间，避免重复计算离线收益
+                // 
                 gameState.lastOnlineTime = new Date().toISOString();
-                // 立即保存，确保lastOnlineTime被持久化
+                // 
                 saveGame();
                 
-                // 每天首次进入游戏弹窗提醒
+                // 
                 const today = new Date().toDateString();
                 if (gameState.lastLoginDate !== today) {
                     gameState.lastLoginDate = today;
                     saveGame();
-                    // 显示欢迎弹窗
+                    // 
                     setTimeout(() => {
                         showWelcomeModal();
                     }, 500);
@@ -8748,12 +8974,12 @@
             if (modal) modal.remove();
         }
 
-        // ==================== 防作弊机制 ====================
+        // ==================== 
         (function() {
-            // 1. 禁用右键菜单
+            // 1. 
             document.addEventListener('contextmenu', e => e.preventDefault());
             
-            // 2. 禁用F12和开发者工具快捷键
+            // 2. 
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'F12' || 
                     (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'i' || e.key === 'J' || e.key === 'j' || e.key === 'C' || e.key === 'c')) ||
@@ -8764,7 +8990,7 @@
                 }
             });
             
-            // 3. 检测开发者工具打开（延迟5秒启动，避免初始化时误报）
+            // 3. 
             let devtools = { open: false, initialized: false };
             const threshold = 160;
             
@@ -8785,16 +9011,16 @@
                 }
             }, 500);
             
-            // 4. 控制台警告
+            // 4. 
             console.log('%c警告！', 'color: red; font-size: 40px; font-weight: bold;');
             console.log('%c此浏览器功能仅供开发者使用。请勿在此处粘贴任何内容，这可能会导致您的账号被封禁。', 'font-size: 16px;');
         })();
         
-        // ==================== 初始化 ====================
+        // ==================== 
         function init() {
             initTheme();
             loadGame();
-            // 确保lastOnlineTime已初始化
+            // 
             if (!gameState.lastOnlineTime) {
                 gameState.lastOnlineTime = new Date().toISOString();
             }
@@ -8814,21 +9040,21 @@
             
             initMapControls();
             
-            // ==================== 服务器时间校对系统 ====================
-            let serverTimeOffset = 0; // 服务器时间与本地时间的偏移量
-            let lastServerTimeSync = 0; // 上次同步服务器时间的时间戳
-            let serverTimeSynced = false; // 是否已同步服务器时间
-            let timeCheatDetected = false; // 是否检测到时间作弊
-            let cheatWarningGiven = false; // 是否已给出作弊警告
-            let warningConfirmedTime = 0; // 警告确认时间戳
+            // ==================== 
+            let serverTimeOffset = 0; // 
+            let lastServerTimeSync = 0; // 
+            let serverTimeSynced = false; // 
+            let timeCheatDetected = false; // 
+            let cheatWarningGiven = false; // 
+            let warningConfirmedTime = 0; // 
             
-            // 从单个时间服务器获取北京时间
+            // 
             async function fetchServerTime() {
                 try {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 5000);
                     
-                    // 使用淘宝时间接口获取北京时间
+                    // 
                     const response = await fetch('https://api.m.taobao.com/rest/api3.do?api=mtop.common.getTimestamp', { 
                         method: 'GET',
                         signal: controller.signal,
@@ -8858,7 +9084,7 @@
                 return null;
             }
             
-            // 获取校准后的时间
+            // 
             function getCalibratedTime() {
                 if (serverTimeSynced) {
                     return Date.now() + serverTimeOffset;
@@ -8866,11 +9092,11 @@
                 return Date.now();
             }
             
-            // 检测时间作弊
+            // 
             function checkTimeCheat() {
                 if (!serverTimeSynced || timeCheatDetected) return false;
                 
-                // 如果警告已确认且未超过30秒，不检测作弊
+                // 
                 if (warningConfirmedTime > 0 && (Date.now() - warningConfirmedTime) < 30000) {
                     return false;
                 }
@@ -8879,20 +9105,20 @@
                 const calibratedTime = getCalibratedTime();
                 const diff = Math.abs(localTime - calibratedTime);
                 
-                // 如果本地时间与校准时间相差超过600秒（10分钟），可能是在作弊
-                // 增加阈值以避免网络延迟或系统时间同步导致的误报
+                // 
+                // 
                 if (diff > 600000) {
                     timeCheatDetected = true;
                     console.warn(`时间差异过大: ${diff}ms，本地时间可能被修改`);
                     
-                    // 检查是否已经警告过
+                    // 
                     if (!cheatWarningGiven) {
-                        // 第一次作弊，弹窗警告
+                        // 
                         cheatWarningGiven = true;
                         showCheatWarningModal();
-                        timeCheatDetected = false; // 重置，给玩家一次机会
+                        timeCheatDetected = false; // 
                     } else {
-                        // 已经警告过，直接强制重置游戏
+                        // 
                         forceResetGame();
                     }
                     return true;
@@ -8901,12 +9127,12 @@
                 return false;
             }
             
-            // 显示作弊警告弹窗
+            // 
             function showCheatWarningModal() {
-                // 如果弹窗已存在，不重复创建
+                // 
                 if (document.getElementById('cheatWarningModal')) return;
                 
-                // 创建警告弹窗
+                // 
                 const modalHtml = `
                     <div id="cheatWarningModal" class="modal show" style="z-index:10001;">
                         <div class="modal-content" style="max-width:400px;text-align:center;padding:30px;">
@@ -8921,57 +9147,57 @@
                 document.body.insertAdjacentHTML('beforeend', modalHtml);
             }
             
-            // 关闭作弊警告弹窗
+            // 
             function closeCheatWarningModal() {
                 const modal = document.getElementById('cheatWarningModal');
                 if (modal) modal.remove();
                 
-                // 记录确认时间，30秒后才会再次检测作弊
+                // 
                 warningConfirmedTime = Date.now();
                 timeCheatDetected = false;
                 console.log('作弊警告已确认，30秒后才会再次检测作弊行为');
             }
             
-            // 定期同步服务器时间
+            // 
             async function syncServerTime() {
                 await fetchServerTime();
                 
-                // 每5秒同步一次
+                // 
                 setInterval(async () => {
                     const oldOffset = serverTimeOffset;
                     await fetchServerTime();
                     
-                    // 如果警告已确认且未超过30秒，不检测作弊
+                    // 
                     if (warningConfirmedTime > 0 && (Date.now() - warningConfirmedTime) < 30000) {
                         return;
                     }
                     
-                    // 检测时间偏移量是否突然变化（可能修改了系统时间）
-                    // 增加阈值到300秒以避免网络波动或系统时间同步导致的误报
+                    // 
+                    // 
                     if (serverTimeSynced && Math.abs(serverTimeOffset - oldOffset) > 300000) {
                         timeCheatDetected = true;
                         console.warn('检测到时间偏移量异常变化');
                         
-                        // 检查是否已经警告过
+                        // 
                         if (!cheatWarningGiven) {
-                            // 第一次作弊，弹窗警告
+                            // 
                             cheatWarningGiven = true;
                             showCheatWarningModal();
-                            timeCheatDetected = false; // 重置，给玩家一次机会
+                            timeCheatDetected = false; // 
                         } else {
-                            // 已经警告过，直接强制重置游戏
+                            // 
                             forceResetGame();
                         }
                     }
                 }, 5000);
             }
             
-            // 启动时间同步
+            // 
             syncServerTime();
             
             let lastTime = Date.now();
             
-            // 时间加速检测变量
+            // 
             let loopCount = 0;
             let loopCheckTime = Date.now();
             let speedViolationCount = 0;
@@ -8979,13 +9205,13 @@
             let gameLocked = false;
             let speedCheckEnabled = false;
             
-            // 延迟60秒后启用速度检测，避免页面加载/刷新时的误报
+            // 
             setTimeout(() => { speedCheckEnabled = true; }, 60000);
             
             function gameLoopWithBackground() {
                 if (gameLocked) return;
                 
-                // 检测时间作弊
+                // 
                 if (checkTimeCheat()) {
                     speedViolationCount++;
                     if (speedViolationCount >= MAX_VIOLATIONS) {
@@ -8994,15 +9220,15 @@
                     }
                 }
                 
-                // 使用校准后的时间
+                // 
                 const now = getCalibratedTime();
                 const delta = now - lastTime;
 
-                // 时间加速检测：每秒检查循环次数（仅在启用后检测）
-                // 正常情况每秒1次，允许较大波动，超过20次才算加速（大幅提高阈值避免误报）
+                // 
+                // 
                 loopCount++;
                 if (speedCheckEnabled && now - loopCheckTime >= 1000) {
-                    // 每秒执行超过20次循环才判定为加速（大幅提高阈值避免误报）
+                    // 
                     if (loopCount > 20) {
                         speedViolationCount++;
                         console.warn(`检测到异常游戏速度！循环次数: ${loopCount}/秒, 违规次数: ${speedViolationCount}/${MAX_VIOLATIONS}`);
@@ -9017,35 +9243,35 @@
                 }
 
                 if (delta > 1000) {
-                    // 离线/后台补偿：补上错过的秒数（最多12小时）
-                    // 使用校准时间计算，防止修改系统时间作弊
+                    // 
+                    // 
                     const missedSeconds = Math.min(Math.floor(delta / 1000), 43200);
                     for (let i = 0; i < missedSeconds; i++) gameLoop();
                     lastTime = now;
                 } else {
-                    // 正常情况：执行一次游戏循环
+                    // 
                     lastTime = now;
                     gameLoop();
                 }
             }
             
-            // 锁定游戏
+            // 
             function lockGame() {
                 gameLocked = true;
                 showNotification('🚫 检测到作弊行为，游戏已锁定！');
-                // 强制重置游戏
+                // 
                 forceResetGame();
             }
             
-            // 强制重置游戏
+            // 
             function forceResetGame() {
                 gameLocked = true;
                 showNotification('🚫 检测到作弊行为，游戏已强制重置！');
                 
-                // 清除本地存储
+                // 
                 localStorage.removeItem('railroadTycoon');
                 
-                // 重置游戏状态到初始状态
+                // 
                 gameState = {
                     gold: 20000, points: 0, level: 1, exp: 0, expToNext: 500,
                     employees: [], runningTrains: [], ownedTrains: [],
@@ -9065,7 +9291,7 @@
                     trainLimitIncreases: { normal: 0, intercity: 0, highspeed: 0, anime: 0, zodiac: 0 }
                 };
                 
-                // 添加初始火车
+                // 
                 gameState.ownedTrains.push({ 
                     id: Date.now() + Math.random(), 
                     type: 'normal', 
@@ -9077,20 +9303,20 @@
                     comfort: 100 
                 });
                 
-                // 重置选择状态
+                // 
                 selectedStartCity = null;
                 selectedEndCity = null;
                 
-                // 更新界面
+                // 
                 updateUI();
                 updateLevelUI();
                 renderTrainList();
                 renderRightPanel();
                 
-                // 保存重置后的状态
+                // 
                 saveGame();
                 
-                // 显示提示
+                // 
                 setTimeout(() => {
                     showNotification('游戏已重置，请重新开始！');
                 }, 1000);
@@ -9099,7 +9325,7 @@
             setInterval(gameLoopWithBackground, 1000);
             setInterval(() => { gameState.lastOnlineTime = new Date().toISOString(); saveGame(); }, 10000);
             
-            // 计算离线收益的通用函数
+            // 
             function calculateOfflineRewards() {
                 if (!gameState.lastOnlineTime) {
                     gameState.lastOnlineTime = new Date().toISOString();
@@ -9113,7 +9339,7 @@
                 
                 console.log(`离线时间检测: ${offlineTime}秒, lastOnlineTime: ${gameState.lastOnlineTime}`);
                 
-                // 无论是否计算收益，都先更新时间
+                // 
                 gameState.lastOnlineTime = new Date().toISOString();
                 
                 if (offlineTime > 5) {
@@ -9121,7 +9347,7 @@
                     let totalEarnings = 0;
                     let totalExp = 0;
                     
-                    // 计算普通火车离线收益
+                    // 
                     for (let i = 0; i < missedSeconds; i++) {
                         gameState.runningTrains.forEach(rt => {
                             if (!rt.paused) {
@@ -9145,12 +9371,12 @@
                             }
                         });
                         
-                        // 计算联运火车离线收益
+                        // 
                         if (gameState.runningJointTrains) {
                             gameState.runningJointTrains.forEach(jt => {
                                 jt.remainingTime--;
                                 if (jt.remainingTime <= 0) {
-                                    // 检查所有城市是否有乘客
+                                    // 
                                     let hasPassengers = true;
                                     for (const cityName of jt.cities) {
                                         if (getCityPassengers(cityName) <= 0) {
@@ -9160,7 +9386,7 @@
                                     }
                                     
                                     if (!hasPassengers) {
-                                        // 没有乘客，停止该列车
+                                        // 
                                         const idx = gameState.runningJointTrains.indexOf(jt);
                                         if (idx > -1) {
                                             gameState.runningJointTrains.splice(idx, 1);
@@ -9168,7 +9394,7 @@
                                         return;
                                     }
                                     
-                                    // 计算乘客数量和增益
+                                    // 
                                     const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
                                     let passengerBonus = 0;
                                     if (train) {
@@ -9191,7 +9417,7 @@
                                     gameState.totalEarnings += jt.earnings;
                                     totalExp += Math.floor(jt.distance / 5);
                                     
-                                    // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
+                                    // 
                                     const titleFragmentBonus = getVipTitleFragmentBonus();
                                     const baseChance = 0.01;
                                     const finalChance = baseChance + titleFragmentBonus / 100;
@@ -9222,9 +9448,9 @@
                                             const level = gameState.cityLevels[cityName] || 1;
                                             cityLevelBonus += (level - 1) * 5;
                                         });
-                                        // 添加城市联动效益
+                                        // 
                                         cityLevelBonus += calculateCitySynergyBonus(jt.cities);
-                                        // 添加集体城市升级联动效益
+                                        // 
                                         cityLevelBonus += calculateCollectiveCityBonus();
                                         let tourismBonus = 0;
                                         jt.cities.forEach(cityName => {
@@ -9237,7 +9463,7 @@
                             });
                         }
                         
-                        // 计算特产列车离线收益
+                        // 
                         if (gameState.runningSpecialTrains) {
                             gameState.runningSpecialTrains.forEach(st => {
                                 if (!st.paused) {
@@ -9247,11 +9473,11 @@
                                         gameState.totalEarnings += st.earnings;
                                         totalExp += Math.floor(st.distance / 5);
                                         
-                                        // 获得金币加成碎片1-3个
+                                        // 
                                         const fragments = Math.floor(Math.random() * 3) + 1;
                                         gameState.goldBonusFragments = (gameState.goldBonusFragments || 0) + fragments;
                                         
-                                        // 重新发车
+                                        // 
                                         const train = gameState.ownedTrains.find(t => t.id === st.trainId);
                                         if (train) {
                                             const citiesWithSpecialty = gameState.unlockedCities.filter(cityName => {
@@ -9299,7 +9525,7 @@
                         }
                     }
                     
-                    // 应用离线收益50%和VIP加成
+                    // 
                     totalEarnings = Math.floor(totalEarnings * 0.5);
                     totalExp = Math.floor(totalExp * 0.5);
                     
@@ -9319,36 +9545,36 @@
                     }
                 }
                 
-                // 保存游戏状态
+                // 
                 saveGame();
             }
             
-            // visibilitychange 事件（页面隐藏/显示）
+            // visibilitychange 
             document.addEventListener('visibilitychange', () => {
                 if (document.visibilityState === 'visible') {
                     calculateOfflineRewards();
                 } else {
-                    // 页面变为不可见时，保存当前时间
+                    // 
                     gameState.lastOnlineTime = new Date().toISOString();
                     saveGame();
                 }
             });
             
-            // window focus/blur 事件（窗口焦点变化）
+            // window focus/blur 
             window.addEventListener('blur', () => {
-                // 窗口失去焦点时，保存当前时间
+                // 
                 gameState.lastOnlineTime = new Date().toISOString();
                 saveGame();
                 console.log('窗口失去焦点，保存时间:', gameState.lastOnlineTime);
             });
             
             window.addEventListener('focus', () => {
-                // 窗口获得焦点时，计算离线收益
+                // 
                 console.log('窗口获得焦点，计算离线收益');
                 calculateOfflineRewards();
             });
             
-            // 多重保存机制，确保关闭游戏时lastOnlineTime被保存
+            // 
             function saveLastOnlineTime() {
                 gameState.lastOnlineTime = new Date().toISOString();
                 try {
@@ -9359,12 +9585,12 @@
                 }
             }
             
-            // 页面卸载前保存
+            // 
             window.addEventListener('beforeunload', () => { 
                 saveLastOnlineTime();
             });
             
-            // 页面隐藏时保存（移动端关键事件）
+            // 
             window.addEventListener('pagehide', () => { 
                 saveLastOnlineTime();
             });
@@ -9373,12 +9599,12 @@
                 saveLastOnlineTime();
             });
             
-            // 移动端冻结事件（Page Lifecycle API）
+            // 
             document.addEventListener('freeze', () => {
                 saveLastOnlineTime();
             });
             
-            // 移动端恢复事件（Page Lifecycle API）
+            // 
             document.addEventListener('resume', () => {
                 console.log('页面恢复，计算离线收益');
                 calculateOfflineRewards();
@@ -9389,8 +9615,8 @@
     </script>
     
     <!-- 游戏底部说明 -->
-    <div style="position:fixed;bottom:0;left:0;right:0;background:linear-gradient(180deg,transparent,rgba(10,10,15,0.95));padding:15px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--fg-secondary);z-index:100;pointer-events:none;" class="desktop-footer">
-        <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;">游戏QQ群：806903918</span>
+    <div style="position:fixed;bottom:0;left:0;right:0;background:transparent;padding:15px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:12px;color:var(--fg-secondary);z-index:100;pointer-events:none;" class="desktop-footer">
+        <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:300% 100%;animation:rainbowText 3s linear infinite;text-shadow:0 0 10px rgba(0,255,255,0.5);filter:drop-shadow(0 0 5px rgba(0,255,255,0.5));">游戏QQ群：806903918</span>
     </div>
 
     <!-- Mobile Bottom Navigation -->
@@ -9475,21 +9701,21 @@
                     <div style="display:grid;gap:8px;font-size:12px;">
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">VIP等级:</span>
-                            <span style="color:var(--accent-warning);font-weight:600;">VIP <span id="mobileVipLevel">0</span></span>
+                            <span class="vip-rainbow" style="font-weight:bold;">VIP <span id="mobileVipLevel">0</span></span>
                         </div>
-                        <div style="display:flex;justify-content:space-between;">
+                        <div class="vip-bonus-rainbow" style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">经验加成:</span>
                             <span style="color:var(--accent-success);">+<span id="mobileVipExpBonus">0</span>%</span>
                         </div>
-                        <div style="display:flex;justify-content:space-between;">
+                        <div class="vip-bonus-rainbow" style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">离线加成:</span>
                             <span style="color:var(--accent-warning);">+<span id="mobileVipOfflineBonus">0</span>%</span>
                         </div>
-                        <div style="display:flex;justify-content:space-between;">
+                        <div class="vip-bonus-rainbow" style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">点卷上限:</span>
                             <span style="color:var(--accent-primary);">+<span id="mobileVipPointsBonus">0</span></span>
                         </div>
-                        <div style="display:flex;justify-content:space-between;">
+                        <div class="vip-bonus-rainbow" style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">改造石上限:</span>
                             <span style="color:#8b5cf6;">+<span id="mobileVipStonesBonus">0</span></span>
                         </div>
