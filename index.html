@@ -7,109 +7,70 @@
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Share+Tech+Mono&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            /* Colorful Rainbow Style */
-            --bg-void: #0d0d1a;
-            --bg-card: #1a1a2e;
-            --bg-muted: #252540;
-            --fg-primary: #f0f0f0;
-            --fg-secondary: #8888aa;
-            --neon-green: #00ff88;
-            --neon-magenta: #ff00ff;
-            --neon-cyan: #00d4ff;
-            --neon-orange: #ff6b00;
-            --neon-yellow: #ffff00;
-            --neon-red: #ff3366;
-            --neon-purple: #9d4edd;
-            --neon-pink: #ff69b4;
-            --neon-blue: #4361ee;
-            --border: #3a3a5a;
-            --gradient-neon: linear-gradient(135deg, #ff0080 0%, #ff8c00 14%, #ffff00 28%, #00ff00 42%, #00ffff 56%, #0080ff 70%, #8000ff 84%, #ff0080 100%);
-            --gradient-rainbow: linear-gradient(90deg, #ff0080, #ff8c00, #ffff00, #00ff00, #00ffff, #0080ff, #8000ff, #ff0080);
+            /* 简约风格 - 协调配色 */
+            --bg-primary: #f8fafc;
+            --bg-secondary: #ffffff;
+            --bg-tertiary: #f1f5f9;
+            --bg-void: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-muted: #f1f5f9;
+            --fg-primary: #1e293b;
+            --fg-secondary: #64748b;
+            --fg-muted: #94a3b8;
+            --accent-primary: #3b82f6;
+            --accent-secondary: #60a5fa;
+            --accent-success: #10b981;
+            --accent-warning: #f59e0b;
+            --accent-danger: #ef4444;
+            --neon-green: #10b981;
+            --neon-magenta: #8b5cf6;
+            --neon-cyan: #06b6d4;
+            --neon-orange: #f59e0b;
+            --neon-yellow: #eab308;
+            --neon-red: #ef4444;
+            --neon-purple: #8b5cf6;
+            --neon-pink: #ec4899;
+            --neon-blue: #3b82f6;
+            --border: #e2e8f0;
+            --border-dark: #cbd5e1;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+            --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.08);
+            --radius: 8px;
+            --gradient-neon: linear-gradient(135deg, #3b82f6, #8b5cf6);
+            --gradient-rainbow: linear-gradient(90deg, #3b82f6, #8b5cf6);
+        }
+
+        /* 深色主题 */
+        [data-theme="dark"] {
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-void: #0f172a;
+            --bg-card: #1e293b;
+            --bg-muted: #334155;
+            --fg-primary: #f1f5f9;
+            --fg-secondary: #94a3b8;
+            --fg-muted: #64748b;
+            --border: #334155;
+            --border-dark: #475569;
+            --shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            --shadow-lg: 0 4px 6px rgba(0, 0, 0, 0.3);
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Base */
         body {
-            font-family: 'JetBrains Mono', 'Share Tech Mono', monospace;
-            background: var(--bg-void);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: var(--bg-primary);
             min-height: 100vh;
             color: var(--fg-primary);
             overflow-x: hidden;
-            position: relative;
-        }
-
-        /* Scanline overlay */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                transparent,
-                transparent 2px,
-                rgba(0, 0, 0, 0.15) 2px,
-                rgba(0, 0, 0, 0.15) 4px
-            );
-            pointer-events: none;
-            z-index: 9999;
-            animation: scanlines 8s linear infinite;
-        }
-
-        @keyframes progressGlow {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
-        }
-        
-        @keyframes scanlines {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(4px); }
-        }
-
-        /* Grid background - Rainbow */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(90deg, rgba(255, 0, 128, 0.03) 1px, transparent 1px),
-                linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 60px 60px;
-            pointer-events: none;
-            z-index: 0;
-            animation: rainbowGrid 10s linear infinite;
-        }
-        
-        @keyframes rainbowGrid {
-            0% { filter: hue-rotate(0deg); }
-            100% { filter: hue-rotate(360deg); }
-        }
-
-        /* Noise texture */
-        .noise-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.03;
-            pointer-events: none;
-            z-index: 9998;
-            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%' height='100%' filter='url(%23noise)'/%3E%3C/svg%3E");
         }
 
         .game-container {
             max-width: 1600px;
             margin: 0 auto;
             padding: 20px;
-            position: relative;
-            z-index: 1;
         }
 
         /* Header */
@@ -118,88 +79,23 @@
             justify-content: space-between;
             align-items: center;
             padding: 20px 30px;
-            background: linear-gradient(180deg, rgba(18, 18, 26, 0.95) 0%, rgba(10, 10, 15, 0.9) 100%);
+            background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 4px;
+            border-radius: var(--radius);
             margin-bottom: 20px;
-            position: relative;
-            overflow: hidden;
-        }
-
-        /* Header corner decorations */
-        .header::before,
-        .header::after {
-            content: '';
-            position: absolute;
-            width: 20px;
-            height: 20px;
-            border: 2px solid var(--neon-pink);
-            animation: cornerGlow 3s ease-in-out infinite;
-        }
-        .header::before { top: -1px; left: -1px; border-right: none; border-bottom: none; border-color: var(--neon-pink); }
-        .header::after { bottom: -1px; right: -1px; border-left: none; border-top: none; border-color: var(--neon-cyan); }
-        
-        @keyframes cornerGlow {
-            0%, 100% { filter: hue-rotate(0deg); }
-            50% { filter: hue-rotate(180deg); }
-        }
-
-        /* Animated border glow */
-        .header-glow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: var(--gradient-neon);
-            animation: borderGlow 3s ease-in-out infinite;
-        }
-
-        @keyframes borderGlow {
-            0%, 100% { opacity: 0.5; transform: scaleX(0.5); }
-            50% { opacity: 1; transform: scaleX(1); }
+            box-shadow: var(--shadow);
         }
 
         .game-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 32px;
-            font-weight: 900;
-            letter-spacing: 4px;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .game-title-main {
-            background: var(--gradient-rainbow);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-shadow: 0 0 30px rgba(255, 0, 128, 0.5);
-            animation: titleGlitch 5s infinite, rainbowText 5s linear infinite;
-            background-size: 200% 100%;
-        }
-        
-        @keyframes rainbowText {
-            0% { background-position: 0% 50%; }
-            100% { background-position: 200% 50%; }
-        }
-
-        @keyframes titleGlitch {
-            0%, 90%, 100% { transform: translate(0); filter: none; }
-            91% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
-            92% { transform: translate(2px, -1px); filter: hue-rotate(-90deg); }
-            93% { transform: translate(0); filter: none; }
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--fg-primary);
         }
 
         .game-title-sub {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            font-weight: 400;
-            letter-spacing: 8px;
-            color: var(--neon-cyan);
+            font-size: 12px;
+            color: var(--fg-secondary);
             margin-top: 4px;
-            opacity: 0.8;
         }
 
         /* Stats */
@@ -214,56 +110,36 @@
             align-items: center;
             gap: 10px;
             padding: 10px 16px;
-            background: rgba(0, 255, 136, 0.03);
-            border: 1px solid rgba(0, 255, 136, 0.15);
-            border-radius: 2px;
-            transition: all 100ms steps(4);
-            position: relative;
-        }
-
-        .stat-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 3px;
-            height: 100%;
-            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
-            opacity: 0;
-            transition: opacity 100ms steps(2);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            transition: all 0.2s ease;
         }
 
         .stat-item:hover {
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.2), inset 0 0 20px rgba(0, 255, 136, 0.05);
+            border-color: var(--accent-primary);
         }
 
-        .stat-item:hover::before { opacity: 1; }
-
         .stat-icon {
-            font-size: 20px;
-            filter: drop-shadow(0 0 6px currentColor);
+            font-size: 18px;
         }
 
         .stat-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            letter-spacing: 2px;
+            font-size: 11px;
             color: var(--fg-secondary);
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .stat-value {
-            font-family: 'Orbitron', sans-serif;
             font-size: 16px;
-            font-weight: 700;
-            background: var(--gradient-rainbow); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 100%; animation: rainbowText 3s linear infinite;
-            text-shadow: 0 0 10px var(--neon-green);
+            font-weight: 600;
+            color: var(--accent-primary);
         }
 
-        .stat-item:nth-child(2) .stat-value { color: var(--neon-yellow); text-shadow: 0 0 10px var(--neon-yellow); }
-        .stat-item:nth-child(3) .stat-value { color: var(--neon-magenta); text-shadow: 0 0 10px var(--neon-magenta); }
-        .stat-item:nth-child(4) .stat-value { color: var(--neon-cyan); text-shadow: 0 0 10px var(--neon-cyan); }
+        .stat-item:nth-child(2) .stat-value { color: var(--accent-warning); }
+        .stat-item:nth-child(3) .stat-value { color: var(--accent-danger); }
+        .stat-item:nth-child(4) .stat-value { color: var(--accent-success); }
 
         /* Main Layout */
         .main-content {
@@ -274,33 +150,10 @@
 
         /* Panels */
         .sidebar, .center-panel, .right-panel {
-            background: linear-gradient(180deg, rgba(18, 18, 26, 0.9) 0%, rgba(12, 12, 18, 0.95) 100%);
+            background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 4px;
-            position: relative;
-        }
-
-        /* Panel corner decorations */
-        .sidebar::before, .center-panel::before, .right-panel::before {
-            content: '';
-            position: absolute;
-            top: -1px;
-            left: -1px;
-            width: 10px;
-            height: 10px;
-            border-top: 2px solid var(--neon-green);
-            border-left: 2px solid var(--neon-green);
-        }
-
-        .sidebar::after, .center-panel::after, .right-panel::after {
-            content: '';
-            position: absolute;
-            bottom: -1px;
-            right: -1px;
-            width: 10px;
-            height: 10px;
-            border-bottom: 2px solid var(--neon-cyan);
-            border-right: 2px solid var(--neon-cyan);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
         }
 
         .sidebar { padding: 20px; }
@@ -309,11 +162,9 @@
 
         /* Section titles */
         .sidebar-title, .panel-title {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 11px;
-            font-weight: 400;
-            letter-spacing: 4px;
-            background: var(--gradient-rainbow); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 100%; animation: rainbowText 3s linear infinite;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--fg-primary);
             margin-bottom: 20px;
             padding-bottom: 10px;
             border-bottom: 1px solid var(--border);
@@ -331,61 +182,52 @@
 
         .sidebar-title::before {
             content: '> ';
-            color: var(--neon-cyan);
+            color: var(--accent-primary);
         }
 
         /* Level display */
         .level-info {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.05) 0%, rgba(0, 212, 255, 0.05) 100%);
-            border: 1px solid rgba(0, 255, 136, 0.2);
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
             padding: 20px;
-            border-radius: 2px;
+            border-radius: var(--radius);
             margin-bottom: 20px;
             text-align: center;
-            position: relative;
         }
 
         .level-label {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
-            letter-spacing: 3px;
+            font-size: 11px;
             color: var(--fg-secondary);
             margin-bottom: 8px;
         }
 
         .level-value {
-            font-family: 'Orbitron', sans-serif;
             font-size: 48px;
-            font-weight: 900;
-            background: var(--gradient-rainbow); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; background-size: 200% 100%; animation: rainbowText 3s linear infinite;
-            text-shadow: 0 0 30px var(--neon-green), 0 0 60px rgba(0, 255, 136, 0.3);
+            font-weight: 700;
+            color: var(--accent-primary);
             line-height: 1;
         }
 
         .exp-bar {
             width: 100%;
-            height: 4px;
-            background: var(--bg-muted);
-            border-radius: 2px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
             margin-top: 15px;
             overflow: hidden;
-            position: relative;
         }
 
         .exp-fill {
             height: 100%;
-            background: var(--gradient-neon);
-            border-radius: 2px;
-            transition: width 150ms cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 10px var(--neon-green);
+            background: var(--accent-primary);
+            border-radius: 3px;
+            transition: width 0.3s ease;
         }
 
         .exp-text {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 10px;
+            font-size: 11px;
             color: var(--fg-secondary);
             margin-top: 8px;
-            letter-spacing: 1px;
         }
 
         /* Navigation */
@@ -395,13 +237,12 @@
             margin-bottom: 6px;
             background: transparent;
             border: 1px solid transparent;
-            border-left: 2px solid var(--border);
+            border-left: 3px solid var(--border);
             border-radius: 0;
             color: var(--fg-secondary);
-            font-family: 'Share Tech Mono', monospace;
             font-size: 13px;
             cursor: pointer;
-            transition: all 100ms steps(3);
+            transition: all 0.2s ease;
             text-align: left;
             display: flex;
             align-items: center;
@@ -410,121 +251,73 @@
         }
 
         .nav-btn:hover {
-            background: rgba(0, 255, 136, 0.05);
-            border-left: 3px solid var(--neon-pink);
+            background: var(--bg-tertiary);
+            border-left: 3px solid var(--accent-primary);
             color: var(--fg-primary);
             padding-left: 20px;
         }
 
         .nav-btn.active {
-            background: linear-gradient(90deg, rgba(255, 105, 180, 0.15) 0%, rgba(157, 78, 221, 0.1) 50%, transparent 100%);
-            border-left: 3px solid var(--neon-pink);
-            color: transparent;
-            background-image: var(--gradient-rainbow);
-            -webkit-background-clip: text;
-            background-clip: text;
-            background-size: 200% 100%;
-            animation: rainbowText 3s linear infinite;
-            box-shadow: inset 0 0 20px rgba(255, 105, 180, 0.1);
+            background: var(--bg-tertiary);
+            border-left: 3px solid var(--accent-primary);
+            color: var(--accent-primary);
+            font-weight: 600;
         }
 
         .nav-btn.active::before {
             content: '>';
-            position: absolute;
-            left: 6px;
-            color: transparent;
-            background-image: var(--gradient-rainbow);
-            -webkit-background-clip: text;
-            background-clip: text;
-            background-size: 200% 100%;
-            animation: rainbowText 3s linear infinite;
-            animation: blink 1s step-end infinite;
-        }
-
-        @keyframes blink {
-            50% { opacity: 0; }
+            margin-right: 8px;
         }
 
         /* Cards */
         .train-card, .employee-card, .running-train {
-            background: linear-gradient(135deg, rgba(0, 255, 136, 0.02) 0%, rgba(0, 212, 255, 0.02) 100%);
+            background: var(--bg-secondary);
             border: 1px solid var(--border);
-            border-radius: 2px;
+            border-radius: var(--radius);
             padding: 16px;
             margin-bottom: 12px;
-            transition: all 100ms steps(3);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .train-card::before, .employee-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: transparent;
-            transition: background 100ms steps(2);
+            transition: all 0.2s ease;
         }
 
         .train-card:hover, .employee-card:hover {
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 20px rgba(0, 255, 136, 0.15);
-            transform: translateX(4px);
-        }
-
-        .train-card:hover::before, .employee-card:hover::before {
-            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
+            border-color: var(--accent-primary);
+            box-shadow: var(--shadow);
         }
 
         .train-card.selected {
-            border-color: var(--neon-magenta);
-            box-shadow: 0 0 25px rgba(255, 0, 255, 0.2);
-        }
-
-        .train-card.selected::before {
-            background: var(--neon-magenta);
+            border-color: var(--accent-primary);
+            background: rgba(37, 99, 235, 0.05);
         }
 
         .train-name {
-            font-family: 'Orbitron', sans-serif;
             font-size: 14px;
-            font-weight: 700;
+            font-weight: 600;
             margin-bottom: 8px;
-            color: transparent;
-            background-image: var(--gradient-rainbow);
-            -webkit-background-clip: text;
-            background-clip: text;
-            background-size: 200% 100%;
-            animation: rainbowText 3s linear infinite;
+            color: var(--fg-primary);
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
         .train-type {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 9px;
-            font-weight: 400;
+            font-size: 10px;
             padding: 3px 8px;
-            border-radius: 1px;
+            border-radius: 4px;
             display: inline-block;
             margin-bottom: 10px;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
-        .type-normal { background: var(--neon-cyan); color: #000; }
-        .type-intercity { background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)); color: #000; }
-        .type-highspeed { background: var(--neon-red); color: #fff; }
-        .type-anime { background: var(--neon-magenta); color: #fff; }
-        .type-zodiac { background: var(--neon-orange); color: #000; }
+        .type-normal { background: var(--accent-secondary); color: #fff; }
+        .type-intercity { background: var(--accent-primary); color: #fff; }
+        .type-highspeed { background: var(--accent-danger); color: #fff; }
+        .type-anime { background: var(--accent-warning); color: #fff; }
+        .type-zodiac { background: var(--accent-success); color: #fff; }
 
         .train-stats {
             display: flex;
             gap: 20px;
-            font-family: 'Share Tech Mono', monospace;
             font-size: 12px;
             color: var(--fg-secondary);
         }
@@ -533,77 +326,67 @@
         .btn {
             padding: 10px 20px;
             border: none;
-            border-radius: 2px;
+            border-radius: var(--radius);
             cursor: pointer;
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 12px;
-            font-weight: 400;
-            letter-spacing: 2px;
-            transition: all 100ms steps(3);
-            text-transform: uppercase;
-            position: relative;
-            overflow: hidden;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s ease;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple));
-            color: #000;
-            border: 1px solid var(--neon-pink);
+            background: var(--accent-primary);
+            color: #fff;
         }
 
         .btn-primary:hover {
-            box-shadow: 0 0 20px var(--neon-pink), 0 0 40px var(--neon-purple);
-            text-shadow: none;
+            background: var(--accent-secondary);
         }
 
         .btn-primary:disabled {
-            background: var(--bg-muted);
-            border-color: var(--border);
-            color: var(--fg-secondary);
+            background: var(--border);
+            color: var(--fg-muted);
             cursor: not-allowed;
-            box-shadow: none;
         }
 
         .btn-secondary {
             background: transparent;
-            border: 1px solid var(--neon-cyan);
-            color: var(--neon-cyan);
+            border: 1px solid var(--border);
+            color: var(--fg-primary);
         }
 
         .btn-secondary:hover {
-            background: rgba(0, 212, 255, 0.1);
-            box-shadow: 0 0 15px rgba(0, 212, 255, 0.3);
+            background: var(--bg-tertiary);
+            border-color: var(--accent-primary);
         }
 
         .btn-small {
             padding: 6px 12px;
-            font-size: 10px;
+            font-size: 11px;
         }
 
         .btn-danger {
             background: transparent;
-            border: 1px solid var(--neon-red);
-            color: var(--neon-red);
+            border: 1px solid var(--accent-danger);
+            color: var(--accent-danger);
         }
 
         .btn-danger:hover {
-            background: rgba(255, 51, 102, 0.1);
-            box-shadow: 0 0 15px rgba(255, 51, 102, 0.3);
+            background: rgba(239, 68, 68, 0.1);
         }
 
         /* Progress bars */
         .progress-bar {
             width: 100%;
-            height: 4px;
-            background: var(--bg-muted);
-            border-radius: 2px;
+            height: 6px;
+            background: var(--border);
+            border-radius: 3px;
             overflow: hidden;
             margin: 10px 0;
         }
 
         .progress-fill {
             height: 100%;
-            background: var(--gradient-neon);
+            background: var(--accent-primary);
             border-radius: 2px;
             transition: width 150ms cubic-bezier(0.4, 0, 0.2, 1);
             box-shadow: 0 0 8px var(--neon-green);
@@ -927,13 +710,13 @@
             letter-spacing: 1px;
         }
 
-        .type-income { background: linear-gradient(135deg, var(--neon-pink), var(--neon-purple)); color: #000; }
-        .type-speed { background: var(--neon-cyan); color: #000; }
-        .type-weight { background: var(--neon-red); color: #fff; }
-        .type-vip { background: linear-gradient(135deg, #ffd700, #ff8c00, #ffd700); color: #000; font-weight: bold; animation: vipGlow 1.5s ease-in-out infinite; }
+        .type-income { background: var(--accent-primary); color: #fff; }
+        .type-speed { background: var(--accent-success); color: #fff; }
+        .type-weight { background: var(--accent-danger); color: #fff; }
+        .type-vip { background: linear-gradient(135deg, #fbbf24, #f59e0b, #fbbf24); color: #fff; font-weight: bold; }
         @keyframes vipGlow {
-            0%, 100% { box-shadow: 0 0 5px #ffd700, 0 0 10px #ffd700; }
-            50% { box-shadow: 0 0 10px #ffd700, 0 0 20px #ffd700, 0 0 30px #ff8c00; }
+            0%, 100% { box-shadow: 0 0 5px #fbbf24; }
+            50% { box-shadow: 0 0 10px #fbbf24, 0 0 15px #f59e0b; }
         }
 
         /* Responsive */
@@ -1006,7 +789,7 @@
                 bottom: 0;
                 left: 0;
                 right: 0;
-                background: linear-gradient(180deg, rgba(18, 18, 26, 0.98) 0%, rgba(10, 10, 15, 0.99) 100%);
+                background: var(--bg-secondary);
                 border-top: 1px solid var(--border);
                 padding: 8px 5px;
                 z-index: 1000;
@@ -1033,9 +816,9 @@
             }
             .mobile-nav-btn:active,
             .mobile-nav-btn.active {
-                background: linear-gradient(135deg, rgba(255, 105, 180, 0.2), rgba(157, 78, 221, 0.15));
-                border-color: var(--neon-pink);
-                color: var(--neon-pink);
+                background: rgba(59, 130, 246, 0.1);
+                border-color: var(--accent-primary);
+                color: var(--accent-primary);
             }
             .mobile-nav-btn .nav-icon {
                 display: block;
@@ -1131,6 +914,9 @@
                         <div class="stat-value" id="runningCount">0</div>
                     </div>
                 </div>
+                <button class="btn btn-small" onclick="toggleTheme()" id="themeToggleBtn" style="background:var(--accent-primary);border-color:var(--accent-primary);color:#fff;font-weight:600;padding:8px 12px;">
+                    🌙 深色
+                </button>
             </div>
         </div>
 
@@ -1166,10 +952,10 @@
                     <div id="lastSave" style="margin-top:10px;">上次保存: --</div>
                     <div id="vipInfo" style="margin-top:5px;color:var(--neon-yellow);font-weight:600;"></div>
                     <div id="dailyPointsInfo" style="margin-top:5px;color:var(--neon-cyan);"></div>
-                    <div id="weatherDisplay" style="margin-top:8px;padding:8px;background:rgba(0,0,0,0.3);border-radius:8px;text-align:center;">
+                    <div id="weatherDisplay" style="margin-top:8px;padding:8px;background:var(--bg-tertiary);border-radius:8px;text-align:center;border:1px solid var(--border);">
                         <div style="font-size:11px;color:var(--fg-secondary);">当前天气</div>
                         <div id="weatherInfo" style="font-size:14px;margin-top:4px;">☀️ 晴天</div>
-                        <div id="weatherEffect" style="font-size:10px;color:var(--neon-yellow);margin-top:4px;"></div>
+                        <div id="weatherEffect" style="font-size:10px;color:var(--accent-warning);margin-top:4px;"></div>
                         <div id="weatherTimer" style="font-size:10px;color:var(--fg-secondary);margin-top:4px;"></div>
                     </div>
                 </div>
@@ -1183,33 +969,33 @@
                         <button class="btn btn-danger btn-small" onclick="batchRetireTrains()">批量退役 (<span id="selectedTrainCount">0</span>)</button>
                     </div>
                     <div style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap;">
-                        <button class="btn btn-small" id="filterTrainAllBtn" onclick="filterTrains('all')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">全部</button>
-                        <button class="btn btn-small" id="filterTrainNormalBtn" onclick="filterTrains('normal')" style="background:linear-gradient(135deg,#3a8a5a,#2a6a4a);border-color:#00ff88;color:#fff;font-weight:600;">普通</button>
-                        <button class="btn btn-small" id="filterTrainIntercityBtn" onclick="filterTrains('intercity')" style="background:linear-gradient(135deg,#3a6a8a,#2a4a6a);border-color:#00d4ff;color:#fff;font-weight:600;">城际</button>
-                        <button class="btn btn-small" id="filterTrainHighspeedBtn" onclick="filterTrains('highspeed')" style="background:linear-gradient(135deg,#8a7a3a,#6a5a2a);border-color:#ffd700;color:#fff;font-weight:600;">高铁</button>
-                        <button class="btn btn-small" id="filterTrainAnimeBtn" onclick="filterTrains('anime')" style="background:linear-gradient(135deg,#8a3a6a,#6a2a4a);border-color:#ff3366;color:#fff;font-weight:600;">自创</button>
-                        <button class="btn btn-small" id="filterTrainZodiacBtn" onclick="filterTrains('zodiac')" style="background:linear-gradient(135deg,#8a5a2a,#6a3a1a);border-color:#ff6b00;color:#fff;font-weight:600;">生肖</button>
+                        <button class="btn btn-small" id="filterTrainAllBtn" onclick="filterTrains('all')" style="background:var(--accent-primary);border-color:var(--accent-primary);color:#fff;font-weight:600;">全部</button>
+                        <button class="btn btn-small" id="filterTrainNormalBtn" onclick="filterTrains('normal')" style="background:var(--accent-success);border-color:var(--accent-success);color:#fff;font-weight:600;">普通</button>
+                        <button class="btn btn-small" id="filterTrainIntercityBtn" onclick="filterTrains('intercity')" style="background:var(--accent-secondary);border-color:var(--accent-secondary);color:#fff;font-weight:600;">城际</button>
+                        <button class="btn btn-small" id="filterTrainHighspeedBtn" onclick="filterTrains('highspeed')" style="background:var(--accent-warning);border-color:var(--accent-warning);color:#fff;font-weight:600;">高铁</button>
+                        <button class="btn btn-small" id="filterTrainAnimeBtn" onclick="filterTrains('anime')" style="background:var(--accent-danger);border-color:var(--accent-danger);color:#fff;font-weight:600;">自创</button>
+                        <button class="btn btn-small" id="filterTrainZodiacBtn" onclick="filterTrains('zodiac')" style="background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:600;">生肖</button>
                     </div>
-                    <div style="background:rgba(0,0,0,0.3);padding:10px;border-radius:8px;margin-bottom:15px;">
-                        <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📈 增加上限（每种最多增加30次）</div>
+                    <div style="background:var(--bg-tertiary);padding:10px;border-radius:8px;margin-bottom:15px;border:1px solid var(--border);">
+                        <div style="font-size:12px;color:var(--fg-primary);margin-bottom:10px;font-weight:600;">📈 增加上限（每种最多增加30次）</div>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <button class="btn btn-small" id="increaseNormalBtn" onclick="increaseTrainLimit('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">
+                            <button class="btn btn-small" id="increaseNormalBtn" onclick="increaseTrainLimit('normal')" style="background:var(--accent-success);border-color:var(--accent-success);color:#fff;font-weight:600;">
                                 普通火车+1
                             </button>
-                            <button class="btn btn-small" id="increaseIntercityBtn" onclick="increaseTrainLimit('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">
+                            <button class="btn btn-small" id="increaseIntercityBtn" onclick="increaseTrainLimit('intercity')" style="background:var(--accent-secondary);border-color:var(--accent-secondary);color:#fff;font-weight:600;">
                                 城际火车+1
                             </button>
-                            <button class="btn btn-small" id="increaseHighspeedBtn" onclick="increaseTrainLimit('highspeed')" style="background:linear-gradient(135deg,#ffd700,#cc9900);border-color:#ffd700;color:#000;font-weight:600;">
+                            <button class="btn btn-small" id="increaseHighspeedBtn" onclick="increaseTrainLimit('highspeed')" style="background:var(--accent-warning);border-color:var(--accent-warning);color:#fff;font-weight:600;">
                                 高铁+1
                             </button>
-                            <button class="btn btn-small" id="increaseAnimeBtn" onclick="increaseTrainLimit('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">
+                            <button class="btn btn-small" id="increaseAnimeBtn" onclick="increaseTrainLimit('anime')" style="background:var(--accent-danger);border-color:var(--accent-danger);color:#fff;font-weight:600;">
                                 自创火车+1
                             </button>
                         </div>
                     </div>
                     <div id="trainList"></div>
-                    <div class="mobile-qq-info" style="display:none;text-align:center;padding:15px;margin-top:15px;background:rgba(0,0,0,0.3);border-radius:8px;">
-                        <span style="background:var(--gradient-rainbow);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;background-size:200% 100%;animation:rainbowText 3s linear infinite;font-family:'Share Tech Mono',monospace;font-size:12px;">游戏QQ群：806903918</span>
+                    <div class="mobile-qq-info" style="display:none;text-align:center;padding:15px;margin-top:15px;background:var(--bg-tertiary);border-radius:8px;border:1px solid var(--border);">
+                        <span style="color:var(--accent-primary);font-size:12px;font-weight:600;">游戏QQ群：806903918</span>
                     </div>
                 </div>
 
@@ -1236,55 +1022,55 @@
                         <button class="btn btn-primary" id="startRouteBtn" onclick="startRoute()" disabled style="padding:15px 40px;margin-bottom:10px;">开始运营</button>
                     </div>
                     <div style="text-align:center;margin-bottom:10px;">
-                        <button class="btn btn-success" onclick="startAllTrains()" style="padding:12px 30px;width:100%;">
+                        <button class="btn btn-primary" onclick="startAllTrains()" style="padding:12px 30px;width:100%;">
                             🚀 一键发车（所有未运营火车）
                         </button>
                     </div>
                     <div class="filter-buttons" style="margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center;">
-                        <button class="btn btn-small" onclick="startTrainsByType('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">🚀 普通</button>
-                        <button class="btn btn-small" onclick="startTrainsByType('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">🚀 城际</button>
-                        <button class="btn btn-small" onclick="startTrainsByType('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;">🚀 高铁</button>
-                        <button class="btn btn-small" onclick="startTrainsByType('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">🚀 自创</button>
-                        <button class="btn btn-small" onclick="startTrainsByType('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;">🚀 生肖</button>
+                        <button class="btn btn-small" onclick="startTrainsByType('normal')" style="background:var(--accent-success);border-color:var(--accent-success);color:#fff;font-weight:600;">🚀 普通</button>
+                        <button class="btn btn-small" onclick="startTrainsByType('intercity')" style="background:var(--accent-secondary);border-color:var(--accent-secondary);color:#fff;font-weight:600;">🚀 城际</button>
+                        <button class="btn btn-small" onclick="startTrainsByType('highspeed')" style="background:var(--accent-warning);border-color:var(--accent-warning);color:#fff;font-weight:600;">🚀 高铁</button>
+                        <button class="btn btn-small" onclick="startTrainsByType('anime')" style="background:var(--accent-danger);border-color:var(--accent-danger);color:#fff;font-weight:600;">🚀 自创</button>
+                        <button class="btn btn-small" onclick="startTrainsByType('zodiac')" style="background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:600;">🚀 生肖</button>
                     </div>
                 </div>
 
                 <div id="employeesPanel" class="panel" style="display:none;">
                     <div class="panel-title"><span>员工管理 <span id="employeeCountInfo" style="font-size:11px;color:var(--fg-secondary);"></span></span><button class="btn btn-secondary" id="hireEmployeeBtn" onclick="hireEmployee()">招聘 (1000金币)</button></div>
                     <div style="display:flex;gap:10px;margin-bottom:15px;">
-                        <button class="btn btn-success" onclick="autoAssignEmployees()" style="flex:1;">📤 一键分配</button>
-                        <button class="btn btn-warning" onclick="unassignAllEmployees()" style="flex:1;">📥 一键取消分配</button>
+                        <button class="btn btn-primary" onclick="autoAssignEmployees()" style="flex:1;">📤 一键分配</button>
+                        <button class="btn btn-secondary" onclick="unassignAllEmployees()" style="flex:1;">📥 一键取消分配</button>
                     </div>
                     <div style="margin-bottom:15px;">
                         <div style="font-size:12px;color:var(--fg-secondary);margin-bottom:8px;">按类型分配：</div>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">📤 普通</button>
-                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">📤 城际</button>
-                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;">📤 高铁</button>
-                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">📤 自创</button>
-                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;">📤 生肖</button>
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('normal')" style="background:var(--accent-success);border-color:var(--accent-success);color:#fff;font-weight:600;">📤 普通</button>
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('intercity')" style="background:var(--accent-secondary);border-color:var(--accent-secondary);color:#fff;font-weight:600;">📤 城际</button>
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('highspeed')" style="background:var(--accent-warning);border-color:var(--accent-warning);color:#fff;font-weight:600;">📤 高铁</button>
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('anime')" style="background:var(--accent-danger);border-color:var(--accent-danger);color:#fff;font-weight:600;">📤 自创</button>
+                            <button class="btn btn-small" onclick="autoAssignEmployeesByType('zodiac')" style="background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:600;">📤 生肖</button>
                         </div>
                     </div>
                     <div style="margin-bottom:15px;">
                         <div style="font-size:12px;color:var(--fg-secondary);margin-bottom:8px;">按类型取消分配：</div>
                         <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                            <button class="btn btn-small" onclick="unassignEmployeesByType('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">📥 普通</button>
-                            <button class="btn btn-small" onclick="unassignEmployeesByType('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">📥 城际</button>
-                            <button class="btn btn-small" onclick="unassignEmployeesByType('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;">📥 高铁</button>
-                            <button class="btn btn-small" onclick="unassignEmployeesByType('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">📥 自创</button>
-                            <button class="btn btn-small" onclick="unassignEmployeesByType('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;">📥 生肖</button>
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('normal')" style="background:var(--accent-success);border-color:var(--accent-success);color:#fff;font-weight:600;">📥 普通</button>
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('intercity')" style="background:var(--accent-secondary);border-color:var(--accent-secondary);color:#fff;font-weight:600;">📥 城际</button>
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('highspeed')" style="background:var(--accent-warning);border-color:var(--accent-warning);color:#fff;font-weight:600;">📥 高铁</button>
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('anime')" style="background:var(--accent-danger);border-color:var(--accent-danger);color:#fff;font-weight:600;">📥 自创</button>
+                            <button class="btn btn-small" onclick="unassignEmployeesByType('zodiac')" style="background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:600;">📥 生肖</button>
                         </div>
                     </div>
                     <div style="display:flex;gap:10px;margin-bottom:15px;align-items:center;">
                         <span style="font-size:12px;color:var(--fg-secondary);">一键升级至</span>
-                        <input type="number" id="targetLevelInput" min="1" max="40" value="10" style="width:60px;padding:5px;text-align:center;background:var(--bg-secondary);border:1px solid var(--border);color:var(--fg);border-radius:4px;">
+                        <input type="number" id="targetLevelInput" min="1" max="40" value="10" style="width:60px;padding:5px;text-align:center;background:var(--bg-secondary);border:1px solid var(--border);color:var(--fg-primary);border-radius:4px;">
                         <span style="font-size:12px;color:var(--fg-secondary);">级</span>
                         <button class="btn btn-primary" onclick="batchUpgradeEmployees()" style="flex:1;">⬆️ 一键升级</button>
                     </div>
                     <div style="display:flex;gap:10px;margin-bottom:15px;">
-                        <button class="btn btn-small" id="filterAllBtn" onclick="filterEmployees('all')" style="flex:1;background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">全部</button>
-                        <button class="btn btn-small" id="filterAssignedBtn" onclick="filterEmployees('assigned')" style="flex:1;background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">已分配</button>
-                        <button class="btn btn-small" id="filterUnassignedBtn" onclick="filterEmployees('unassigned')" style="flex:1;background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">未分配</button>
+                        <button class="btn btn-small" id="filterAllBtn" onclick="filterEmployees('all')" style="flex:1;background:var(--accent-primary);border-color:var(--accent-primary);color:#fff;font-weight:600;">全部</button>
+                        <button class="btn btn-small" id="filterAssignedBtn" onclick="filterEmployees('assigned')" style="flex:1;background:var(--accent-success);border-color:var(--accent-success);color:#fff;font-weight:600;">已分配</button>
+                        <button class="btn btn-small" id="filterUnassignedBtn" onclick="filterEmployees('unassigned')" style="flex:1;background:var(--accent-danger);border-color:var(--accent-danger);color:#fff;font-weight:600;">未分配</button>
                     </div>
                     <div id="employeeList"></div>
                 </div>
@@ -1316,12 +1102,12 @@
                         <div id="jointTrainsInRunning" style="max-height:400px;overflow-y:auto;"></div>
                     </div>
                     <div class="filter-buttons" style="margin-bottom:15px;display:flex;flex-wrap:wrap;gap:8px;">
-                        <button id="filterRunningAllBtn" class="btn btn-small" onclick="filterRunningTrains('all')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;box-shadow:0 0 15px #00ff88;">全部</button>
-                        <button id="filterRunningNormalBtn" class="btn btn-small" onclick="filterRunningTrains('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">普通</button>
-                        <button id="filterRunningIntercityBtn" class="btn btn-small" onclick="filterRunningTrains('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;">城际</button>
-                        <button id="filterRunningHighspeedBtn" class="btn btn-small" onclick="filterRunningTrains('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;">高铁</button>
-                        <button id="filterRunningAnimeBtn" class="btn btn-small" onclick="filterRunningTrains('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;">自创</button>
-                        <button id="filterRunningZodiacBtn" class="btn btn-small" onclick="filterRunningTrains('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;">生肖</button>
+                        <button id="filterRunningAllBtn" class="btn btn-small" onclick="filterRunningTrains('all')" style="background:var(--accent-primary);border-color:var(--accent-primary);color:#fff;font-weight:600;">全部</button>
+                        <button id="filterRunningNormalBtn" class="btn btn-small" onclick="filterRunningTrains('normal')" style="background:var(--accent-success);border-color:var(--accent-success);color:#fff;font-weight:600;">普通</button>
+                        <button id="filterRunningIntercityBtn" class="btn btn-small" onclick="filterRunningTrains('intercity')" style="background:var(--accent-secondary);border-color:var(--accent-secondary);color:#fff;font-weight:600;">城际</button>
+                        <button id="filterRunningHighspeedBtn" class="btn btn-small" onclick="filterRunningTrains('highspeed')" style="background:var(--accent-warning);border-color:var(--accent-warning);color:#fff;font-weight:600;">高铁</button>
+                        <button id="filterRunningAnimeBtn" class="btn btn-small" onclick="filterRunningTrains('anime')" style="background:var(--accent-danger);border-color:var(--accent-danger);color:#fff;font-weight:600;">自创</button>
+                        <button id="filterRunningZodiacBtn" class="btn btn-small" onclick="filterRunningTrains('zodiac')" style="background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:600;">生肖</button>
                     </div>
                     <div id="runningTrainList"></div>
                 </div>
@@ -1386,9 +1172,9 @@
                 <div id="citiesPanel" class="panel" style="display:none;">
                     <div class="panel-title">城市解锁</div>
                     <div style="display:flex;gap:8px;margin-bottom:15px;flex-wrap:wrap;">
-                        <button class="btn btn-small" id="filterCityAllBtn" onclick="filterCities('all')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;">全部</button>
-                        <button class="btn btn-small" id="filterCityUnlockedBtn" onclick="filterCities('unlocked')" style="background:linear-gradient(135deg,#3a8a5a,#2a6a4a);border-color:#00ff88;color:#fff;font-weight:600;">已解锁</button>
-                        <button class="btn btn-small" id="filterCityLockedBtn" onclick="filterCities('locked')" style="background:linear-gradient(135deg,#8a5a2a,#6a3a1a);border-color:#ff6b00;color:#fff;font-weight:600;">未解锁</button>
+                        <button class="btn btn-small" id="filterCityAllBtn" onclick="filterCities('all')" style="background:var(--accent-primary);border-color:var(--accent-primary);color:#fff;font-weight:600;">全部</button>
+                        <button class="btn btn-small" id="filterCityUnlockedBtn" onclick="filterCities('unlocked')" style="background:var(--accent-success);border-color:var(--accent-success);color:#fff;font-weight:600;">已解锁</button>
+                        <button class="btn btn-small" id="filterCityLockedBtn" onclick="filterCities('locked')" style="background:var(--accent-warning);border-color:var(--accent-warning);color:#fff;font-weight:600;">未解锁</button>
                     </div>
                     <div id="cityUnlockList"></div>
                 </div>
@@ -1431,14 +1217,14 @@
                             </select>
                             <div id="jointTrainInfo" style="margin-top:10px;font-size:11px;color:var(--fg-secondary);"></div>
                             <div style="margin-top:15px;display:flex;gap:8px;flex-wrap:wrap;">
-                                <button class="btn btn-success btn-small" onclick="startAllJointTrains()" style="flex:1;min-width:80px;">📤 全部发车</button>
+                                <button class="btn btn-primary btn-small" onclick="startAllJointTrains()" style="flex:1;min-width:80px;">📤 全部发车</button>
                             </div>
                             <div style="margin-top:10px;display:flex;gap:6px;flex-wrap:wrap;">
-                                <button class="btn btn-small" onclick="startJointTrainsByType('normal')" style="background:linear-gradient(135deg,#00ff88,#00aa55);border-color:#00ff88;color:#000;font-weight:600;flex:1;min-width:60px;">📤 普通</button>
-                                <button class="btn btn-small" onclick="startJointTrainsByType('intercity')" style="background:linear-gradient(135deg,#00d4ff,#0099cc);border-color:#00d4ff;color:#000;font-weight:600;flex:1;min-width:60px;">📤 城际</button>
-                                <button class="btn btn-small" onclick="startJointTrainsByType('highspeed')" style="background:linear-gradient(135deg,#ffd700,#ffaa00);border-color:#ffd700;color:#000;font-weight:600;flex:1;min-width:60px;">📤 高铁</button>
-                                <button class="btn btn-small" onclick="startJointTrainsByType('anime')" style="background:linear-gradient(135deg,#ff3366,#cc0044);border-color:#ff3366;color:#fff;font-weight:600;flex:1;min-width:60px;">📤 自创</button>
-                                <button class="btn btn-small" onclick="startJointTrainsByType('zodiac')" style="background:linear-gradient(135deg,#ff6b00,#cc5500);border-color:#ff6b00;color:#fff;font-weight:600;flex:1;min-width:60px;">📤 生肖</button>
+                                <button class="btn btn-small" onclick="startJointTrainsByType('normal')" style="background:var(--accent-success);border-color:var(--accent-success);color:#fff;font-weight:600;flex:1;min-width:60px;">📤 普通</button>
+                                <button class="btn btn-small" onclick="startJointTrainsByType('intercity')" style="background:var(--accent-secondary);border-color:var(--accent-secondary);color:#fff;font-weight:600;flex:1;min-width:60px;">📤 城际</button>
+                                <button class="btn btn-small" onclick="startJointTrainsByType('highspeed')" style="background:var(--accent-warning);border-color:var(--accent-warning);color:#fff;font-weight:600;flex:1;min-width:60px;">📤 高铁</button>
+                                <button class="btn btn-small" onclick="startJointTrainsByType('anime')" style="background:var(--accent-danger);border-color:var(--accent-danger);color:#fff;font-weight:600;flex:1;min-width:60px;">📤 自创</button>
+                                <button class="btn btn-small" onclick="startJointTrainsByType('zodiac')" style="background:#8b5cf6;border-color:#8b5cf6;color:#fff;font-weight:600;flex:1;min-width:60px;">📤 生肖</button>
                             </div>
                         </div>
                         <div class="section-box">
@@ -1446,11 +1232,11 @@
                                 <div class="section-title" style="margin:0;">选择城市 (3-5个)</div>
                                 <div style="display:flex;align-items:center;gap:10px;">
                                     <span style="font-size:11px;color:var(--fg-secondary);">乘客刷新:</span>
-                                    <span id="passengerRefreshTimer" style="font-size:12px;font-weight:600;color:var(--neon-cyan);">60秒</span>
-                                    <button class="btn btn-small" id="manualRefreshBtn" onclick="manualRefreshPassengers()" style="background:linear-gradient(135deg,var(--neon-cyan),var(--neon-green));border-color:var(--neon-cyan);color:#000;font-weight:600;padding:4px 10px;font-size:10px;">🔄 刷新(1000万)</button>
+                                    <span id="passengerRefreshTimer" style="font-size:12px;font-weight:600;color:var(--accent-primary);">60秒</span>
+                                    <button class="btn btn-small" id="manualRefreshBtn" onclick="manualRefreshPassengers()" style="background:var(--accent-primary);border-color:var(--accent-primary);color:#fff;font-weight:600;padding:4px 10px;font-size:10px;">🔄 刷新(1000万)</button>
                                 </div>
                             </div>
-                            <div id="jointCitySelection" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-height:400px;overflow-y:auto;padding:10px;background:rgba(0,0,0,0.2);border-radius:4px;"></div>
+                            <div id="jointCitySelection" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px;max-height:400px;overflow-y:auto;padding:10px;background:var(--bg-tertiary);border-radius:4px;border:1px solid var(--border);"></div>
                         </div>
                         <div class="section-box">
                             <div class="section-title">联运信息</div>
@@ -1569,35 +1355,35 @@
 
                 <div id="challengePanel" class="panel" style="display:none;">
             <div class="panel-title">🏆 闯关挑战</div>
-            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:15px;">
+            <div style="background:var(--bg-tertiary);padding:15px;border-radius:8px;margin-bottom:15px;border:1px solid var(--border);">
                 <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
                     <span style="color:var(--fg-secondary);">当前关卡:</span>
-                    <span id="challengeLevelDisplay" style="color:var(--neon-cyan);font-weight:600;">第 1 关</span>
+                    <span id="challengeLevelDisplay" style="color:var(--accent-primary);font-weight:600;">第 1 关</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
                     <span style="color:var(--fg-secondary);">累计收益加成:</span>
-                    <span id="challengeBonusDisplay" style="color:var(--neon-green);font-weight:600;">+0%</span>
+                    <span id="challengeBonusDisplay" style="color:var(--accent-success);font-weight:600;">+0%</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
                     <span style="color:var(--fg-secondary);">改造石:</span>
-                    <span id="reformStonesDisplay" style="color:var(--neon-yellow);font-weight:600;">0 个</span>
+                    <span id="reformStonesDisplay" style="color:var(--accent-warning);font-weight:600;">0 个</span>
                 </div>
             </div>
-            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:15px;">
+            <div style="background:var(--bg-tertiary);padding:15px;border-radius:8px;margin-bottom:15px;border:1px solid var(--border);">
                 <div style="text-align:center;margin-bottom:12px;">
                     <div style="font-size:12px;color:var(--fg-secondary);margin-bottom:8px;">关卡进度</div>
-                    <div style="font-size:24px;font-weight:700;color:var(--neon-cyan);">
+                    <div style="font-size:24px;font-weight:700;color:var(--accent-primary);">
                         <span id="challengeProgressDisplay">0</span> / 200
                     </div>
                     <div class="progress-bar" style="margin-top:10px;height:12px;">
-                        <div id="challengeProgressBar" class="progress-fill" style="width:0%;background:linear-gradient(90deg,var(--neon-cyan),var(--neon-green));"></div>
+                        <div id="challengeProgressBar" class="progress-fill" style="width:0%;background:var(--accent-primary);"></div>
                     </div>
                 </div>
             </div>
-            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:15px;">
+            <div style="background:var(--bg-tertiary);padding:15px;border-radius:8px;margin-bottom:15px;border:1px solid var(--border);">
                 <div style="text-align:center;margin-bottom:12px;">
                     <div style="font-size:12px;color:var(--fg-secondary);margin-bottom:8px;">本次挑战消耗</div>
-                    <div id="challengeCostDisplay" style="font-size:18px;font-weight:600;color:var(--neon-red);">1,000 金币</div>
+                    <div id="challengeCostDisplay" style="font-size:18px;font-weight:600;color:var(--accent-danger);">1,000 金币</div>
                 </div>
                 <button class="btn btn-primary" onclick="doChallenge()" style="width:100%;margin-bottom:8px;" id="challengeBtn">
                     ⚔️ 发起挑战
@@ -1606,8 +1392,8 @@
                     🔄 自动挑战
                 </button>
             </div>
-            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;">
-                <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📖 闯关规则</div>
+            <div style="background:var(--bg-tertiary);padding:15px;border-radius:8px;border:1px solid var(--border);">
+                <div style="font-size:12px;color:var(--accent-primary);margin-bottom:10px;font-weight:600;">📖 闯关规则</div>
                 <div style="font-size:11px;color:var(--fg-secondary);line-height:1.8;">
                     • 每关需要挑战200次才能通关<br>
                     • 每次挑战消耗金币，消耗随关卡递增<br>
@@ -1620,23 +1406,23 @@
         <!-- 称号面板 -->
         <div id="titlePanel" class="panel" style="display:none;">
             <div class="panel-title">🎖️ 称号系统</div>
-            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:15px;">
+            <div style="background:var(--bg-tertiary);padding:15px;border-radius:8px;margin-bottom:15px;border:1px solid var(--border);">
                 <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
                     <span style="color:var(--fg-secondary);">称号碎片:</span>
-                    <span id="titleFragmentsDisplay" style="color:var(--neon-magenta);font-weight:600;">0 个</span>
+                    <span id="titleFragmentsDisplay" style="color:#8b5cf6;font-weight:600;">0 个</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
                     <span style="color:var(--fg-secondary);">当前佩戴:</span>
-                    <span id="equippedTitleDisplay" style="color:var(--neon-yellow);font-weight:600;">无</span>
+                    <span id="equippedTitleDisplay" style="color:var(--accent-warning);font-weight:600;">无</span>
                 </div>
             </div>
-            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:15px;">
-                <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📜 可兑换称号</div>
+            <div style="background:var(--bg-tertiary);padding:15px;border-radius:8px;margin-bottom:15px;border:1px solid var(--border);">
+                <div style="font-size:12px;color:var(--accent-primary);margin-bottom:10px;font-weight:600;">📜 可兑换称号</div>
                 <div id="titlesList" style="display:grid;gap:10px;">
                 </div>
             </div>
-            <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;">
-                <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📖 称号说明</div>
+            <div style="background:var(--bg-tertiary);padding:15px;border-radius:8px;border:1px solid var(--border);">
+                <div style="font-size:12px;color:var(--accent-primary);margin-bottom:10px;font-weight:600;">📖 称号说明</div>
                 <div style="font-size:11px;color:var(--fg-secondary);line-height:1.8;">
                     • 城市20级后，联运结束有1%概率获得称号碎片<br>
                     • 收集足够碎片可兑换称号<br>
@@ -2211,7 +1997,7 @@
             "妇女节快乐": { train: "影舞号", used: false },
             "3月7日补偿": { points: 3888, reformStones: 600, used: false },
             "806903918": { points: 3000, reformStones: 300, used: false },
-            "3月10日更新补偿": { points: 1500, reformStones: 150, used: false }
+            "3月10日更新补偿": { points: 1500, reformStones: 150, used: false },
         };
 
         // 称号系统数据
@@ -2764,6 +2550,33 @@
             return Math.max(0, TOURISM_INTERVAL - elapsed);
         }
 
+        // ==================== 主题切换 ====================
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.getElementById('themeToggleBtn');
+            const currentTheme = html.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                html.removeAttribute('data-theme');
+                btn.innerHTML = '🌙 深色';
+                localStorage.setItem('theme', 'light');
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                btn.innerHTML = '☀️ 浅色';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function initTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const btn = document.getElementById('themeToggleBtn');
+            
+            if (savedTheme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if (btn) btn.innerHTML = '☀️ 浅色';
+            }
+        }
+
         // ==================== 界面渲染 ====================
         function updateUI() {
             document.getElementById('gold').textContent = formatNumber(gameState.gold);
@@ -3203,25 +3016,25 @@
                         bonusText.push(`速度+${speedBonus}%`);
                     }
                     
-                    driverInfo = `<span style="color:var(--neon-green);font-size:10px;">👤 ${assignedDriver.name} Lv.${level}</span><br><span style="color:${empType.color};font-size:9px;">${bonusText.join(' | ')}</span>`;
+                    driverInfo = `<span style="color:var(--accent-success);font-size:10px;">👤 ${assignedDriver.name} Lv.${level}</span><br><span style="color:var(--fg-primary);font-size:9px;">${bonusText.join(' | ')}</span>`;
                 } else {
                     driverInfo = `<span style="color:var(--fg-secondary);font-size:10px;">👤 未配备</span>`;
                 }
                 return `<div class="train-card ${isSelected ? 'selected' : ''}">
                     <div class="train-name" style="display:flex;justify-content:space-between;align-items:center;">
                         <span style="display:flex;align-items:center;gap:8px;">
-                            <input type="checkbox" ${isSelected ? 'checked' : ''} ${isRunning ? 'disabled' : ''} onchange="toggleTrainSelection(${train.id})" style="width:16px;height:16px;cursor:pointer;accent-color:var(--neon-magenta);">
+                            <input type="checkbox" ${isSelected ? 'checked' : ''} ${isRunning ? 'disabled' : ''} onchange="toggleTrainSelection(${train.id})" style="width:16px;height:16px;cursor:pointer;accent-color:var(--accent-primary);">
                             ${train.name} ${upgradeLevel > 0 ? `<span class="upgrade-level">+${upgradeLevel}</span>` : ''}
                         </span>
                         <button class="btn btn-secondary btn-small" onclick="renameTrain(${train.id})" style="padding:2px 6px;font-size:10px;">✏️</button>
                     </div>
                     <span class="train-type type-${train.type}">${typeInfo.name}</span>
-                    ${isRunning ? '<span style="color:var(--neon-green);margin-left:8px;font-size:10px;">● 运营中</span>' : ''}
+                    ${isRunning ? '<span style="color:var(--accent-success);margin-left:8px;font-size:10px;">● 运营中</span>' : ''}
                     <div class="train-stats"><span>⚡ ${train.speed} km/h</span><span>⚖️ ${train.weight} t</span></div>
-                    <div class="train-stats"><span>🛋️ ${comfort}</span><span style="color:var(--neon-yellow);">收入+${comfortBonus}%</span></div>
+                    <div class="train-stats"><span>🛋️ ${comfort}</span><span style="color:var(--fg-primary);font-weight:500;">收入+${comfortBonus}%</span></div>
                     <div style="font-size:11px;margin-top:4px;">${driverInfo}</div>
-                    ${upgradeLevel > 0 ? `<div style="font-size:11px;color:var(--neon-magenta);margin-top:8px;">强化: Lv.${upgradeLevel}/20 (+${upgradeLevel * 0.5}%)</div>` : ''}
-                    ${reformLevel > 0 ? `<div style="font-size:11px;color:var(--neon-cyan);margin-top:4px;">改造: Lv.${reformLevel}/25 (速度+${reformLevel}%)</div>` : ''}
+                    ${upgradeLevel > 0 ? `<div style="font-size:11px;color:var(--accent-primary);margin-top:8px;">强化: Lv.${upgradeLevel}/20 (+${upgradeLevel * 0.5}%)</div>` : ''}
+                    ${reformLevel > 0 ? `<div style="font-size:11px;color:var(--accent-success);margin-top:4px;">改造: Lv.${reformLevel}/25 (速度+${reformLevel}%)</div>` : ''}
                     <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
                         <span style="font-size:11px;color:var(--fg-secondary);">退役返还: ${refundText}</span>
                         <button class="btn btn-danger btn-small" onclick="retireTrain(${train.id})" ${isRunning ? 'disabled title="运营中的火车无法退役"' : ''}>退役</button>
@@ -3349,24 +3162,24 @@
             const unassignedBtn = document.getElementById('filterUnassignedBtn');
 
             // 重置所有按钮样式为默认亮色
-            allBtn.style.background = 'linear-gradient(135deg,#00ff88,#00aa55)';
-            allBtn.style.borderColor = '#00ff88';
-            allBtn.style.color = '#000';
+            allBtn.style.background = 'var(--accent-primary)';
+            allBtn.style.borderColor = 'var(--accent-primary)';
+            allBtn.style.color = '#fff';
             allBtn.style.fontWeight = '600';
 
-            assignedBtn.style.background = 'linear-gradient(135deg,#00d4ff,#0099cc)';
-            assignedBtn.style.borderColor = '#00d4ff';
-            assignedBtn.style.color = '#000';
+            assignedBtn.style.background = 'var(--accent-success)';
+            assignedBtn.style.borderColor = 'var(--accent-success)';
+            assignedBtn.style.color = '#fff';
             assignedBtn.style.fontWeight = '600';
 
-            unassignedBtn.style.background = 'linear-gradient(135deg,#ff3366,#cc0044)';
-            unassignedBtn.style.borderColor = '#ff3366';
+            unassignedBtn.style.background = 'var(--accent-danger)';
+            unassignedBtn.style.borderColor = 'var(--accent-danger)';
             unassignedBtn.style.color = '#fff';
             unassignedBtn.style.fontWeight = '600';
 
             // 高亮当前选中的按钮（添加发光效果）
             const activeBtn = filter === 'all' ? allBtn : (filter === 'assigned' ? assignedBtn : unassignedBtn);
-            activeBtn.style.boxShadow = '0 0 15px ' + (filter === 'all' ? '#00ff88' : (filter === 'assigned' ? '#00d4ff' : '#ff3366'));
+            activeBtn.style.boxShadow = '0 0 10px rgba(59, 130, 246, 0.5)';
 
             // 移除其他按钮的发光效果
             [allBtn, assignedBtn, unassignedBtn].forEach(btn => {
@@ -3540,10 +3353,10 @@
                     <div class="train-name">${train.name}</div>
                     <span class="train-type type-${currentShopTab}">${trainTypes[currentShopTab].name}</span>
                     <div class="train-stats"><span>⚡ ${train.speed} km/h</span><span>⚖️ ${train.weight} t</span></div>
-                    <div class="train-stats"><span>🛋️ ${comfort}</span><span style="color:var(--neon-yellow);">收入+${comfortBonus}%</span></div>
-                    <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:${levelOk ? 'var(--neon-green)' : 'var(--neon-red)'};">${requiredLevel}</span> | 剩余名额: <span style="color:var(--neon-cyan);">${remainingSlots === 999 ? '∞' : remainingSlots}</span></div>
+                    <div class="train-stats"><span>🛋️ ${comfort}</span><span style="color:var(--fg-primary);font-weight:500;">收入+${comfortBonus}%</span></div>
+                    <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:${levelOk ? 'var(--accent-success)' : 'var(--accent-danger)'};">${requiredLevel}</span> | 剩余名额: <span style="color:var(--accent-primary)};">${remainingSlots === 999 ? '∞' : remainingSlots}</span></div>
                     <div style="margin-top:12px;display:flex;justify-content:space-between;align-items:center;">
-                        <span style="font-family:'Orbitron',sans-serif;font-size:14px;color:var(--neon-yellow);">${formatNumber(train.price)}</span>
+                        <span style="font-size:14px;font-weight:600;color:var(--accent-warning)};">${formatNumber(train.price)}</span>
                     </div>
                     <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
                         <span style="font-size:11px;color:var(--fg-secondary);">数量:</span>
@@ -3606,17 +3419,17 @@
                 const actualIndex = startIndex + index;
                 const progress = ((jt.totalTime - jt.remainingTime) / jt.totalTime * 100).toFixed(1);
                 return `
-                    <div class="running-train" style="border-left:2px solid var(--neon-magenta);margin-bottom:12px;background:rgba(0,0,0,0.2);padding:12px;border-radius:4px;">
+                    <div class="running-train" style="border-left:2px solid var(--accent-primary);margin-bottom:12px;background:var(--bg-secondary);padding:12px;border-radius:4px;border:1px solid var(--border);">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                             <div style="font-size:13px;font-weight:600;color:var(--fg-primary);">${jt.trainName}</div>
-                            <span style="font-size:9px;padding:2px 6px;background:linear-gradient(135deg,#ff00ff,#9d4edd);color:#fff;border-radius:3px;">联运</span>
+                            <span style="font-size:9px;padding:2px 6px;background:var(--accent-primary);color:#fff;border-radius:3px;">联运</span>
                         </div>
                         <div style="font-size:11px;color:var(--fg-secondary);margin-bottom:8px;">
                             ${jt.cities.join(' → ')}
                         </div>
                         <div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:8px;">
                             <span style="color:var(--fg-secondary);">距离: ${jt.distance} KM</span>
-                            <span style="color:var(--neon-cyan);">剩余: ${Math.round(jt.remainingTime)}s</span>
+                            <span style="color:var(--accent-primary);">剩余: ${Math.round(jt.remainingTime)}s</span>
                         </div>
                         <div class="progress-bar" style="height:6px;background:rgba(255,255,255,0.1);border-radius:3px;overflow:hidden;">
                             <div class="progress-fill" style="width:${progress}%;background:linear-gradient(90deg,var(--neon-magenta),var(--neon-cyan));height:100%;"></div>
@@ -3912,7 +3725,7 @@
             // 添加分页控件
             if (totalPages > 1) {
                 html += `
-                <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:rgba(0,0,0,0.08);border-radius:8px;">
+                <div class="pagination" style="display:flex;justify-content:center;align-items:center;gap:15px;margin-bottom:15px;padding:10px;background:var(--bg-tertiary);border-radius:8px;border:1px solid var(--border);">
                     <button class="btn btn-secondary btn-small" onclick="changeCityPage(-1)" ${cityPage <= 1 ? 'disabled' : ''}>◀ 上一页</button>
                     <span style="color:var(--fg-primary);font-size:12px;">${cityPage} / ${totalPages}</span>
                     <button class="btn btn-secondary btn-small" onclick="changeCityPage(1)" ${cityPage >= totalPages ? 'disabled' : ''}>下一页 ▶</button>
@@ -3924,16 +3737,16 @@
             paginatedCities.forEach(city => {
                 const isUnlocked = isCityUnlocked(city.name);
                 if (isUnlocked) {
-                    html += `<div class="train-card" style="border-color:var(--neon-green);background:rgba(0,255,136,0.05);">
-                        <div class="train-name" style="color:var(--neon-green);">${city.name}</div>
-                        <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
+                    html += `<div class="train-card" style="border-color:var(--accent-primary);background:rgba(59,130,246,0.05);">
+                        <div class="train-name" style="color:var(--accent-primary);">${city.name}</div>
+                        <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">等级: <span style="color:var(--accent-primary);">${city.unlockLevel}</span> | 费用: <span style="color:var(--accent-warning);">${formatNumber(city.unlockCost)}</span></div>
                         <button class="btn btn-danger btn-small" onclick="showLockCityModal('${city.name}')" style="width:100%;">关闭城市</button>
                     </div>`;
                 } else {
                     const canUnlock = gameState.level >= city.unlockLevel && gameState.gold >= city.unlockCost;
                     html += `<div class="train-card">
                         <div class="train-name">${city.name}</div>
-                        <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:var(--neon-cyan);">${city.unlockLevel}</span> | 费用: <span style="color:var(--neon-yellow);">${formatNumber(city.unlockCost)}</span></div>
+                        <div style="font-size:11px;color:var(--fg-secondary);margin:8px 0;">需要等级: <span style="color:var(--accent-primary);">${city.unlockLevel}</span> | 费用: <span style="color:var(--accent-warning);">${formatNumber(city.unlockCost)}</span></div>
                         <button class="btn btn-primary btn-small" onclick="showUnlockCityModal('${city.name}')" ${canUnlock ? '' : 'disabled'}>${gameState.level < city.unlockLevel ? '等级不足' : gameState.gold < city.unlockCost ? '金币不足' : '解锁'}</button>
                     </div>`;
                 }
@@ -4059,14 +3872,14 @@
                 const tourismColor = tourismMod >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
                 
                 return `
-                    <div class="joint-city-item ${isSelected ? 'selected' : ''} ${hasNoPassengers ? 'no-passengers' : ''}" onclick="${hasNoPassengers ? '' : `toggleJointCity('${cityName}')`}" style="padding:10px;background:${hasNoPassengers ? 'rgba(100,100,100,0.3)' : isSelected ? 'linear-gradient(135deg, rgba(255,0,255,0.2), rgba(157,78,221,0.2))' : 'rgba(0,0,0,0.3)'};border:1px solid ${hasNoPassengers ? 'var(--border)' : isSelected ? 'var(--neon-magenta)' : 'var(--border)'};border-radius:4px;cursor:${hasNoPassengers ? 'not-allowed' : 'pointer'};transition:all 0.2s;text-align:center;${hasNoPassengers ? 'opacity:0.6;' : ''}position:relative;">
-                        ${isRunning ? '<div style="position:absolute;top:2px;right:2px;background:linear-gradient(135deg,var(--neon-green),var(--neon-cyan));color:#000;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600;">运营中</div>' : ''}
+                    <div class="joint-city-item ${isSelected ? 'selected' : ''} ${hasNoPassengers ? 'no-passengers' : ''}" onclick="${hasNoPassengers ? '' : `toggleJointCity('${cityName}')`}" style="padding:10px;background:${hasNoPassengers ? 'var(--bg-tertiary)' : isSelected ? 'rgba(59,130,246,0.15)' : 'var(--bg-secondary)'};border:1px solid ${hasNoPassengers ? 'var(--border)' : isSelected ? 'var(--accent-primary)' : 'var(--border)'};border-radius:4px;cursor:${hasNoPassengers ? 'not-allowed' : 'pointer'};transition:all 0.2s;text-align:center;${hasNoPassengers ? 'opacity:0.6;' : ''}position:relative;">
+                        ${isRunning ? '<div style="position:absolute;top:2px;right:2px;background:var(--accent-success);color:#fff;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600;">运营中</div>' : ''}
                         <div style="font-size:12px;color:var(--fg-primary);margin-bottom:4px;">${cityName}</div>
-                        <div style="font-size:10px;color:var(--neon-cyan);">Lv.${level}</div>
-                        <div style="font-size:9px;color:${hasNoPassengers ? 'var(--neon-red)' : 'var(--neon-yellow)'};margin-top:2px;">👥 ${passengers}/${maxPassengers}</div>
-                        <div style="font-size:9px;margin-top:4px;padding:4px;background:rgba(0,0,0,0.2);border-radius:4px;">
+                        <div style="font-size:10px;color:var(--accent-primary);">Lv.${level}</div>
+                        <div style="font-size:9px;color:${hasNoPassengers ? 'var(--accent-danger)' : 'var(--accent-warning)'};margin-top:2px;">👥 ${passengers}/${maxPassengers}</div>
+                        <div style="font-size:9px;margin-top:4px;padding:4px;background:var(--bg-tertiary);border-radius:4px;">
                             <span style="color:${season.color};">${season.icon}</span>
-                            <span style="color:${tourismColor};font-weight:600;">${tourismMod >= 0 ? '+' : ''}${(tourismMod * 100).toFixed(0)}%</span>
+                            <span style="color:${tourismMod >= 0 ? 'var(--accent-success)' : 'var(--accent-danger)'};font-weight:600;">${tourismMod >= 0 ? '+' : ''}${(tourismMod * 100).toFixed(0)}%</span>
                         </div>
                     </div>
                 `;
@@ -5476,17 +5289,17 @@
                 const canBuy = gameState.titleFragments >= titleData.cost;
                 
                 html += `
-                    <div style="background:rgba(0,0,0,0.2);padding:12px;border-radius:8px;border:1px solid ${owned ? 'var(--neon-green)' : 'var(--border)'};">
+                    <div style="background:var(--bg-tertiary);padding:12px;border-radius:8px;border:1px solid ${owned ? 'var(--accent-success)' : 'var(--border)'};">
                         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                            <span style="font-size:14px;font-weight:600;color:${owned ? 'var(--neon-green)' : 'var(--fg-primary)'};">
+                            <span style="font-size:14px;font-weight:600;color:${owned ? 'var(--accent-success)' : 'var(--fg-primary)'};">
                                 ${titleData.icon} ${titleData.name}
                             </span>
-                            ${equipped ? '<span style="color:var(--neon-yellow);font-size:11px;">佩戴中</span>' : ''}
+                            ${equipped ? '<span style="color:var(--accent-warning);font-size:11px;">佩戴中</span>' : ''}
                         </div>
                         <div style="font-size:11px;color:var(--fg-secondary);margin-bottom:8px;">
                             ${titleData.description}
                         </div>
-                        <div style="font-size:11px;color:var(--neon-cyan);margin-bottom:8px;">
+                        <div style="font-size:11px;color:var(--accent-primary);margin-bottom:8px;">
                             效果：经验加成 +${titleData.effect.expBonus}%
                         </div>
                         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -7903,6 +7716,9 @@
             if (!redeemCodes[code]) { showNotification('无效的兑换码！'); return; }
             
             // 检查兑换码是否过期
+            if (redeemCodes[code].expireTime && Date.now() > redeemCodes[code].expireTime) {
+                showNotification('该兑换码已过期！'); return;
+            }
             if (redeemCodes[code].expiresAt && Date.now() > redeemCodes[code].expiresAt) {
                 showNotification('该兑换码已过期！'); return;
             }
@@ -8916,9 +8732,9 @@
                 <div class="modal-content" style="max-width:400px;">
                     <div style="text-align:center;margin-bottom:20px;">
                         <div style="font-size:48px;margin-bottom:15px;">🚂</div>
-                        <div style="font-size:18px;font-weight:600;color:var(--neon-cyan);margin-bottom:10px;">欢迎进入游戏</div>
+                        <div style="font-size:18px;font-weight:600;color:var(--accent-primary);margin-bottom:10px;">欢迎进入游戏</div>
                     </div>
-                    <div style="background:rgba(0,0,0,0.3);padding:15px;border-radius:8px;margin-bottom:20px;font-size:13px;color:var(--fg-secondary);line-height:1.8;">
+                    <div style="background:var(--bg-tertiary);padding:15px;border-radius:8px;margin-bottom:20px;font-size:13px;color:var(--fg-secondary);line-height:1.8;border:1px solid var(--border);">
                         若离线收益功能异常，请将所有火车停车发车，重新发车后即可正常计算离线收益。
                     </div>
                     <button class="btn btn-primary" onclick="closeWelcomeModal()" style="width:100%;">我知道了</button>
@@ -8976,6 +8792,7 @@
         
         // ==================== 初始化 ====================
         function init() {
+            initTheme();
             loadGame();
             // 确保lastOnlineTime已初始化
             if (!gameState.lastOnlineTime) {
@@ -9653,52 +9470,52 @@
             </div>
             <div style="padding:15px;">
                 <!-- VIP信息 -->
-                <div style="margin-bottom:15px;padding:12px;background:rgba(255,215,0,0.1);border-radius:8px;border:1px solid rgba(255,215,0,0.3);">
-                    <div style="font-size:12px;color:var(--neon-yellow);margin-bottom:10px;font-weight:600;">👑 VIP信息</div>
+                <div style="margin-bottom:15px;padding:12px;background:rgba(245,158,11,0.1);border-radius:8px;border:1px solid rgba(245,158,11,0.3);">
+                    <div style="font-size:12px;color:var(--accent-warning);margin-bottom:10px;font-weight:600;">👑 VIP信息</div>
                     <div style="display:grid;gap:8px;font-size:12px;">
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">VIP等级:</span>
-                            <span style="color:var(--neon-yellow);font-weight:600;">VIP <span id="mobileVipLevel">0</span></span>
+                            <span style="color:var(--accent-warning);font-weight:600;">VIP <span id="mobileVipLevel">0</span></span>
                         </div>
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">经验加成:</span>
-                            <span style="color:var(--neon-green);">+<span id="mobileVipExpBonus">0</span>%</span>
+                            <span style="color:var(--accent-success);">+<span id="mobileVipExpBonus">0</span>%</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">离线加成:</span>
-                            <span style="color:var(--neon-orange);">+<span id="mobileVipOfflineBonus">0</span>%</span>
+                            <span style="color:var(--accent-warning);">+<span id="mobileVipOfflineBonus">0</span>%</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">点卷上限:</span>
-                            <span style="color:var(--neon-cyan);">+<span id="mobileVipPointsBonus">0</span></span>
+                            <span style="color:var(--accent-primary);">+<span id="mobileVipPointsBonus">0</span></span>
                         </div>
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">改造石上限:</span>
-                            <span style="color:var(--neon-magenta);">+<span id="mobileVipStonesBonus">0</span></span>
+                            <span style="color:#8b5cf6;">+<span id="mobileVipStonesBonus">0</span></span>
                         </div>
                     </div>
                 </div>
                 <!-- 游戏信息 -->
-                <div style="margin-bottom:15px;padding:12px;background:rgba(0,0,0,0.08);border-radius:8px;">
-                    <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">📊 游戏信息</div>
+                <div style="margin-bottom:15px;padding:12px;background:var(--bg-tertiary);border-radius:8px;border:1px solid var(--border);">
+                    <div style="font-size:12px;color:var(--accent-primary);margin-bottom:10px;font-weight:600;">📊 游戏信息</div>
                     <div style="display:grid;gap:8px;font-size:12px;">
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">当前等级:</span>
-                            <span style="color:var(--neon-green);">Lv.<span id="mobileLevel">1</span></span>
+                            <span style="color:var(--accent-success);">Lv.<span id="mobileLevel">1</span></span>
                         </div>
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">升级经验:</span>
-                            <span style="color:var(--neon-yellow);"><span id="mobileExp">0</span> / <span id="mobileExpToNext">500</span></span>
+                            <span style="color:var(--accent-warning);"><span id="mobileExp">0</span> / <span id="mobileExpToNext">500</span></span>
                         </div>
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">经验加成:</span>
-                            <span style="color:var(--neon-magenta);">+<span id="mobileExpBonus">0</span>%</span>
+                            <span style="color:#8b5cf6;">+<span id="mobileExpBonus">0</span>%</span>
                         </div>
                     </div>
                 </div>
                 <!-- 天气信息 -->
-                <div style="margin-bottom:15px;padding:12px;background:rgba(0,0,0,0.08);border-radius:8px;">
-                    <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">🌤️ 天气信息</div>
+                <div style="margin-bottom:15px;padding:12px;background:var(--bg-tertiary);border-radius:8px;border:1px solid var(--border);">
+                    <div style="font-size:12px;color:var(--accent-primary);margin-bottom:10px;font-weight:600;">🌤️ 天气信息</div>
                     <div style="display:grid;gap:8px;font-size:12px;">
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">当前天气:</span>
@@ -9706,7 +9523,7 @@
                         </div>
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">天气效果:</span>
-                            <span id="mobileWeatherEffect" style="color:var(--neon-yellow);">-</span>
+                            <span id="mobileWeatherEffect" style="color:var(--accent-warning);">-</span>
                         </div>
                         <div style="display:flex;justify-content:space-between;">
                             <span style="color:var(--fg-secondary);">剩余时间:</span>
@@ -9715,11 +9532,11 @@
                     </div>
                 </div>
                 <!-- 今日点卷 -->
-                <div style="margin-bottom:15px;padding:12px;background:rgba(0,0,0,0.08);border-radius:8px;">
-                    <div style="font-size:12px;color:var(--neon-cyan);margin-bottom:10px;font-weight:600;">🎫 今日点卷</div>
+                <div style="margin-bottom:15px;padding:12px;background:var(--bg-tertiary);border-radius:8px;border:1px solid var(--border);">
+                    <div style="font-size:12px;color:var(--accent-primary);margin-bottom:10px;font-weight:600;">🎫 今日点卷</div>
                     <div style="display:flex;justify-content:space-between;font-size:12px;">
                         <span style="color:var(--fg-secondary);">已获取:</span>
-                        <span style="color:var(--neon-cyan);"><span id="mobileDailyPoints">0</span> / <span id="mobileDailyLimit">6000</span></span>
+                        <span style="color:var(--accent-primary);"><span id="mobileDailyPoints">0</span> / <span id="mobileDailyLimit">6000</span></span>
                     </div>
                 </div>
                 <!-- 功能按钮 -->
