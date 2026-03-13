@@ -1650,6 +1650,26 @@
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
                         <div class="changelog-version">
+                            <div class="changelog-date">3.12 铁轨帝国更新内容</div>
+                            <ul class="changelog-list">
+                                <li>新增特产玩法—暂时不能玩</li>
+                                <li>联运玩法新增客运数量（建议大家把车都停了，重新发车，客运数量对收益有加成）</li>
+                                <li>修复联运玩法中车运营不会获得点卷、改造石bug</li>
+                                <li>新增火车属性—乘客座位</li>
+                                <li>优化称号碎片获取</li>
+                                <li>优化运营界面、联运玩法界面行驶火车显示效果（合并功能）</li>
+                                <li>VIP全方位增强（全方面加成）</li>
+                                <li>城市乘客数量优化</li>
+                                <li>玩家等级增加一定乘客数量</li>
+                                <li>新增城市联动效益及集体城市升级联动效益</li>
+                                <li>每日首次登陆新增温馨提醒</li>
+                                <li>优化移动端显示</li>
+                                <li>离线收益bug修复</li>
+                                <li>离线模式下乘客数量参与计算收益，并考虑乘客不足情况</li>
+                                <li>联运玩法经验计算过低bug修复</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-version">
                             <div class="changelog-date">3.9-3.10 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
                                 <li>优化反作弊系统，防止误判</li>
@@ -2274,15 +2294,19 @@
         function getCityPassengers(cityName) {
             if (!gameState.cityPassengers) gameState.cityPassengers = {};
             const level = gameState.cityLevels[cityName] || 1;
+            const vipBonus = getVipLevel();
+            const playerLevel = gameState.level || 1;
             if (gameState.cityPassengers[cityName] === undefined) {
-                gameState.cityPassengers[cityName] = 100 + (level - 1) * 200;
+                gameState.cityPassengers[cityName] = 100 + (level - 1) * 200 + vipBonus * 5 + playerLevel * 10;
             }
             return gameState.cityPassengers[cityName];
         }
 
         function getMaxCityPassengers(cityName) {
             const level = gameState.cityLevels[cityName] || 1;
-            return 100 + (level - 1) * 200;
+            const vipBonus = getVipLevel();
+            const playerLevel = gameState.level || 1;
+            return 100 + (level - 1) * 200 + vipBonus * 5 + playerLevel * 10;
         }
 
         function consumeCityPassengers(cityName, amount) {
@@ -2293,9 +2317,11 @@
 
         function refreshCityPassengers() {
             if (!gameState.cityPassengers) gameState.cityPassengers = {};
+            const vipBonus = getVipLevel();
+            const playerLevel = gameState.level || 1;
             gameState.unlockedCities.forEach(cityName => {
                 const level = gameState.cityLevels[cityName] || 1;
-                gameState.cityPassengers[cityName] = 100 + (level - 1) * 200;
+                gameState.cityPassengers[cityName] = 100 + (level - 1) * 200 + vipBonus * 5 + playerLevel * 10;
             });
             gameState.lastPassengerRefresh = Date.now();
             showNotification('乘客已刷新！');
@@ -2332,12 +2358,26 @@
             const timerEl = document.getElementById('passengerRefreshTimer');
             if (!timerEl) return;
             
+            const vipReduction = getVipRefreshTimeReduction();
+            const totalRefreshTime = 60 - vipReduction;
+            
             const now = Date.now();
             const lastRefresh = gameState.lastPassengerRefresh || now;
             const elapsed = now - lastRefresh;
-            const remaining = Math.max(0, 60 - Math.floor(elapsed / 1000));
+            const remaining = Math.max(0, totalRefreshTime - Math.floor(elapsed / 1000));
             
             timerEl.textContent = `${remaining}秒`;
+            
+            // 自动刷新：当时间到了且已经过了刷新时间
+            if (elapsed >= totalRefreshTime * 1000) {
+                refreshCityPassengers();
+                renderJointCitySelection();
+            }
+        }
+        
+        function getVipRefreshTimeReduction() {
+            const vipLevel = getVipLevel();
+            return Math.min(40, Math.floor(vipLevel / 100));
         }
         
         function updateManualRefreshButton() {
@@ -3995,6 +4035,14 @@
             const container = document.getElementById('jointCitySelection');
             const unlockedCities = gameState.unlockedCities;
             
+            // 获取所有正在运营中的城市
+            const runningCities = new Set();
+            if (gameState.runningJointTrains) {
+                gameState.runningJointTrains.forEach(jt => {
+                    jt.cities.forEach(cityName => runningCities.add(cityName));
+                });
+            }
+            
             container.innerHTML = unlockedCities.map(cityName => {
                 const city = getCityByName(cityName);
                 if (!city) return '';
@@ -4003,6 +4051,7 @@
                 const passengers = getCityPassengers(cityName);
                 const maxPassengers = getMaxCityPassengers(cityName);
                 const hasNoPassengers = passengers <= 0;
+                const isRunning = runningCities.has(cityName);
                 
                 const seasonKey = getCityTourismSeason(cityName);
                 const season = tourismSeasons[seasonKey];
@@ -4010,7 +4059,8 @@
                 const tourismColor = tourismMod >= 0 ? 'var(--neon-green)' : 'var(--neon-red)';
                 
                 return `
-                    <div class="joint-city-item ${isSelected ? 'selected' : ''} ${hasNoPassengers ? 'no-passengers' : ''}" onclick="${hasNoPassengers ? '' : `toggleJointCity('${cityName}')`}" style="padding:10px;background:${hasNoPassengers ? 'rgba(100,100,100,0.3)' : isSelected ? 'linear-gradient(135deg, rgba(255,0,255,0.2), rgba(157,78,221,0.2))' : 'rgba(0,0,0,0.3)'};border:1px solid ${hasNoPassengers ? 'var(--border)' : isSelected ? 'var(--neon-magenta)' : 'var(--border)'};border-radius:4px;cursor:${hasNoPassengers ? 'not-allowed' : 'pointer'};transition:all 0.2s;text-align:center;${hasNoPassengers ? 'opacity:0.6;' : ''}">
+                    <div class="joint-city-item ${isSelected ? 'selected' : ''} ${hasNoPassengers ? 'no-passengers' : ''}" onclick="${hasNoPassengers ? '' : `toggleJointCity('${cityName}')`}" style="padding:10px;background:${hasNoPassengers ? 'rgba(100,100,100,0.3)' : isSelected ? 'linear-gradient(135deg, rgba(255,0,255,0.2), rgba(157,78,221,0.2))' : 'rgba(0,0,0,0.3)'};border:1px solid ${hasNoPassengers ? 'var(--border)' : isSelected ? 'var(--neon-magenta)' : 'var(--border)'};border-radius:4px;cursor:${hasNoPassengers ? 'not-allowed' : 'pointer'};transition:all 0.2s;text-align:center;${hasNoPassengers ? 'opacity:0.6;' : ''}position:relative;">
+                        ${isRunning ? '<div style="position:absolute;top:2px;right:2px;background:linear-gradient(135deg,var(--neon-green),var(--neon-cyan));color:#000;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600;">运营中</div>' : ''}
                         <div style="font-size:12px;color:var(--fg-primary);margin-bottom:4px;">${cityName}</div>
                         <div style="font-size:10px;color:var(--neon-cyan);">Lv.${level}</div>
                         <div style="font-size:9px;color:${hasNoPassengers ? 'var(--neon-red)' : 'var(--neon-yellow)'};margin-top:2px;">👥 ${passengers}/${maxPassengers}</div>
@@ -4067,11 +4117,89 @@
 
         function calculateJointCityLevelBonus() {
             let totalBonus = 0;
+            let minLevel = Infinity;
+            
             selectedJointCities.forEach(cityName => {
                 const level = gameState.cityLevels[cityName] || 1;
                 totalBonus += (level - 1) * 5;
+                if (level < minLevel) {
+                    minLevel = level;
+                }
             });
+            
+            // 城市联动效益：当所有城市都达到N级时，额外增加 N% * 城市数量
+            if (minLevel >= 1) {
+                const synergyBonus = minLevel * selectedJointCities.length;
+                totalBonus += synergyBonus;
+            }
+            
+            // 集体城市升级联动效益
+            totalBonus += calculateCollectiveCityBonus();
+            
             return totalBonus;
+        }
+        
+        // 计算城市联动效益（用于离线模式和批量发车）
+        function calculateCitySynergyBonus(cities) {
+            if (!cities || cities.length === 0) return 0;
+            let minLevel = Infinity;
+            cities.forEach(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                if (level < minLevel) {
+                    minLevel = level;
+                }
+            });
+            return minLevel * cities.length;
+        }
+        
+        // 计算集体城市升级联动效益
+        function calculateCollectiveCityBonus() {
+            let bonus = 0;
+            const cities = gameState.unlockedCities || [];
+            
+            // 统计各等级城市数量
+            let level10Count = 0;
+            let level20Count = 0;
+            let level30Count = 0;
+            let level40Count = 0;
+            
+            cities.forEach(cityName => {
+                const level = gameState.cityLevels[cityName] || 1;
+                if (level >= 10) level10Count++;
+                if (level >= 20) level20Count++;
+                if (level >= 30) level30Count++;
+                if (level >= 40) level40Count++;
+            });
+            
+            // 10级城市联动效益
+            if (level10Count >= 60) {
+                bonus += 5;
+            } else if (level10Count >= 30) {
+                bonus += 3;
+            }
+            
+            // 20级城市联动效益
+            if (level20Count >= 60) {
+                bonus += 12;
+            } else if (level20Count >= 30) {
+                bonus += 8;
+            }
+            
+            // 30级城市联动效益
+            if (level30Count >= 60) {
+                bonus += 18;
+            } else if (level30Count >= 30) {
+                bonus += 14;
+            }
+            
+            // 40级城市联动效益
+            if (level40Count >= 60) {
+                bonus += 25;
+            } else if (level40Count >= 30) {
+                bonus += 22;
+            }
+            
+            return bonus;
         }
 
         function calculateJointFragments(distance) {
@@ -4488,6 +4616,10 @@
                 const level = gameState.cityLevels[cityName] || 1;
                 cityLevelBonus += (level - 1) * 5;
             });
+            // 添加城市联动效益
+            cityLevelBonus += calculateCitySynergyBonus(selectedJointCities);
+            // 添加集体城市升级联动效益
+            cityLevelBonus += calculateCollectiveCityBonus();
             let tourismBonus = 0;
             selectedJointCities.forEach(cityName => {
                 tourismBonus += getTourismIncomeModifier(cityName) * 100;
@@ -4574,6 +4706,9 @@
 
             isStartingAllJointTrains = false;
             
+            // 清空选择
+            selectedJointCities = [];
+            
             if (startedCount === 0) {
                 showNotification('乘客数量不足，无法发车任何列车！');
             } else if (startedCount < availableTrains.length) {
@@ -4647,6 +4782,10 @@
                 const level = gameState.cityLevels[cityName] || 1;
                 cityLevelBonus += (level - 1) * 5;
             });
+            // 添加城市联动效益
+            cityLevelBonus += calculateCitySynergyBonus(selectedJointCities);
+            // 添加集体城市升级联动效益
+            cityLevelBonus += calculateCollectiveCityBonus();
             let tourismBonus = 0;
             selectedJointCities.forEach(cityName => {
                 tourismBonus += getTourismIncomeModifier(cityName) * 100;
@@ -4732,6 +4871,9 @@
             });
 
             isStartingJointTrainsByType = false;
+            
+            // 清空选择
+            selectedJointCities = [];
             
             if (startedCount === 0) {
                 showNotification('乘客数量不足，无法发车任何列车！');
@@ -8218,62 +8360,9 @@
                 gameState.runningJointTrains.forEach(jt => {
                     jt.remainingTime--;
                     if (jt.remainingTime <= 0) {
-                        const earnings = jt.earnings;
-                        const exp = Math.floor(jt.distance / 10);
-                        gameState.gold += earnings;
-                        gameState.totalEarnings += earnings;
-                        addExp(exp);
-                        
-                        let totalFragments = 0;
-                        jt.cities.forEach(cityName => {
-                            if (!gameState.cityFragments) gameState.cityFragments = {};
-                            if (!gameState.cityFragments[cityName]) {
-                                gameState.cityFragments[cityName] = 0;
-                            }
-                            gameState.cityFragments[cityName] += jt.fragments;
-                            totalFragments += jt.fragments;
-                        });
-                        
-                        // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
-                        let titleFragmentEarned = 0;
-                        const titleFragmentBonus = getVipTitleFragmentBonus();
-                        const baseChance = 0.01;
-                        const finalChance = baseChance + titleFragmentBonus / 100;
-                        jt.cities.forEach(cityName => {
-                            const cityLevel = gameState.cityLevels[cityName] || 1;
-                            if (cityLevel >= 20 && Math.random() < finalChance) {
-                                titleFragmentEarned++;
-                            }
-                        });
-                        if (titleFragmentEarned > 0) {
-                            if (gameState.titleFragments === undefined) gameState.titleFragments = 0;
-                            gameState.titleFragments += titleFragmentEarned;
-                        }
-                        
-                        // 添加到奖励队列
-                        addRewardToQueue(earnings, exp, totalFragments, 0);
-                        
-                        // 联运列车完成时计算每日点卷和改造石
-                        checkDailyPointsReset();
-                        const dailyPointsLimit = getDailyPointsLimit();
-                        if (gameState.dailyPointsEarned < dailyPointsLimit) {
-                            const points = Math.floor(Math.random() * 5) + 1;
-                            const canEarn = Math.min(points, dailyPointsLimit - gameState.dailyPointsEarned);
-                            gameState.points += canEarn;
-                            gameState.dailyPointsEarned += canEarn;
-                        }
-                        const dailyReformStonesLimit = getDailyReformStonesLimit();
-                        if (gameState.dailyReformStonesEarned < dailyReformStonesLimit && Math.random() < 0.05) {
-                            const stones = Math.floor(Math.random() * 5) + 1;
-                            const canEarnStones = Math.min(stones, dailyReformStonesLimit - gameState.dailyReformStonesEarned);
-                            if (gameState.reformStones === undefined) gameState.reformStones = 0;
-                            gameState.reformStones += canEarnStones;
-                            gameState.dailyReformStonesEarned += canEarnStones;
-                        }
-                        
                         const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
                         if (train) {
-                            // 检查所有城市是否有乘客
+                            // 先检查所有城市是否有乘客
                             let hasPassengers = true;
                             for (const cityName of jt.cities) {
                                 if (getCityPassengers(cityName) <= 0) {
@@ -8283,7 +8372,7 @@
                             }
                             
                             if (!hasPassengers) {
-                                // 没有乘客，停止该列车
+                                // 没有乘客，停止该列车（不发放奖励）
                                 const idx = gameState.runningJointTrains.indexOf(jt);
                                 if (idx > -1) {
                                     gameState.runningJointTrains.splice(idx, 1);
@@ -8308,6 +8397,61 @@
                             const passengerBonus = calculatePassengerBonus(totalPassengers);
                             jt.passengers = totalPassengers;
                             
+                            // 乘客足够，发放奖励
+                            const earnings = jt.earnings;
+                            const exp = Math.floor(jt.distance / 5);
+                            gameState.gold += earnings;
+                            gameState.totalEarnings += earnings;
+                            addExp(exp);
+                            
+                            let totalFragments = 0;
+                            jt.cities.forEach(cityName => {
+                                if (!gameState.cityFragments) gameState.cityFragments = {};
+                                if (!gameState.cityFragments[cityName]) {
+                                    gameState.cityFragments[cityName] = 0;
+                                }
+                                gameState.cityFragments[cityName] += jt.fragments;
+                                totalFragments += jt.fragments;
+                            });
+                            
+                            // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
+                            let titleFragmentEarned = 0;
+                            const titleFragmentBonus = getVipTitleFragmentBonus();
+                            const baseChance = 0.01;
+                            const finalChance = baseChance + titleFragmentBonus / 100;
+                            jt.cities.forEach(cityName => {
+                                const cityLevel = gameState.cityLevels[cityName] || 1;
+                                if (cityLevel >= 20 && Math.random() < finalChance) {
+                                    titleFragmentEarned++;
+                                }
+                            });
+                            if (titleFragmentEarned > 0) {
+                                if (gameState.titleFragments === undefined) gameState.titleFragments = 0;
+                                gameState.titleFragments += titleFragmentEarned;
+                            }
+                            
+                            // 添加到奖励队列
+                            addRewardToQueue(earnings, exp, totalFragments, 0);
+                            
+                            // 联运列车完成时计算每日点卷和改造石
+                            checkDailyPointsReset();
+                            const dailyPointsLimit = getDailyPointsLimit();
+                            if (gameState.dailyPointsEarned < dailyPointsLimit) {
+                                const points = Math.floor(Math.random() * 5) + 1;
+                                const canEarn = Math.min(points, dailyPointsLimit - gameState.dailyPointsEarned);
+                                gameState.points += canEarn;
+                                gameState.dailyPointsEarned += canEarn;
+                            }
+                            const dailyReformStonesLimit = getDailyReformStonesLimit();
+                            if (gameState.dailyReformStonesEarned < dailyReformStonesLimit && Math.random() < 0.05) {
+                                const stones = Math.floor(Math.random() * 5) + 1;
+                                const canEarnStones = Math.min(stones, dailyReformStonesLimit - gameState.dailyReformStonesEarned);
+                                if (gameState.reformStones === undefined) gameState.reformStones = 0;
+                                gameState.reformStones += canEarnStones;
+                                gameState.dailyReformStonesEarned += canEarnStones;
+                            }
+                            
+                            // 重新发车
                             jt.cities = jt.cities.reverse();
                             jt.totalTime = calculateTime(train, jt.distance);
                             jt.remainingTime = jt.totalTime;
@@ -8318,6 +8462,10 @@
                                 const level = gameState.cityLevels[cityName] || 1;
                                 cityLevelBonus += (level - 1) * 5;
                             });
+                            // 添加城市联动效益
+                            cityLevelBonus += calculateCitySynergyBonus(jt.cities);
+                            // 添加集体城市升级联动效益
+                            cityLevelBonus += calculateCollectiveCityBonus();
                             let tourismBonus = 0;
                             jt.cities.forEach(cityName => {
                                 tourismBonus += getTourismIncomeModifier(cityName) * 100;
@@ -8490,10 +8638,12 @@
                 
                 // 初始化城市乘客数据
                 if (!gameState.cityPassengers) gameState.cityPassengers = {};
+                const vipBonus = getVipLevel();
+                const playerLevel = gameState.level || 1;
                 gameState.unlockedCities.forEach(cityName => {
                     if (gameState.cityPassengers[cityName] === undefined) {
                         const level = gameState.cityLevels[cityName] || 1;
-                        gameState.cityPassengers[cityName] = 100 + (level - 1) * 200;
+                        gameState.cityPassengers[cityName] = 100 + (level - 1) * 200 + vipBonus * 5 + playerLevel * 10;
                     }
                 });
 
@@ -8556,9 +8706,46 @@
                             gameState.runningJointTrains.forEach(jt => {
                                 jt.remainingTime--;
                                 if (jt.remainingTime <= 0) {
+                                    // 检查所有城市是否有乘客
+                                    let hasPassengers = true;
+                                    for (const cityName of jt.cities) {
+                                        if (getCityPassengers(cityName) <= 0) {
+                                            hasPassengers = false;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (!hasPassengers) {
+                                        // 没有乘客，停止该列车
+                                        const idx = gameState.runningJointTrains.indexOf(jt);
+                                        if (idx > -1) {
+                                            gameState.runningJointTrains.splice(idx, 1);
+                                        }
+                                        return;
+                                    }
+                                    
+                                    // 计算乘客数量和增益
+                                    const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
+                                    let passengerBonus = 0;
+                                    if (train) {
+                                        const trainCapacity = getTrainCapacity(train);
+                                        let totalPassengers = 0;
+                                        let remainingCapacity = trainCapacity;
+                                        jt.cities.forEach(cityName => {
+                                            if (remainingCapacity <= 0) return;
+                                            const cityPassengers = getCityPassengers(cityName);
+                                            const takePassengers = Math.min(cityPassengers, remainingCapacity);
+                                            consumeCityPassengers(cityName, takePassengers);
+                                            totalPassengers += takePassengers;
+                                            remainingCapacity -= takePassengers;
+                                        });
+                                        passengerBonus = calculatePassengerBonus(totalPassengers);
+                                        jt.passengers = totalPassengers;
+                                    }
+                                    
                                     totalOfflineEarnings += jt.earnings;
                                     gameState.totalEarnings += jt.earnings;
-                                    totalOfflineExp += Math.floor(jt.distance / 10);
+                                    totalOfflineExp += Math.floor(jt.distance / 5);
                                     
                                     // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
                                     const titleFragmentBonus = getVipTitleFragmentBonus();
@@ -8580,7 +8767,6 @@
                                         gameState.cityFragments[cityName] += jt.fragments;
                                     });
                                     
-                                    const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
                                     if (train) {
                                         jt.cities = jt.cities.reverse();
                                         jt.totalTime = calculateTime(train, jt.distance);
@@ -8592,11 +8778,15 @@
                                             const level = gameState.cityLevels[cityName] || 1;
                                             cityLevelBonus += (level - 1) * 5;
                                         });
+                                        // 添加城市联动效益
+                                        cityLevelBonus += calculateCitySynergyBonus(jt.cities);
+                                        // 添加集体城市升级联动效益
+                                        cityLevelBonus += calculateCollectiveCityBonus();
                                         let tourismBonus = 0;
                                         jt.cities.forEach(cityName => {
                                             tourismBonus += getTourismIncomeModifier(cityName) * 100;
                                         });
-                                        const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
+                                        const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + passengerBonus) / 100;
                                         jt.earnings = Math.round(calculateEarnings(train, jt.distance) * totalBonus);
                                     }
                                 }
@@ -9143,9 +9333,46 @@
                             gameState.runningJointTrains.forEach(jt => {
                                 jt.remainingTime--;
                                 if (jt.remainingTime <= 0) {
+                                    // 检查所有城市是否有乘客
+                                    let hasPassengers = true;
+                                    for (const cityName of jt.cities) {
+                                        if (getCityPassengers(cityName) <= 0) {
+                                            hasPassengers = false;
+                                            break;
+                                        }
+                                    }
+                                    
+                                    if (!hasPassengers) {
+                                        // 没有乘客，停止该列车
+                                        const idx = gameState.runningJointTrains.indexOf(jt);
+                                        if (idx > -1) {
+                                            gameState.runningJointTrains.splice(idx, 1);
+                                        }
+                                        return;
+                                    }
+                                    
+                                    // 计算乘客数量和增益
+                                    const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
+                                    let passengerBonus = 0;
+                                    if (train) {
+                                        const trainCapacity = getTrainCapacity(train);
+                                        let totalPassengers = 0;
+                                        let remainingCapacity = trainCapacity;
+                                        jt.cities.forEach(cityName => {
+                                            if (remainingCapacity <= 0) return;
+                                            const cityPassengers = getCityPassengers(cityName);
+                                            const takePassengers = Math.min(cityPassengers, remainingCapacity);
+                                            consumeCityPassengers(cityName, takePassengers);
+                                            totalPassengers += takePassengers;
+                                            remainingCapacity -= takePassengers;
+                                        });
+                                        passengerBonus = calculatePassengerBonus(totalPassengers);
+                                        jt.passengers = totalPassengers;
+                                    }
+                                    
                                     totalEarnings += jt.earnings;
                                     gameState.totalEarnings += jt.earnings;
-                                    totalExp += Math.floor(jt.distance / 10);
+                                    totalExp += Math.floor(jt.distance / 5);
                                     
                                     // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
                                     const titleFragmentBonus = getVipTitleFragmentBonus();
@@ -9167,23 +9394,26 @@
                                         gameState.cityFragments[cityName] += jt.fragments;
                                     });
                                     
-                                    const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
                                     if (train) {
                                         jt.cities = jt.cities.reverse();
                                         jt.totalTime = calculateTime(train, jt.distance);
                                         jt.remainingTime = jt.totalTime;
                                         
                                         const distanceBonus = calculateJointDistanceBonus(jt.distance);
-                                        let cityLevelBonus = 1;
+                                        let cityLevelBonus = 0;
                                         jt.cities.forEach(cityName => {
                                             const level = gameState.cityLevels[cityName] || 1;
                                             cityLevelBonus += (level - 1) * 5;
                                         });
-                                        let tourismBonus = 1;
+                                        // 添加城市联动效益
+                                        cityLevelBonus += calculateCitySynergyBonus(jt.cities);
+                                        // 添加集体城市升级联动效益
+                                        cityLevelBonus += calculateCollectiveCityBonus();
+                                        let tourismBonus = 0;
                                         jt.cities.forEach(cityName => {
                                             tourismBonus += getTourismIncomeModifier(cityName) * 100;
                                         });
-                                        const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus) / 100;
+                                        const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + passengerBonus) / 100;
                                         jt.earnings = Math.round(calculateEarnings(train, jt.distance) * totalBonus);
                                     }
                                 }
