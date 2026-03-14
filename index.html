@@ -2214,7 +2214,11 @@
         }
 
         function calculateTime(train, distance) {
-            let speed = train.speed;
+            if (!train) {
+                console.error('calculateTime: train is undefined!');
+                return 60; // 返回默认值
+            }
+            let speed = train.speed || 80;
             const reformLevel = train.reformLevel || 0;
             speed *= (1 + reformLevel * 0.01);
             gameState.employees.filter(e => e.trainId === train.id).forEach(emp => {
@@ -4504,6 +4508,19 @@
             }
             
             availableTrains.slice(0, maxToAdd).forEach(train => {
+                // 检查每个城市的在途车辆数量是否已满（实时检查）
+                let canStart = true;
+                for (const cityName of selectedJointCities) {
+                    const runningCount = cityRunningTrains[cityName] || 0;
+                    if (runningCount >= 10) {
+                        canStart = false;
+                        break;
+                    }
+                }
+                if (!canStart) {
+                    return; // 跳过这辆火车
+                }
+                
                 const trainCapacity = getTrainCapacity(train);
                 let trainPassengers = 0;
                 let remainingCapacity = trainCapacity;
@@ -4549,6 +4566,11 @@
                 gameState.runningJointTrains.push(jointTrain);
                 totalPassengersAll += trainPassengers;
                 startedCount++;
+                
+                // 更新城市在途车辆数量
+                selectedJointCities.forEach(cityName => {
+                    cityRunningTrains[cityName] = (cityRunningTrains[cityName] || 0) + 1;
+                });
             });
             
             // 消耗乘客
@@ -4687,6 +4709,19 @@
             }
             
             availableTrains.slice(0, maxToAdd).forEach(train => {
+                // 检查每个城市的在途车辆数量是否已满（实时检查）
+                let canStart = true;
+                for (const cityName of selectedJointCities) {
+                    const runningCount = cityRunningTrains[cityName] || 0;
+                    if (runningCount >= 10) {
+                        canStart = false;
+                        break;
+                    }
+                }
+                if (!canStart) {
+                    return; // 跳过这辆火车
+                }
+                
                 const trainCapacity = getTrainCapacity(train);
                 let trainPassengers = 0;
                 let remainingCapacity = trainCapacity;
@@ -4732,6 +4767,11 @@
                 gameState.runningJointTrains.push(jointTrain);
                 totalPassengersAll += trainPassengers;
                 startedCount++;
+                
+                // 更新城市在途车辆数量
+                selectedJointCities.forEach(cityName => {
+                    cityRunningTrains[cityName] = (cityRunningTrains[cityName] || 0) + 1;
+                });
             });
             
             // 消耗乘客
@@ -8509,6 +8549,53 @@
             }
         }
 
+        // ==================== 存档加密系统 ====================
+        const SAVE_KEY = 'RailroadTycoon2026';
+        
+        function encryptData(data) {
+            const jsonStr = JSON.stringify(data);
+            const timestamp = Date.now();
+            const checksum = btoa(String(timestamp)).slice(0, 8);
+            const combined = checksum + btoa(unescape(encodeURIComponent(jsonStr)));
+            let encrypted = '';
+            for (let i = 0; i < combined.length; i++) {
+                const charCode = combined.charCodeAt(i);
+                const keyChar = SAVE_KEY.charCodeAt(i % SAVE_KEY.length);
+                encrypted += String.fromCharCode(charCode ^ keyChar);
+            }
+            return btoa(encrypted);
+        }
+        
+        function decryptData(encryptedStr) {
+            try {
+                const decoded = atob(encryptedStr);
+                let decrypted = '';
+                for (let i = 0; i < decoded.length; i++) {
+                    const charCode = decoded.charCodeAt(i);
+                    const keyChar = SAVE_KEY.charCodeAt(i % SAVE_KEY.length);
+                    decrypted += String.fromCharCode(charCode ^ keyChar);
+                }
+                const checksum = decrypted.slice(0, 8);
+                const jsonData = decrypted.slice(8);
+                const jsonStr = decodeURIComponent(escape(atob(jsonData)));
+                return JSON.parse(jsonStr);
+            } catch (e) {
+                console.error('解密失败:', e);
+                return null;
+            }
+        }
+        
+        function validateGameData(data) {
+            if (!data || typeof data !== 'object') return false;
+            if (data.gold !== undefined && (data.gold < 0 || data.gold > 1e20)) return false;
+            if (data.level !== undefined && (data.level < 1 || data.level > 100000)) return false;
+            if (data.points !== undefined && (data.points < 0 || data.points > 1e15)) return false;
+            if (data.reformStones !== undefined && (data.reformStones < 0 || data.reformStones > 1e12)) return false;
+            if (data.vipExp !== undefined && data.vipExp < 0) return false;
+            if (data.ownedTrains && data.ownedTrains.length > 10000) return false;
+            return true;
+        }
+
         // ==================== 存档系统 ====================
         function saveGame() {
             // 数据校验：检测异常数值
@@ -8524,14 +8611,30 @@
                 showNotification('检测到异常数据，已重置改造石！');
             }
             gameState.lastSaveTime = new Date().toISOString();
-            localStorage.setItem('railroadTycoon', JSON.stringify(gameState));
+            const encryptedData = encryptData(gameState);
+            localStorage.setItem('railroadTycoon', encryptedData);
             document.getElementById('lastSave').textContent = '上次保存: ' + new Date().toLocaleTimeString();
         }
 
         function loadGame() {
             const saved = localStorage.getItem('railroadTycoon');
             if (saved) {
-                const loadedState = JSON.parse(saved);
+                let loadedState = decryptData(saved);
+                if (!loadedState) {
+                    try {
+                        loadedState = JSON.parse(saved);
+                        console.log('检测到旧版存档，正在迁移...');
+                    } catch (e) {
+                        console.error('存档解析失败');
+                        return;
+                    }
+                }
+                if (!validateGameData(loadedState)) {
+                    showNotification('检测到异常存档数据，部分数据已重置！');
+                    loadedState.gold = Math.min(loadedState.gold || 0, 1e20);
+                    loadedState.level = Math.max(1, Math.min(loadedState.level || 1, 100000));
+                    loadedState.points = Math.min(loadedState.points || 0, 1e15);
+                }
                 gameState = { ...gameState, ...loadedState };
                 if (!gameState.unlockedCities) gameState.unlockedCities = ["广州", "深圳"];
                 // 兼容旧存档：incomeBonus 转换为 expBonus
@@ -8644,7 +8747,9 @@
                             });
                             
                             // 计算联运火车离线收益
-                            gameState.runningJointTrains.forEach(jt => {
+                            // 先收集需要删除的火车索引
+                            const jointTrainsToRemove = [];
+                            gameState.runningJointTrains.forEach((jt, index) => {
                                 jt.remainingTime--;
                                 if (jt.remainingTime <= 0) {
                                     // 检查所有城市乘客总数量是否足够（与发车时逻辑一致）
@@ -8655,11 +8760,8 @@
                                     }
                                     
                                     if (totalPassengersAvailable <= 0) {
-                                        // 没有乘客，停止该列车
-                                        const idx = gameState.runningJointTrains.indexOf(jt);
-                                        if (idx > -1) {
-                                            gameState.runningJointTrains.splice(idx, 1);
-                                        }
+                                        // 没有乘客，标记删除该列车
+                                        jointTrainsToRemove.push(index);
                                         return;
                                     }
                                     
@@ -8706,8 +8808,8 @@
                                             comfortFragmentsEarned += 12 + extraComfortFragments;
                                         }
                                     });
-                                    if (comfortFragmentsEarned > 0 && train) {
-                                        const trainType = train.type || 'normal';
+                                    if (comfortFragmentsEarned > 0 && trainInfo) {
+                                        const trainType = trainInfo.type || 'normal';
                                         if (!gameState.comfortFragments) gameState.comfortFragments = {};
                                         if (!gameState.comfortFragments[trainType]) gameState.comfortFragments[trainType] = 0;
                                         gameState.comfortFragments[trainType] += comfortFragmentsEarned;
@@ -8721,9 +8823,9 @@
                                         gameState.cityFragments[cityName] += jt.fragments;
                                     });
                                     
-                                    if (train) {
-                                        jt.cities = jt.cities.reverse();
-                                        jt.totalTime = calculateTime(train, jt.distance);
+                                    if (trainInfo) {
+                                        jt.cities = [...jt.cities].reverse();
+                                        jt.totalTime = calculateTime(trainInfo, jt.distance);
                                         jt.remainingTime = jt.totalTime;
                                         
                                         const distanceBonus = calculateJointDistanceBonus(jt.distance);
@@ -8741,10 +8843,15 @@
                                             tourismBonus += getTourismIncomeModifier(cityName) * 100;
                                         });
                                         const totalBonus = (100 + distanceBonus + cityLevelBonus + tourismBonus + passengerBonus) / 100;
-                                        jt.earnings = Math.round(calculateEarnings(train, jt.distance) * totalBonus);
+                                        jt.earnings = Math.round(calculateEarnings(trainInfo, jt.distance) * totalBonus);
                                     }
                                 }
                             });
+                            
+                            // 删除没有乘客的火车（从后往前删除，避免索引问题）
+                            for (let i = jointTrainsToRemove.length - 1; i >= 0; i--) {
+                                gameState.runningJointTrains.splice(jointTrainsToRemove[i], 1);
+                            }
                             
                             // 计算特产列车离线收益
                             if (gameState.runningSpecialTrains) {
@@ -9745,5 +9852,6 @@ var _hmt = _hmt || [];
   s.parentNode.insertBefore(hm, s);
 })();
 </script>    </div>
+
 </body>
 </html>
