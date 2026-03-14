@@ -1436,6 +1436,14 @@
                     <div class="panel-title">📋 更新说明</div>
                     <div class="changelog-content">
                         <div class="changelog-version">
+                            <div class="changelog-date">3.14 铁轨帝国更新内容</div>
+                            <ul class="changelog-list">
+                                <li>优化联运玩法，乘客不足时也不会停运，但收益只有10%</li>
+                                <li>优化VIP权益，VIP等级大于1500时享有更多特权</li>
+                                <li>优化离线计算，乘客不足也会获得一定比例收益</li>
+                            </ul>
+                        </div>
+                        <div class="changelog-version">
                             <div class="changelog-date">3.12 铁轨帝国更新内容</div>
                             <ul class="changelog-list">
                                 <li>新增特产玩法—暂时不能玩</li>
@@ -3870,6 +3878,10 @@
                 });
             }
             
+            // VIP等级大于1500时不受城市在途车辆上限限制
+            const vipLevelForRender = getVipLevel();
+            const vipNoLimit = vipLevelForRender > 1500;
+            
             container.innerHTML = unlockedCities.map(cityName => {
                 const city = getCityByName(cityName);
                 if (!city) return '';
@@ -3879,7 +3891,7 @@
                 const maxPassengers = getMaxCityPassengers(cityName);
                 const hasNoPassengers = passengers <= 0;
                 const runningCount = cityRunningTrains[cityName] || 0;
-                const isFull = runningCount >= 10;
+                const isFull = !vipNoLimit && runningCount >= 10;
                 
                 const seasonKey = getCityTourismSeason(cityName);
                 const season = tourismSeasons[seasonKey];
@@ -3888,7 +3900,7 @@
                 
                 return `
                     <div class="joint-city-item ${isSelected ? 'selected' : ''} ${hasNoPassengers ? 'no-passengers' : ''}" onclick="${hasNoPassengers || isFull ? '' : `toggleJointCity('${cityName}')`}" style="padding:10px;background:${hasNoPassengers ? 'var(--bg-tertiary)' : isSelected ? 'rgba(59,130,246,0.15)' : 'var(--bg-secondary)'};border:1px solid ${hasNoPassengers ? 'var(--border)' : isSelected ? 'var(--accent-primary)' : 'var(--border)'};border-radius:4px;cursor:${hasNoPassengers || isFull ? 'not-allowed' : 'pointer'};transition:all 0.2s;text-align:center;${hasNoPassengers || isFull ? 'opacity:0.6;' : ''}position:relative;">
-                        ${runningCount > 0 ? `<div style="position:absolute;top:2px;right:2px;background:${isFull ? 'var(--accent-danger)' : 'var(--accent-success)'};color:#fff;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600;">🚂 ${runningCount}/10</div>` : ''}
+                        ${runningCount > 0 ? `<div style="position:absolute;top:2px;right:2px;background:${isFull ? 'var(--accent-danger)' : 'var(--accent-success)'};color:#fff;font-size:8px;padding:1px 4px;border-radius:3px;font-weight:600;">🚂 ${runningCount}${vipNoLimit ? '' : '/10'}</div>` : ''}
                         <div style="font-size:12px;color:var(--fg-primary);margin-bottom:4px;">${cityName}</div>
                         <div style="font-size:10px;color:var(--accent-primary);">Lv.${level}</div>
                         <div style="font-size:9px;color:${hasNoPassengers ? 'var(--accent-danger)' : 'var(--accent-warning)'};margin-top:2px;">👥 ${passengers}/${maxPassengers}</div>
@@ -3909,19 +3921,22 @@
                 return;
             }
             
-            // 检查城市在途车辆是否已满
-            const cityRunningTrains = {};
-            if (gameState.runningJointTrains) {
-                gameState.runningJointTrains.forEach(jt => {
-                    jt.cities.forEach(cn => {
-                        cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
+            // 检查城市在途车辆是否已满（VIP等级大于1500时不受限制）
+            const vipLevelForCityLimit = getVipLevel();
+            if (vipLevelForCityLimit <= 1500) {
+                const cityRunningTrains = {};
+                if (gameState.runningJointTrains) {
+                    gameState.runningJointTrains.forEach(jt => {
+                        jt.cities.forEach(cn => {
+                            cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
+                        });
                     });
-                });
-            }
-            const runningCount = cityRunningTrains[cityName] || 0;
-            if (runningCount >= 10) {
-                showNotification(`${cityName}在途车辆已达上限（10辆），无法选择！`);
-                return;
+                }
+                const runningCount = cityRunningTrains[cityName] || 0;
+                if (runningCount >= 10) {
+                    showNotification(`${cityName}在途车辆已达上限（10辆），无法选择！`);
+                    return;
+                }
             }
             
             const index = selectedJointCities.indexOf(cityName);
@@ -4427,20 +4442,23 @@
                 }
             }
             
-            // 检查每个城市的在途车辆数量是否已满
-            const cityRunningTrains = {};
-            if (gameState.runningJointTrains) {
-                gameState.runningJointTrains.forEach(jt => {
-                    jt.cities.forEach(cn => {
-                        cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
+            // 检查每个城市的在途车辆数量是否已满（VIP等级大于1500时不受限制）
+            const vipLevelForStartAll = getVipLevel();
+            if (vipLevelForStartAll <= 1500) {
+                const cityRunningTrains = {};
+                if (gameState.runningJointTrains) {
+                    gameState.runningJointTrains.forEach(jt => {
+                        jt.cities.forEach(cn => {
+                            cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
+                        });
                     });
-                });
-            }
-            for (const cityName of selectedJointCities) {
-                const runningCount = cityRunningTrains[cityName] || 0;
-                if (runningCount >= 10) {
-                    showNotification(`${cityName}在途车辆已达上限（10辆），无法发车！`);
-                    return;
+                }
+                for (const cityName of selectedJointCities) {
+                    const runningCount = cityRunningTrains[cityName] || 0;
+                    if (runningCount >= 10) {
+                        showNotification(`${cityName}在途车辆已达上限（10辆），无法发车！`);
+                        return;
+                    }
                 }
             }
             
@@ -4508,13 +4526,15 @@
             }
             
             availableTrains.slice(0, maxToAdd).forEach(train => {
-                // 检查每个城市的在途车辆数量是否已满（实时检查）
+                // 检查每个城市的在途车辆数量是否已满（VIP等级大于1500时不受限制）
                 let canStart = true;
-                for (const cityName of selectedJointCities) {
-                    const runningCount = cityRunningTrains[cityName] || 0;
-                    if (runningCount >= 10) {
-                        canStart = false;
-                        break;
+                if (vipLevelForStartAll <= 1500) {
+                    for (const cityName of selectedJointCities) {
+                        const runningCount = cityRunningTrains[cityName] || 0;
+                        if (runningCount >= 10) {
+                            canStart = false;
+                            break;
+                        }
                     }
                 }
                 if (!canStart) {
@@ -4620,20 +4640,23 @@
                 }
             }
             
-            // 检查每个城市的在途车辆数量是否已满
-            const cityRunningTrains = {};
-            if (gameState.runningJointTrains) {
-                gameState.runningJointTrains.forEach(jt => {
-                    jt.cities.forEach(cn => {
-                        cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
+            // 检查每个城市的在途车辆数量是否已满（VIP等级大于1500时不受限制）
+            const vipLevelForStartType = getVipLevel();
+            if (vipLevelForStartType <= 1500) {
+                const cityRunningTrains = {};
+                if (gameState.runningJointTrains) {
+                    gameState.runningJointTrains.forEach(jt => {
+                        jt.cities.forEach(cn => {
+                            cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
+                        });
                     });
-                });
-            }
-            for (const cityName of selectedJointCities) {
-                const runningCount = cityRunningTrains[cityName] || 0;
-                if (runningCount >= 10) {
-                    showNotification(`${cityName}在途车辆已达上限（10辆），无法发车！`);
-                    return;
+                }
+                for (const cityName of selectedJointCities) {
+                    const runningCount = cityRunningTrains[cityName] || 0;
+                    if (runningCount >= 10) {
+                        showNotification(`${cityName}在途车辆已达上限（10辆），无法发车！`);
+                        return;
+                    }
                 }
             }
             
@@ -4709,13 +4732,15 @@
             }
             
             availableTrains.slice(0, maxToAdd).forEach(train => {
-                // 检查每个城市的在途车辆数量是否已满（实时检查）
+                // 检查每个城市的在途车辆数量是否已满（VIP等级大于1500时不受限制）
                 let canStart = true;
-                for (const cityName of selectedJointCities) {
-                    const runningCount = cityRunningTrains[cityName] || 0;
-                    if (runningCount >= 10) {
-                        canStart = false;
-                        break;
+                if (vipLevelForStartType <= 1500) {
+                    for (const cityName of selectedJointCities) {
+                        const runningCount = cityRunningTrains[cityName] || 0;
+                        if (runningCount >= 10) {
+                            canStart = false;
+                            break;
+                        }
                     }
                 }
                 if (!canStart) {
@@ -8329,41 +8354,47 @@
                     if (jt.remainingTime <= 0) {
                         const train = gameState.ownedTrains.find(t => t.id === jt.trainId);
                         if (train) {
-                            // 先检查所有城市乘客总数量是否足够（与发车时逻辑一致）
                             const trainCapacity = getTrainCapacity(train);
                             let totalPassengersAvailable = 0;
                             for (const cityName of jt.cities) {
                                 totalPassengersAvailable += getCityPassengers(cityName);
                             }
                             
-                            if (totalPassengersAvailable <= 0) {
-                                // 没有乘客，停止该列车（不发放奖励）
-                                const idx = gameState.runningJointTrains.indexOf(jt);
-                                if (idx > -1) {
-                                    gameState.runningJointTrains.splice(idx, 1);
-                                    showNotification(`${jt.trainName}因所有城市无乘客已自动停运`);
-                                }
-                                return;
-                            }
-                            
-                            // 计算乘客数量和增益（整个行程总共只能装载trainCapacity数量的乘客）
+                            // 计算乘客数量和增益
                             let totalPassengers = 0;
                             let remainingCapacity = trainCapacity;
-                            jt.cities.forEach(cityName => {
-                                if (remainingCapacity <= 0) return;
-                                const cityPassengers = getCityPassengers(cityName);
-                                const takePassengers = Math.min(cityPassengers, remainingCapacity);
-                                consumeCityPassengers(cityName, takePassengers);
-                                totalPassengers += takePassengers;
-                                remainingCapacity -= takePassengers;
-                            });
+                            let earningsMultiplier = 1; // 默认100%收益
+                            
+                            // VIP等级大于1500时，不受乘客数量不足影响
+                            const vipLevelForOnline = getVipLevel();
+                            const vipOnlineImmunity = vipLevelForOnline > 1500;
+                            
+                            if (totalPassengersAvailable <= 0) {
+                                if (vipOnlineImmunity) {
+                                    // VIP>1500：满载收益
+                                    totalPassengers = trainCapacity;
+                                } else {
+                                    // 普通玩家：0乘客时收益只有10%，但不停运
+                                    earningsMultiplier = 0.1;
+                                    totalPassengers = 0;
+                                }
+                            } else {
+                                jt.cities.forEach(cityName => {
+                                    if (remainingCapacity <= 0) return;
+                                    const cityPassengers = getCityPassengers(cityName);
+                                    const takePassengers = Math.min(cityPassengers, remainingCapacity);
+                                    consumeCityPassengers(cityName, takePassengers);
+                                    totalPassengers += takePassengers;
+                                    remainingCapacity -= takePassengers;
+                                });
+                            }
                             
                             const passengerBonus = calculatePassengerBonus(totalPassengers);
                             jt.passengers = totalPassengers;
                             
-                            // 乘客足够，发放奖励
-                            const earnings = jt.earnings;
-                            const exp = Math.floor(jt.distance / 5);
+                            // 发放奖励（根据收益倍率）
+                            const earnings = Math.round(jt.earnings * earningsMultiplier);
+                            const exp = Math.floor(jt.distance / 5 * earningsMultiplier);
                             gameState.gold += earnings;
                             gameState.totalEarnings += earnings;
                             addExp(exp);
@@ -8749,42 +8780,54 @@
                             // 计算联运火车离线收益
                             // 先收集需要删除的火车索引
                             const jointTrainsToRemove = [];
+                            
                             gameState.runningJointTrains.forEach((jt, index) => {
                                 jt.remainingTime--;
                                 if (jt.remainingTime <= 0) {
-                                    // 检查所有城市乘客总数量是否足够（与发车时逻辑一致）
                                     const trainInfo = gameState.ownedTrains.find(t => t.id === jt.trainId);
                                     let totalPassengersAvailable = 0;
                                     for (const cityName of jt.cities) {
                                         totalPassengersAvailable += getCityPassengers(cityName);
                                     }
                                     
-                                    if (totalPassengersAvailable <= 0) {
-                                        // 没有乘客，标记删除该列车
-                                        jointTrainsToRemove.push(index);
-                                        return;
-                                    }
-                                    
                                     // 计算乘客数量和增益
                                     let passengerBonus = 0;
+                                    let earningsMultiplier = 1; // 默认100%收益
+                                    
+                                    // VIP等级大于1500时，不受乘客数量不足影响
+                                    const vipLevelForOffline = getVipLevel();
+                                    const vipOfflineImmunity = vipLevelForOffline > 1500;
+                                    
                                     if (trainInfo) {
                                         const trainCapacity = getTrainCapacity(trainInfo);
                                         let totalPassengers = 0;
                                         let remainingCapacity = trainCapacity;
-                                        jt.cities.forEach(cityName => {
-                                            if (remainingCapacity <= 0) return;
-                                            const cityPassengers = getCityPassengers(cityName);
-                                            const takePassengers = Math.min(cityPassengers, remainingCapacity);
-                                            totalPassengers += takePassengers;
-                                            remainingCapacity -= takePassengers;
-                                        });
+                                        
+                                        if (totalPassengersAvailable <= 0) {
+                                            if (vipOfflineImmunity) {
+                                                // VIP>1500：满载收益
+                                                totalPassengers = trainCapacity;
+                                            } else {
+                                                // 普通玩家：0乘客时收益只有10%，但不停运
+                                                earningsMultiplier = 0.1;
+                                                totalPassengers = 0;
+                                            }
+                                        } else {
+                                            jt.cities.forEach(cityName => {
+                                                if (remainingCapacity <= 0) return;
+                                                const cityPassengers = getCityPassengers(cityName);
+                                                const takePassengers = Math.min(cityPassengers, remainingCapacity);
+                                                totalPassengers += takePassengers;
+                                                remainingCapacity -= takePassengers;
+                                            });
+                                        }
                                         passengerBonus = calculatePassengerBonus(totalPassengers);
                                         jt.passengers = totalPassengers;
                                     }
                                     
-                                    totalOfflineEarnings += jt.earnings;
-                                    gameState.totalEarnings += jt.earnings;
-                                    totalOfflineExp += Math.floor(jt.distance / 5);
+                                    totalOfflineEarnings += Math.round(jt.earnings * earningsMultiplier);
+                                    gameState.totalEarnings += Math.round(jt.earnings * earningsMultiplier);
+                                    totalOfflineExp += Math.floor(jt.distance / 5 * earningsMultiplier);
                                     
                                     // 城市20级后有概率获得称号碎片（VIP每100级增加1%，最大30%）
                                     const titleFragmentBonus = getVipTitleFragmentBonus();
@@ -8956,8 +8999,8 @@
                 // 立即保存，确保lastOnlineTime被持久化
                 saveGame();
                 
-                // 检查是否需要显示3.10更新提醒（仅显示一次，独立于每日登录检查）
-                const hasShownUpdateNotice = localStorage.getItem('shownUpdateNotice_3_10');
+                // 检查是否需要显示3.14更新提醒（仅显示一次，独立于每日登录检查）
+                const hasShownUpdateNotice = localStorage.getItem('shownUpdateNotice_3_14');
                 if (!hasShownUpdateNotice) {
                     setTimeout(() => {
                         showUpdateNoticeModal();
@@ -8982,20 +9025,18 @@
             modal.className = 'modal show';
             modal.id = 'updateNoticeModal';
             modal.innerHTML = `
-                <div class="modal-content" style="max-width:450px;">
+                <div class="modal-content" style="max-width:500px;">
                     <div style="text-align:center;margin-bottom:20px;">
-                        <div style="font-size:48px;margin-bottom:15px;">⚠️</div>
-                        <div style="font-size:18px;font-weight:600;color:var(--accent-danger);margin-bottom:10px;">重要提醒</div>
+                        <div style="font-size:48px;margin-bottom:15px;">🚂</div>
+                        <div style="font-size:18px;font-weight:600;color:var(--accent-primary);margin-bottom:10px;">3.14 更新说明</div>
                     </div>
-                    <div style="background:rgba(239,68,68,0.1);padding:15px;border-radius:8px;margin-bottom:15px;font-size:13px;color:var(--fg-primary);line-height:1.8;border:1px solid rgba(239,68,68,0.3);">
-                        <div style="font-weight:600;color:var(--accent-danger);margin-bottom:10px;">📢 3.10版本更新说明</div>
-                        因3.10更新了在途车次检测功能，请各位玩家按以下步骤操作：
-                        <div style="margin-top:10px;padding:10px;background:var(--bg-tertiary);border-radius:6px;">
-                            <div style="margin-bottom:5px;">1️⃣ 将所有在途的火车手动点击取消</div>
-                            <div style="margin-bottom:5px;">2️⃣ 点击"保存游戏"按钮</div>
-                            <div style="margin-bottom:5px;">3️⃣ 关闭游戏后重新打开</div>
+                    <div style="background:rgba(59,130,246,0.1);padding:15px;border-radius:8px;margin-bottom:15px;font-size:13px;color:var(--fg-primary);line-height:2;border:1px solid rgba(59,130,246,0.3);">
+                        <div style="font-weight:600;color:var(--accent-primary);margin-bottom:10px;">📢 铁轨帝国 3.14 更新内容</div>
+                        <div style="padding:10px;background:var(--bg-tertiary);border-radius:6px;">
+                            <div style="margin-bottom:8px;">1️⃣ 优化联运玩法，乘客不足时也不会停运，但收益只有10%</div>
+                            <div style="margin-bottom:8px;">2️⃣ 优化VIP权益，VIP等级大于1500时享有更多特权</div>
+                            <div style="margin-bottom:8px;">3️⃣ 优化离线计算，乘客不足也会获得一定比例收益</div>
                         </div>
-                        <div style="margin-top:10px;color:var(--accent-warning);">即可解决顶部状态栏金币、经验及离线经验显示不正常的问题。</div>
                     </div>
                     <button class="btn btn-primary" onclick="closeUpdateNoticeModal()" style="width:100%;">我知道了，不再显示</button>
                 </div>
@@ -9006,7 +9047,7 @@
         function closeUpdateNoticeModal() {
             const modal = document.getElementById('updateNoticeModal');
             if (modal) modal.remove();
-            localStorage.setItem('shownUpdateNotice_3_10', 'true');
+            localStorage.setItem('shownUpdateNotice_3_14', 'true');
             // 显示正常的欢迎弹窗
             showWelcomeModal();
         }
