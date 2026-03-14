@@ -4444,15 +4444,15 @@
             
             // 检查每个城市的在途车辆数量是否已满（VIP等级大于1500时不受限制）
             const vipLevelForStartAll = getVipLevel();
-            if (vipLevelForStartAll <= 1500) {
-                const cityRunningTrains = {};
-                if (gameState.runningJointTrains) {
-                    gameState.runningJointTrains.forEach(jt => {
-                        jt.cities.forEach(cn => {
-                            cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
-                        });
+            const cityRunningTrains = {};
+            if (gameState.runningJointTrains) {
+                gameState.runningJointTrains.forEach(jt => {
+                    jt.cities.forEach(cn => {
+                        cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
                     });
-                }
+                });
+            }
+            if (vipLevelForStartAll <= 1500) {
                 for (const cityName of selectedJointCities) {
                     const runningCount = cityRunningTrains[cityName] || 0;
                     if (runningCount >= 10) {
@@ -4642,15 +4642,15 @@
             
             // 检查每个城市的在途车辆数量是否已满（VIP等级大于1500时不受限制）
             const vipLevelForStartType = getVipLevel();
-            if (vipLevelForStartType <= 1500) {
-                const cityRunningTrains = {};
-                if (gameState.runningJointTrains) {
-                    gameState.runningJointTrains.forEach(jt => {
-                        jt.cities.forEach(cn => {
-                            cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
-                        });
+            const cityRunningTrains = {};
+            if (gameState.runningJointTrains) {
+                gameState.runningJointTrains.forEach(jt => {
+                    jt.cities.forEach(cn => {
+                        cityRunningTrains[cn] = (cityRunningTrains[cn] || 0) + 1;
                     });
-                }
+                });
+            }
+            if (vipLevelForStartType <= 1500) {
                 for (const cityName of selectedJointCities) {
                     const runningCount = cityRunningTrains[cityName] || 0;
                     if (runningCount >= 10) {
